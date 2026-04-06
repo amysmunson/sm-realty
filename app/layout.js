@@ -2,6 +2,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Link from "next/link";
 import Menu from "./components/Menu";
+import Footer from "./components/Footer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -24,12 +25,18 @@ export default function RootLayout({ children }) {
       lang="en"
       className={`h-full`}
     >
-      <body className="h-full">
-        <header className="flex justify-between items-center p-4 border-b border-gray-200">
-          <Link href="/">Amelia Huimin Shen</Link>
+      <body className="h-full min-h-screen flex flex-col">
+        <header className="flex justify-between items-center p-4 bg-blue-950 border-b border-blue-950">
+          <Link className="text-white text-xl font-medium" href="/">
+            Amelia Huimin Shen
+          </Link>
           <Menu />
         </header>
-        {children}
+        {/* Grow to keep footer at the bottom */}
+        <main className="grow">
+          {children}
+        </main>
+        <Footer />
       </body>
     </html>
   );

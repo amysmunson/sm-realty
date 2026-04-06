@@ -9,47 +9,137 @@ export const metadata = {
   description: "Broker Amelia Huimin Shen's Home Page",
 };
 
+// Helper to grab the main image for this property
+function getPropertyPhoto(property, photo_data) {
+    // Filter photos on property id
+    const propertyPhotos = photo_data?.filter(p => p.p_id === property.p_id) || [];
+
+    // Find lowest order photo, don't care which photo you return if all have the same order
+    // Insertion rules should ensure only one of each order per property
+    if (propertyPhotos.length > 0) {
+      propertyPhotos.sort((a, b) => a.order - b.order);
+      return propertyPhotos[0].file_name;
+    }
+    // No Photos for this Property
+    else{
+      return null;
+    }
+}
+
 export default async function Home() {
-  // grab subabase data
-  const { data: property_data, error } = await supabase
+  // grab subabase data for properties and photos
+  const { data: property_data, error: property_error } = await supabase
     .from('properties')
     .select('*')
-    // .where()
 
-  if (error) {
-    console.error(error)
+  if (property_error) {
+    console.error(property_error)
   }
 
+  // extract property ids
+  const propertyIds = property_data.map(p => p.p_id).join(',');
+
+  const { data: photo_data, error: photo_error } = await supabase
+    .from('photos')
+    .select('*')
+    // If not pulling homepage photos
+    // .in('p_id', property_data.map(p => p.p_id))
+    // .eq('order', 1)
+    // 
+    // If you are pulling homepage photos
+    .or(
+      `and(p_id.in.(${propertyIds}),order.eq.1), homepage.eq.true`
+    );
+
+  if (photo_error) {
+    console.error(photo_error)
+  }
+
+  const homepagePhotos = (photo_data.filter(p => p.homepage === true)).map(p => p.file_name);
+
   console.log(property_data)
+  // console.log(photo_data)
+  // console.log("Homepage Photos:", homepagePhotos)
 
   return (
     <div>
       <main>
-        <div className="relative w-full h-125">
+        <div className="relative w-full h-150 mb-10">
           <Image
-            src="/placeholder_home_image.jpg"
+            src={homepagePhotos[0] || "/placeholder_home_image2.jpg"}
             alt="Home Background"
             fill
             className="object-cover"
             loading="eager"
           />
-          <div className="absolute w-full top-1/2 -translate-y-1/2 h-32 bg-black opacity-50" />
+          {/* <div className="absolute w-full top-1/2 -translate-y-1/2 h-32 bg-black opacity-50" /> */}
+          <div className="absolute w-full h-full bg-blue-950 opacity-60" />
           <div className="absolute inset-0 flex items-center justify-center">
             <h1 className="text-white text-4xl font-bold p-4 rounded">
               Amelia Shen
             </h1>
           </div>
         </div>
-        <h1>About</h1>
-        <p>We help clients rent and sell properties.</p>
-        <h1>Properties</h1>
-          <ul>
-              {property_data?.map(property => (
-                <li key={property.p_id}>
-                  <Link href={`/properties/${property.p_id}`}>{property.address}</Link>
-                </li>
-              ))}
-          </ul>
+        <div className="container mx-auto px-4 justify-center text-center">
+          <h1 className="text-2xl font-bold m-4">
+            <Link href="/properties" className="text-black">
+              Properties
+            </Link>
+          </h1>
+            {/* grid of properties, card style */}
+            <div className="grid grid-cols-4 gap-4">
+                {property_data?.map(property => {
+                  // Grab the photo for this property, otherwise null
+                  const photoSrc = getPropertyPhoto(property, photo_data);
+
+                  return(
+                  // Card for property
+                  <Link
+                    href={`/properties/${property.p_id}`}
+                    key={property.p_id}
+                    className="flex flex-col items-center overflow-hidden gap-4 bg-white border-gray-200 border b rounded-lg shadow-md hover:bg-gray-100 transition cursor-pointer"
+                  >
+                    {/* Property Image or Icon depending on if the property has any photos */}
+                    <div className="flex items-center justify-center relative w-full aspect-4/3 bg-gray-300">
+                      {photoSrc ? (
+                        <Image
+                          src={photoSrc}
+                          alt={property.address}
+                          fill
+                          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 50vw, 25vw"
+                          className="object-cover"
+                          loading="lazy"
+                        />
+                      ) : (
+                        // Image icon from heroicons, only show if no photos for this property
+                        <svg 
+                          xmlns="http://www.w3.org/2000/svg" 
+                          fill="none" 
+                          viewBox="0 0 24 24" 
+                          strokeWidth={1.5} 
+                          stroke="currentColor"
+                          className="w-1/2 h-1/2 text-zinc-500"
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
+                        </svg>
+                      )}
+                    </div>
+
+
+                    {/* Address */}
+                    <div className='text-center p-4 pb-8'>
+                      <div className="font-semibold">{property.address}</div>
+                      <div className="text-sm text-gray-600">{property.city}, CA</div>
+                    </div>
+                  </Link>
+                  );
+                })}
+            </div>
+          <h1 className="text-2xl font-bold m-4">About</h1>
+          <p className="pb-10"> 
+            We help clients rent and sell properties.
+          </p>
+        </div>
       </main>
     </div>
   );

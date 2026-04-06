@@ -13,63 +13,54 @@ export default function Menu() {
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
         aria-controls="site-menu"
+        className="text-white text-xl font-medium"
       >
-        Menu
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+        </svg>
+
       </button>
 
-      {open && (
-        <>
-          {/* Overlay backdrop */}
-          <div
-            onClick={() => setOpen(false)}
-            style={{
-              position: "fixed",
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              background: "rgba(0, 0, 0, 0.5)",
-              zIndex: 998,
-            }}
-          />
-          {/* Menu panel */}
-          <nav
-            id="site-menu"
-            style={{
-              position: "fixed",
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              background: "white",
-              padding: "40px 20px",
-              display: "flex",
-              flexDirection: "column",
-              gap: "16px",
-              zIndex: 999,
-            }}
-          >
-            <button
-              type="button"
-              onClick={() => setOpen(false)}
-              style={{
-                alignSelf: "flex-end",
-                background: "none",
-                border: "none",
-                fontSize: "24px",
-                cursor: "pointer",
-                marginBottom: "20px",
-              }}
-            >
-              ✕
-            </button>
-            <Link href="/" onClick={() => setOpen(false)} style={{ fontSize: "18px" }}>Home</Link>
-            <Link href="/properties" onClick={() => setOpen(false)} style={{ fontSize: "18px" }}>Properties</Link>
-            <Link href="/about" onClick={() => setOpen(false)} style={{ fontSize: "18px" }}>About</Link>
-            <Link href="/contact" onClick={() => setOpen(false)} style={{ fontSize: "18px" }}>Contact</Link>
-          </nav>
-        </>
-      )}
+      {/* Overlay */}
+      <div
+        onClick={() => setOpen(false)}
+        className={`fixed inset-0 bg-black/50 z-998 transition-all duration-300 ${
+          open ? "opacity-100" : "opacity-0 pointer-events-none"
+        }`}
+      />
+
+      {/* Menu */}
+      <nav
+        id="site-menu"
+        className={`fixed top-0 right-0 sm:w-90vw w-75 max-w-sm h-screen overflow-y-auto bg-white p-4 flex flex-col gap-4 z-999 shadow-xl items-center transform transition-all duration-300 ease-out ${
+          open
+            ? "translate-x-0 opacity-100"
+            : "translate-x-full opacity-80"
+        }`}
+      >
+        {/* Exit button */}
+        <button
+          type="button"
+          onClick={() => setOpen(false)}
+          className="self-end text-lg m-1 cursor-pointer text-gray-800"
+        >
+          ✕
+        </button>
+
+        {/* Menu links */}
+        <Link href="/" onClick={() => setOpen(false)} className="text-2xl font-medium text-gray-800">
+          Home
+        </Link>
+        <Link href="/properties" onClick={() => setOpen(false)} className="text-2xl font-medium text-gray-800">
+          Properties
+        </Link>
+        <Link href="/about" onClick={() => setOpen(false)} className="text-2xl font-medium text-gray-800">
+          About
+        </Link>
+        <Link href="/contact" onClick={() => setOpen(false)} className="text-2xl font-medium text-gray-800">
+          Contact
+        </Link>
+      </nav>
     </>
   );
 }
