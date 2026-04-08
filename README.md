@@ -30,3 +30,4 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 <!-- Will need profile editing -->
 <!-- Finish off Dahsboard -->
 <!-- Consider email authentication for login only for admin -->
+<!-- Issue with login email, not allowing proper magiclink in deployment. Will fix -->
