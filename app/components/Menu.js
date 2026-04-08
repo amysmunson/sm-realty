@@ -13,7 +13,7 @@ export default function Menu() {
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
         aria-controls="site-menu"
-        className="text-white text-xl font-medium"
+        className="text-white text-xl font-medium cursor-pointer"
       >
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
           <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
@@ -42,22 +42,22 @@ export default function Menu() {
         <button
           type="button"
           onClick={() => setOpen(false)}
-          className="self-end text-lg m-1 cursor-pointer text-gray-800"
+          className="self-end text-lg m-1 cursor-pointer text-gray-700 hover:text-black active:text-black"
         >
           ✕
         </button>
 
         {/* Menu links */}
-        <Link href="/" onClick={() => setOpen(false)} className="text-2xl font-medium text-gray-800">
+        <Link href="/" onClick={() => setOpen(false)} className="text-xl font-medium text-gray-700 hover:text-black active:text-black">
           Home
         </Link>
-        <Link href="/properties" onClick={() => setOpen(false)} className="text-2xl font-medium text-gray-800">
+        <Link href="/properties" onClick={() => setOpen(false)} className="text-xl font-medium text-gray-700 hover:text-black active:text-black">
           Properties
         </Link>
-        <Link href="/about" onClick={() => setOpen(false)} className="text-2xl font-medium text-gray-800">
+        <Link href="/about" onClick={() => setOpen(false)} className="text-xl font-medium text-gray-700 hover:text-black active:text-black">
           About
         </Link>
-        <Link href="/contact" onClick={() => setOpen(false)} className="text-2xl font-medium text-gray-800">
+        <Link href="/contact" onClick={() => setOpen(false)} className="text-xl font-medium text-gray-700 hover:text-black active:text-black">
           Contact
         </Link>
       </nav>

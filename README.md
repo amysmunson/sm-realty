@@ -2,7 +2,7 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Deployed Site on Vercel
 
-Check out [Amelia Shen Realty](https://amelia-shen-realty.vercel.app/)!
+Check out [Amelia Huimin Shen, Broker](https://amelia-shen.vercel.app/)!
 
 ## Local Development
 
@@ -22,3 +22,11 @@ This project uses [`next/font`](https://nextjs.org/docs/app/building-your-applic
 ## Next.js and Veracel
 - [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
 You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js)
+
+
+<!-- Todo -->
+<!-- Sign Up Confirmation email disabled temporarily -->
+<!-- Add Cloudflare Turnstile Captcha after settling on a domain and purchasing -->
+<!-- Will need profile editing -->
+<!-- Finish off Dahsboard -->
+<!-- Consider email authentication for login only for admin -->

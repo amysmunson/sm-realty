@@ -3,6 +3,7 @@ import "./globals.css";
 import Link from "next/link";
 import Menu from "./components/Menu";
 import Footer from "./components/Footer";
+import ProfileButton from "./components/ProfileButton";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,7 +31,10 @@ export default function RootLayout({ children }) {
           <Link className="text-white text-xl font-medium" href="/">
             Amelia Huimin Shen
           </Link>
-          <Menu />
+          <div>
+            <ProfileButton />
+            <Menu />
+          </div>
         </header>
         {/* Grow to keep footer at the bottom */}
         <main className="grow">

@@ -57,7 +57,7 @@ export default async function Home() {
 
   const homepagePhotos = (photo_data.filter(p => p.homepage === true)).map(p => p.file_name);
 
-  console.log(property_data)
+  // console.log(property_data)
   // console.log(photo_data)
   // console.log("Homepage Photos:", homepagePhotos)
 
@@ -73,7 +73,7 @@ export default async function Home() {
             loading="eager"
           />
           {/* <div className="absolute w-full top-1/2 -translate-y-1/2 h-32 bg-black opacity-50" /> */}
-          <div className="absolute w-full h-full bg-blue-950 opacity-60" />
+          <div className="absolute w-full h-60 bg-linear-to-b from-blue-950 to-transparent" />
           <div className="absolute inset-0 flex items-center justify-center">
             <h1 className="text-white text-4xl font-bold p-4 rounded">
               Amelia Shen
@@ -87,7 +87,7 @@ export default async function Home() {
             </Link>
           </h1>
             {/* grid of properties, card style */}
-            <div className="grid grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                 {property_data?.map(property => {
                   // Grab the photo for this property, otherwise null
                   const photoSrc = getPropertyPhoto(property, photo_data);
