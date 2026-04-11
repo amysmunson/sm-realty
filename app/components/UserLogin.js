@@ -140,7 +140,6 @@ export default function UserLogin() {
               setError("");
             }}
             className="w-full bg-gray-100 text-gray-800 rounded px-4 py-2 cursor-pointer"
-            className="w-full bg-gray-100 text-gray-800 rounded px-4 py-2 cursor-pointer"
           >
             Back
           </button>
