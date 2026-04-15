@@ -32,7 +32,7 @@ export default function RootLayout({ children }) {
             Amelia Huimin Shen
           </Link>
           <div>
-            <ProfileButton />
+            {/* <ProfileButton /> */}
             <Menu />
           </div>
         </header>

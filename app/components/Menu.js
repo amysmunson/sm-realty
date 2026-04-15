@@ -1,10 +1,24 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
+import ProfileButton from "./ProfileButton";
 
 export default function Menu() {
   const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    function handleKeyDown(event) {
+      if (event.key === "Escape") {
+        setOpen(false);
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
 
   return (
     <>
@@ -60,6 +74,9 @@ export default function Menu() {
         <Link href="/contact" onClick={() => setOpen(false)} className="text-xl font-medium text-gray-700 hover:text-black active:text-black">
           Contact
         </Link>
+        <div className="text-gray-700 hover:text-black active:text-black bottom-0 mt-auto">
+          <ProfileButton onClick={() => setOpen(false)} />
+        </div>
       </nav>
     </>
   );
