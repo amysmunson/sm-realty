@@ -9,22 +9,6 @@ export const metadata = {
   description: "Broker Amelia Huimin Shen's Home Page",
 };
 
-// Helper to grab the main image for this property
-function getPropertyPhoto(property, photo_data) {
-    // Filter photos on property id
-    const propertyPhotos = photo_data?.filter(p => p.p_id === property.p_id) || [];
-
-    // Find lowest order photo, don't care which photo you return if all have the same order
-    // Insertion rules should ensure only one of each order per property
-    if (propertyPhotos.length > 0) {
-      propertyPhotos.sort((a, b) => a.order - b.order);
-      return propertyPhotos[0].file_name;
-    }
-    // No Photos for this Property
-    else{
-      return null;
-    }
-}
 
 export default async function Home() {
   // grab subabase data for properties and photos
@@ -39,7 +23,7 @@ export default async function Home() {
   // extract property ids
   const propertyIds = property_data.map(p => p.p_id).join(',');
 
-  const { data: photo_data, error: photo_error } = await supabase
+  const { data: photoData, error: photoError } = await supabase
     .from('photos')
     .select('*')
     // If not pulling homepage photos
@@ -51,15 +35,50 @@ export default async function Home() {
       `and(p_id.in.(${propertyIds}),order.eq.1), homepage.eq.true`
     );
 
-  if (photo_error) {
-    console.error(photo_error)
+  if (photoError) {
+    console.error(photoError)
   }
 
-  const homepagePhotos = (photo_data.filter(p => p.homepage === true)).map(p => p.file_name);
+  const homepagePhotos = (photoData.filter(p => p.homepage === true)).map(p => p.file_name);
 
   // console.log(property_data)
-  // console.log(photo_data)
+  // console.log(photoData)
   // console.log("Homepage Photos:", homepagePhotos)
+
+  // Build a map of p_id -> first photo file_name (lowest order)
+  function buildFirstPhotoMap(photoData = []) {
+    const firstPhotoByProperty = new Map();
+
+    // Iterate through photos, keep track of the lowest order photo for each property
+    for (const photo of photoData) {
+      if (!photo?.p_id || !photo?.file_name) continue;
+
+      // Determine if this photo should replace the existing one for this property based on order
+      const existing = firstPhotoByProperty.get(photo.p_id);
+      const photoOrder = photo.order ?? Number.MAX_SAFE_INTEGER;
+      const existingOrder = existing?.order ?? Number.MAX_SAFE_INTEGER;
+
+      // If no existing photo for this property or this photo has a lower order, update the map
+      if (!existing || photoOrder < existingOrder) {
+        firstPhotoByProperty.set(photo.p_id, photo);
+      }
+    }
+    return firstPhotoByProperty;
+  }
+
+  // Precompute first photo once to prevent per-property filter/sort in render
+  const firstPhotoByProperty = buildFirstPhotoMap(photoData);
+
+  // Generate public URLs for the first photo of each property to display on the dashboard if they exist
+  const photoUrls = Object.fromEntries(
+    property_data.map((property) => {
+      const photoSrc = firstPhotoByProperty.get(property.p_id);
+      if (!photoSrc) return [property.p_id, null];
+
+      const { data } = supabase.storage.from("photo_bucket").getPublicUrl(photoSrc.file_name);
+      return [property.p_id, data?.publicUrl || null];
+    })
+  );
 
   return (
     <div>
@@ -72,8 +91,6 @@ export default async function Home() {
             className="object-cover"
             loading="eager"
           />
-          {/* <div className="absolute w-full top-1/2 -translate-y-1/2 h-32 bg-black opacity-50" /> */}
-          <div className="absolute w-full h-60 bg-linear-to-b from-blue-950 to-transparent" />
           <div className="absolute inset-0 flex items-center justify-center">
             <h1 className="text-white text-4xl font-bold p-4 rounded">
               Amelia Shen
@@ -86,57 +103,60 @@ export default async function Home() {
               Properties
             </Link>
           </h1>
-            {/* grid of properties, card style */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                {property_data?.map(property => {
-                  // Grab the photo for this property, otherwise null
-                  const photoSrc = getPropertyPhoto(property, photo_data);
+          {/* grid of properties, card style */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            {property_data?.map(property => {
+              // Grab the photo for this property, otherwise null
+              // const photoSrc = getPropertyPhoto(property, photoData);
 
-                  return(
-                  // Card for property
-                  <Link
-                    href={`/properties/${property.p_id}`}
-                    key={property.p_id}
-                    className="flex flex-col items-center overflow-hidden gap-4 bg-white border-gray-200 border b rounded-lg shadow-md hover:bg-gray-100 transition cursor-pointer"
-                  >
-                    {/* Property Image or Icon depending on if the property has any photos */}
-                    <div className="flex items-center justify-center relative w-full aspect-4/3 bg-gray-300">
-                      {photoSrc ? (
-                        <Image
-                          src={photoSrc}
-                          alt={property.address}
-                          fill
-                          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 50vw, 25vw"
-                          className="object-cover"
-                          loading="lazy"
-                        />
-                      ) : (
-                        // Image icon from heroicons, only show if no photos for this property
-                        <svg 
-                          xmlns="http://www.w3.org/2000/svg" 
-                          fill="none" 
-                          viewBox="0 0 24 24" 
-                          strokeWidth={1.5} 
-                          stroke="currentColor"
-                          className="w-1/2 h-1/2 text-zinc-500"
-                        >
-                          <path strokeLinecap="round" strokeLinejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
-                        </svg>
-                      )}
-                    </div>
+              return (
+                // Card for property
+                <Link
+                  href={`/properties/${property.p_id}`}
+                  key={property.p_id}
+                  className="flex flex-col items-center overflow-hidden gap-4 bg-white border-gray-200 border b rounded-lg shadow-md hover:bg-gray-100 transition cursor-pointer"
+                >
+                  {/* Property Image or Icon depending on if the property has any photos */}
+                  <div className="flex items-center justify-center relative w-full aspect-4/3 bg-gray-300">
+                    {photoUrls[property.p_id] ? (
+                      <Image
+                        src={photoUrls[property.p_id]}
+                        alt={property.address}
+                        fill
+                        sizes="(max-width: 640px) 50vw, (max-width: 1024px) 50vw, 25vw"
+                        className="object-cover"
+                        loading="lazy"
+                      />
+                    ) : (
+                      // Image icon from heroicons, only show if no photos for this property
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        strokeWidth={1.5}
+                        stroke="currentColor"
+                        className="w-1/2 h-1/2 text-zinc-500"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
+                      </svg>
+                    )}
+                  </div>
 
 
-                    {/* Address */}
-                    <div className='text-center p-4 pb-8'>
-                      <div className="font-semibold">{property.address}</div>
-                      <div className="text-sm text-gray-600">{property.city}, CA</div>
-                    </div>
-                  </Link>
-                  );
-                })}
-            </div>
+                  {/* Address */}
+                  <div className='text-center p-4 pb-8'>
+                    <div className="font-semibold">{property.address}</div>
+                    <div className="text-sm text-gray-600">{property.city}, CA</div>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+          <button className="bg-white border-2 border-blue-950 hover:bg-blue-950 text-blue-950 hover:text-white font-bold py-2 px-4 rounded mt-4">
+            See All
+          </button>
           <h1 className="text-2xl font-bold m-4">About</h1>
-          <p className="pb-10"> 
+          <p className="pb-10">
             We help clients rent and sell properties.
           </p>
         </div>
