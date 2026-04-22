@@ -6,6 +6,11 @@ export const metadata = {
   title: "Properties | Amelia Huimin Shen",
 };
 
+// Force this page to be dynamic and pull fresh data instead of static generation
+// Revisit this decision later if we want to add caching or static generation for better performance, but for now we want latest data
+export const dynamic = "force-dynamic";
+
+
 // Build a map of p_id -> first photo file_name (lowest order)
 function buildFirstPhotoMap(photoData = []) {
   const firstPhotoByProperty = new Map();
@@ -71,7 +76,7 @@ export default async function Properties() {
           <h1 className="justify-center text-center text-black text-4xl font-bold">Properties </h1>
         </div>
 
-        <div className="container mx-auto px-4 justify-center text-center">
+        <div className="container mx-auto px-4 mb-40 justify-center text-center">
           <div className="grid grid-cols-1 h-150 gap-4 mb-20">
             {propertyData.map((property) => (
               <PropertyCard
