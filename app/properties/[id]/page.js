@@ -105,7 +105,7 @@ export default async function PropertyDetailsPage({ params }) {
                   />
                 </div>
 
-                <div className="md:col-span-2 w-full max-w-56 md:justify-self-center grid h-88 md:h-120 grid-rows-4 gap-2">
+                <div className="hidden md:grid md:col-span-2 w-full max-w-56 md:justify-self-center h-88 md:h-120 grid-rows-4 gap-2">
                   {gridPhotos.map((photo, index) => (
                     <div
                       key={`${photo.file_name}-${index}`}
