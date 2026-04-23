@@ -31,3 +31,4 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 <!-- Finish off Dahsboard -->
 <!-- Consider email authentication for login only for admin -->
 <!-- Issue with login email, not allowing proper magiclink in deployment. Will fix -->
+<!-- A way to update the homepage for the site via the edit page likely. Want to be able to delete that photo and put in a new one marked as homepage -->
