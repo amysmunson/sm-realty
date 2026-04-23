@@ -43,7 +43,7 @@ export default async function AboutPage() {
 
       <div className="container mx-auto px-4 justify-center text-center">
 
-        <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 pb-10">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 pb-10">
           {agents.map((agent) => {
             return (
               <AgentCard

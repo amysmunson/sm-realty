@@ -6,7 +6,7 @@ export default function AgentCard({ id, agent, photoSrc }) {
     <div
       className="flex items-center overflow-hidden gap-4 p-4 bg-white"
     >
-      <div className="flex-none flex items-center justify-center relative aspect-4/4 h-60 overflow-hidden bg-gray-300">
+      <div className="flex-none flex items-center justify-center relative aspect-4/4 h-40 sm:h-40 md:h-60 overflow-hidden bg-gray-300">
         {photoSrc ? (
           <Image
             src={photoSrc}
