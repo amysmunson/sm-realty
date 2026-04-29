@@ -57,13 +57,18 @@ export default function SiteHeader() {
           Amelia Huimin Shen
         </Link>
         {/* Navigation and Menu */}
-        <div className="flex items-center space-x-4 gap-8">
+        {/* Only show the text links on med+ screens */}
+        <div className="hidden md:flex items-center space-x-4 gap-8">
           <Link href="/properties" className="text-white text-lg font-medium mr-4">
             Properties
           </Link>
           <Link href="/about" className="text-white text-lg font-medium mr-4">
             About
           </Link>
+          <Menu />
+        </div>
+        {/* Always show the menu icon on smaller screens */}
+        <div className="md:hidden">
           <Menu />
         </div>
       </div>
