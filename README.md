@@ -32,3 +32,5 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 <!-- Consider email authentication for login only for admin -->
 <!-- Issue with login email, not allowing proper magiclink in deployment. Will fix -->
 <!-- A way to update the homepage for the site via the edit page likely. Want to be able to delete that photo and put in a new one marked as homepage -->
+<!-- Create new email, find a way for the email to send things to mom and BCC itself. Forward anything it gets from others to mom. -->
+<!--      Set up forwarding inside of gmail itself -->
