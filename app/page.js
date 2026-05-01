@@ -102,7 +102,8 @@ export default async function Home() {
           />
           <div className="absolute w-full h-full bg-black opacity-30" />
           {/* Alight text to bottom */}
-          <div className="absolute flex w-full items-center justify-center bottom-0">
+          {/* <div className="absolute flex w-full items-center justify-center bottom-0"> */}
+          <div className="absolute inset-0 flex w-full items-center justify-center">
             <h1 className="text-white text-8xl font-bold p-4 rounded">
               Amelia Shen Realty
             </h1>
