@@ -8,6 +8,7 @@ export const metadata = {
 export default async function ContactPage({ searchParams }) {
   const params = await searchParams;
   const submitted = params?.submitted === "1";
+  const emailed = params?.emailed === "1";
 
   // Function to handle contact request form submission
   async function submitContact(formData) {
@@ -35,7 +36,60 @@ export default async function ContactPage({ searchParams }) {
       throw new Error(`Failed to submit contact request: ${error.message}`);
     }
 
-    redirect("/contact?submitted=1");
+    // Send email notification using Resend API
+    const resendApiKey = process.env.RESEND_API_KEY;
+    const resendFrom = "Amelia Huimin Shen <onboarding@resend.dev>";
+    const resendTo = process.env.RESEND_TO_EMAIL;
+
+    let emailedSuccessfully = false;
+
+    if (resendApiKey && resendTo) {
+      try {
+        const emailResponse = await fetch("https://api.resend.com/emails", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${resendApiKey}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            from: resendFrom,
+            to: [resendTo],
+            replyTo: payload.email || resendFrom,
+            subject: `New contact request from ${payload.name || "website visitor"}`,
+            text: [
+              "New contact request received from the website.",
+              `Name: ${payload.name || "(not provided)"}`,
+              `Email: ${payload.email || "(not provided)"}`,
+              `Phone: ${payload.phone || "(not provided)"}`,
+              "",
+              "Message:",
+              payload.message || "(not provided)",
+            ].join("\n"),
+            html: `
+              <div style="font-family:Arial,sans-serif;line-height:1.5;color:#111827">
+                <h2 style="margin:0 0 12px 0">New contact request</h2>
+                <p style="margin:0 0 8px 0"><strong>Name:</strong> ${payload.name || "(not provided)"}</p>
+                <p style="margin:0 0 8px 0"><strong>Email:</strong> ${payload.email || "(not provided)"}</p>
+                <p style="margin:0 0 8px 0"><strong>Phone:</strong> ${payload.phone || "(not provided)"}</p>
+                <p style="margin:16px 0 8px 0"><strong>Message:</strong></p>
+                <div style="white-space:pre-wrap;background:#f9fafb;border:1px solid #e5e7eb;padding:12px;border-radius:8px">${payload.message || "(not provided)"}</div>
+              </div>
+            `,
+          }),
+        });
+
+        emailedSuccessfully = emailResponse.ok;
+        if (!emailResponse.ok) {
+          console.error("Failed to send contact email via Resend:", await emailResponse.text());
+        }
+      } catch (emailError) {
+        console.error("Failed to send contact email via Resend:", emailError);
+      }
+    } else {
+      console.error("Missing RESEND_API_KEY or RESEND_TO_EMAIL environment variables.");
+    }
+
+    redirect(`/contact?submitted=1&emailed=${emailedSuccessfully ? "1" : "0"}`);
   }
 
   return (
@@ -46,9 +100,15 @@ export default async function ContactPage({ searchParams }) {
 
       <div className="container mx-auto px-4 justify-center text-center mb-10">
         {submitted ? (
-          <p className="mx-auto mb-6 max-w-lg rounded-sm bg-green-100 px-4 py-3 text-sm text-green-800">
-            Your message was submitted!
-          </p>
+          emailed ? (
+            <p className="mx-auto mb-6 max-w-lg rounded-sm bg-green-100 px-4 py-3 text-sm text-green-800">
+              Your message was submitted and emailed successfully.
+            </p>
+          ) : (
+            <p className="mx-auto mb-6 max-w-lg rounded-sm bg-yellow-100 px-4 py-3 text-sm text-yellow-800">
+              Your message was submitted, but the email notification could not be sent.
+            </p>
+          )
         ) : 
 
         (<form action={submitContact} className="max-w-lg mx-auto space-y-6">
