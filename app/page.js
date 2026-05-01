@@ -92,7 +92,7 @@ export default async function Home() {
   return (
     <div>
       <main>
-        <div className="relative w-full h-150 mb-10">
+        <div className="relative w-full h-120 lg:h-screen mb-10">
           <Image
             src={homepagePhotoSrc}
             alt="Home Background"
@@ -100,13 +100,21 @@ export default async function Home() {
             className="object-cover"
             loading="eager"
           />
-          <div className="absolute inset-0 flex items-center justify-center">
-            <h1 className="text-white text-6xl font-bold p-4 rounded">
-              Amelia Huimin Shen, Broker
+          <div className="absolute w-full h-full bg-black opacity-30" />
+          {/* Alight text to bottom */}
+          <div className="absolute flex w-full items-center justify-center bottom-0">
+            <h1 className="text-white text-8xl font-bold p-4 rounded">
+              Amelia Shen Realty
             </h1>
           </div>
         </div>
         <div className="container mx-auto px-4 justify-center text-center">
+          <div className="pt-4">
+            <h1 className="text-2xl font-bold m-4">About</h1>
+            <p className="pb-10">
+              We help clients rent and sell properties.
+            </p>
+          </div>
           <div className="py-4">
             <h1 className="text-2xl font-bold m-4">
               <Link href="/properties" className="text-black">
@@ -171,10 +179,6 @@ export default async function Home() {
               </Link>
             </div>
           </div>
-          <h1 className="text-2xl font-bold m-4">About</h1>
-          <p className="pb-10">
-            We help clients rent and sell properties.
-          </p>
         </div>
       </main>
     </div>
