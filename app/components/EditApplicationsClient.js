@@ -223,7 +223,7 @@ export default function EditApplicationsClient() {
         };
 
         const { error: updateError } = await supabase
-            .from("rental_applications")
+            .from("rental_apps")
             .update(payload)
             .eq("form_id", item.form_id);
 
@@ -351,7 +351,7 @@ export default function EditApplicationsClient() {
                                         />
                                     </td>
                                     <td className="border border-gray-300 p-2">
-                                        <div className="flex items-center gap-2">
+                                        <div className="flex flex-col items-center gap-2">
                                             <button
                                                 type="button"
                                                 onClick={() => saveApplication(item)}
