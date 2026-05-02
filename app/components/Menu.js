@@ -38,7 +38,7 @@ export default function Menu() {
       {/* Overlay */}
       <div
         onClick={() => setOpen(false)}
-        className={`fixed inset-0 bg-black/50 z-998 transition-all duration-300 ${
+        className={`fixed top-0 right-0 w-[90vw] sm:w-105 max-w-md h-dvh overflow-y-auto bg-white p-4 flex flex-col gap-4 z-999 shadow-xl items-center transform transition-all duration-300 ease-out ${
           open ? "opacity-100" : "opacity-0 pointer-events-none"
         }`}
       />
