@@ -3,7 +3,8 @@
 
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
+import { setComponentUnsaved } from "@/lib/unsavedClient";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { useCurrentUserId } from "@/app/components/CurrentUserId";
@@ -144,69 +145,13 @@ export default function EditApplicationsClient() {
 
     const hasUnsavedChanges = applications.some((item) => isRowDirty(item));
 
-    // Warn user if they nav away with unsaved changes, but let them do it.
-    useEffect(() => {
-        if (!hasUnsavedChanges) {
-            return;
-        }
-
-        function handleBeforeUnload(event) {
-            event.preventDefault();
-            event.returnValue = "";
-        }
-
-        window.addEventListener("beforeunload", handleBeforeUnload);
-        return () => {
-            window.removeEventListener("beforeunload", handleBeforeUnload);
-        };
-    }, [hasUnsavedChanges]);
+    // Register this component's unsaved state with global handler to avoid duplicates
+    const _unsavedId = useRef(null);
+    if (_unsavedId.current === null) _unsavedId.current = String(Math.random());
 
     useEffect(() => {
-        if (!hasUnsavedChanges) {
-            return;
-        }
-
-        function handleDocumentClick(event) {
-            if (!(event.target instanceof Element)) {
-                return;
-            }
-
-            const anchor = event.target.closest("a[href]");
-            if (!anchor) {
-                return;
-            }
-
-            if (anchor.target === "_blank" || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
-                return;
-            }
-
-            const href = anchor.getAttribute("href");
-            if (!href || href.startsWith("#")) {
-                return;
-            }
-
-            const nextUrl = new URL(anchor.href, window.location.href);
-            const currentUrl = new URL(window.location.href);
-            const isSameLocation =
-                nextUrl.origin === currentUrl.origin &&
-                nextUrl.pathname === currentUrl.pathname &&
-                nextUrl.search === currentUrl.search &&
-                nextUrl.hash === currentUrl.hash;
-
-            if (isSameLocation) {
-                return;
-            }
-
-            const shouldLeave = window.confirm("You have unsaved changes. Leave without saving?");
-            if (!shouldLeave) {
-                event.preventDefault();
-            }
-        }
-
-        document.addEventListener("click", handleDocumentClick, true);
-        return () => {
-            document.removeEventListener("click", handleDocumentClick, true);
-        };
+        setComponentUnsaved(_unsavedId.current, hasUnsavedChanges);
+        return () => setComponentUnsaved(_unsavedId.current, false);
     }, [hasUnsavedChanges]);
 
     // Database helpers

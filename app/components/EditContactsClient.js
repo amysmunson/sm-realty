@@ -2,7 +2,8 @@
 
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
+import { setComponentUnsaved } from "@/lib/unsavedClient";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { useCurrentUserId } from "@/app/components/CurrentUserId";
@@ -143,69 +144,13 @@ export default function EditContactsClient() {
 
     const hasUnsavedChanges = requests.some((item) => isRowDirty(item));
 
-    // Warn user if they try to nav away with unsaved changes, but let them do it
-    useEffect(() => {
-        if (!hasUnsavedChanges) {
-            return;
-        }
-
-        function handleBeforeUnload(event) {
-            event.preventDefault();
-            event.returnValue = "";
-        }
-
-        window.addEventListener("beforeunload", handleBeforeUnload);
-        return () => {
-            window.removeEventListener("beforeunload", handleBeforeUnload);
-        };
-    }, [hasUnsavedChanges]);
+    // Register this component's unsaved state with global handler to avoid duplicates
+    const _unsavedId = useRef(null);
+    if (_unsavedId.current === null) _unsavedId.current = String(Math.random());
 
     useEffect(() => {
-        if (!hasUnsavedChanges) {
-            return;
-        }
-
-        function handleDocumentClick(event) {
-            if (!(event.target instanceof Element)) {
-                return;
-            }
-
-            const anchor = event.target.closest("a[href]");
-            if (!anchor) {
-                return;
-            }
-
-            if (anchor.target === "_blank" || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
-                return;
-            }
-
-            const href = anchor.getAttribute("href");
-            if (!href || href.startsWith("#")) {
-                return;
-            }
-
-            const nextUrl = new URL(anchor.href, window.location.href);
-            const currentUrl = new URL(window.location.href);
-            const isSameLocation =
-                nextUrl.origin === currentUrl.origin &&
-                nextUrl.pathname === currentUrl.pathname &&
-                nextUrl.search === currentUrl.search &&
-                nextUrl.hash === currentUrl.hash;
-
-            if (isSameLocation) {
-                return;
-            }
-
-            const shouldLeave = window.confirm("You have unsaved changes. Leave without saving?");
-            if (!shouldLeave) {
-                event.preventDefault();
-            }
-        }
-
-        document.addEventListener("click", handleDocumentClick, true);
-        return () => {
-            document.removeEventListener("click", handleDocumentClick, true);
-        };
+        setComponentUnsaved(_unsavedId.current, hasUnsavedChanges);
+        return () => setComponentUnsaved(_unsavedId.current, false);
     }, [hasUnsavedChanges]);
 
     // db/form helpers
@@ -334,12 +279,12 @@ export default function EditContactsClient() {
                                             className="w-36 rounded p-1"
                                         />
                                     </td>
-                                    <td className="border border-gray-300 p-2">
+                                    <td className="border border-gray-300 p-2 w-80">
                                         <textarea
                                             value={item.message || ""}
                                             onChange={(event) => updateField(item.id, "message", event.target.value)}
                                             rows={3}
-                                            className="w-80 rounded p-1"
+                                            className="rounded p-1 w-full"
                                         />
                                     </td>
                                     <td className="border border-gray-300 p-2 text-center">
@@ -350,7 +295,7 @@ export default function EditContactsClient() {
                                         />
                                     </td>
                                     <td className="border border-gray-300 p-2">
-                                        <div className="flex items-center gap-2">
+                                        <div className="flex flex-col items-center gap-2">
                                             <button
                                                 type="button"
                                                 onClick={() => saveRequest(item)}
