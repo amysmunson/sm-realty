@@ -36,3 +36,4 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 <!--      Set up forwarding inside of gmail itself -->
 <!-- page[id] is fine except the email doesn't work. -->
 <!-- Cloudflare settings -->
+<!-- shouldTriggerSave in EditNavigationBar will require a change if we use icons -->
