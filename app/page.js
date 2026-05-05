@@ -35,10 +35,10 @@ export default async function Home() {
     console.error(photoError)
   }
 
-  // Extract homepage photos' file names, sorted by photo_id
+  // Extract homepage photos' file names, sorted by creation time
   const homepagePhotoFiles = (photoData || [])
     .filter((p) => p?.homepage === true)
-    .sort((a, b) => (a?.photo_id || 0) - (b?.photo_id || 0))
+    .sort((a, b) => new Date(a?.created_at || 0) - new Date(b?.created_at || 0))
     .map((p) => p.file_name)
     .filter(Boolean);
 
