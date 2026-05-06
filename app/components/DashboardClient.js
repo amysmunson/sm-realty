@@ -355,15 +355,23 @@ export default function DashboardClient() {
                     <td className="border border-gray-300 p-1 overflow-auto">
                       {property.ext_link ?
                         (<a href={property.ext_link} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
-                          View
+                          <div className="w-full flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-4">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="m16.49 12 3.75 3.75m0 0-3.75 3.75m3.75-3.75H3.74V4.499" />
+                            </svg>
+                          </div>
                         </a>)
-                        : (<a className="text-gray-500 cursor-not-allowed" aria-disabled="true">
+                        : (<a className="text-gray-500 cursor-default" aria-disabled="true">
                           —
                         </a>)}
                     </td>
                     <td className="border border-gray-300 p-1 overflow-auto">
                       <Link href={`/properties/${property.p_id} `} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
-                        View
+                        <div className="w-full flex items-center justify-center">
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-4">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="m16.49 12 3.75 3.75m0 0-3.75 3.75m3.75-3.75H3.74V4.499" />
+                          </svg>
+                        </div>
                       </Link>
                     </td>
                   </tr>
