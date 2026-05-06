@@ -3,7 +3,7 @@ import AgentCard from "@/app/components/AgentCard";
 import { supabase } from "@/lib/supabase";
 
 export const metadata = {
-  title: "About | Amelia Huimin Shen",
+  title: "About | Shen Munson Realty",
 };
 
 export default async function AboutPage() {

@@ -6,7 +6,7 @@ import RentalApp from "@/app/components/RentalApp";
 import PropertyPhotos from "@/app/components/PropertyPhotos";
 import { getFeaturePolicyDisplaySections } from "@/app/components/PropertyFeaturesPolicies";
 
-const siteName = "Amelia Huimin Shen";
+const siteName = "Shen Munson Realty";
 
 async function getProperty(id) {
   const { data, error } = await supabase
@@ -43,7 +43,7 @@ export default async function PropertyDetailsPage({ params }) {
     "use server";
 
     const resendApiKey = process.env.RESEND_API_KEY;
-    const resendFrom = "Amelia Huimin Shen <onboarding@resend.dev>";
+    const resendFrom = "Shen Munson Realty <onboarding@resend.dev>";
     const resendTo = process.env.RESEND_TO_EMAIL;
 
     if (!resendApiKey || !resendTo) {
@@ -86,7 +86,6 @@ export default async function PropertyDetailsPage({ params }) {
         body: JSON.stringify({
           from: resendFrom,
           to: [resendTo],
-          bcc: ["ameliashenrealty@gmail.com"],
           replyTo: payload.email || resendFrom,
           subject,
           text: textLines.join("\n"),

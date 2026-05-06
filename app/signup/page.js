@@ -3,7 +3,7 @@
 import UserRegistration from "@/app/components/UserRegistration";
 
 export const metadata = {
-  title: "Sign Up",
+  title: "Sign Up | Shen Munson Realty",
 };
 
 

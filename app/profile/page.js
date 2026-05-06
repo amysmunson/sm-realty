@@ -3,7 +3,7 @@
 import ProfileClient from "@/app/components/ProfileClient";
 
 export const metadata = {
-  title: "Your Profile | Amelia Huimin Shen",
+  title: "Your Profile | Shen Munson Realty",
 };
 
 export default function ProfilePage() {

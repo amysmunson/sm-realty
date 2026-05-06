@@ -2,7 +2,7 @@
 import UserLogin from "@/app/components/UserLogin";
 
 export const metadata = {
-  title: "Login",
+  title: "Login | Shen Munson Realty",
 };
 
 export default async function Login() {

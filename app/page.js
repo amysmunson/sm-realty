@@ -1,12 +1,12 @@
-// Home Page for Amelia Shen
+// Home Page for Shen Munson Realty
 
 import Image from "next/image";
 import Link from "next/link";
 import { supabase } from '@/lib/supabase'
 
 export const metadata = {
-  title: "Amelia Huimin Shen, Broker",
-  description: "Broker Amelia Huimin Shen's Home Page",
+  title: "Shen Munson Realty",
+  description: "Shen Munson Realty's Home Page",
 };
 
 
@@ -105,7 +105,7 @@ export default async function Home() {
           {/* <div className="absolute flex w-full items-center justify-center bottom-0"> */}
           <div className="absolute inset-0 flex w-full items-center justify-center">
             <h1 className="text-white text-8xl font-bold p-4 rounded">
-              Amelia Shen Realty
+              Shen Munson Realty
             </h1>
           </div>
         </div>

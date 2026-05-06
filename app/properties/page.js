@@ -3,7 +3,7 @@ import PropertyCard from "@/app/components/PropertyCard";
 import { supabase } from "@/lib/supabase";
 
 export const metadata = {
-  title: "Properties | Amelia Huimin Shen",
+  title: "Properties | Shen Munson Realty",
 };
 
 // Force this page to be dynamic and pull fresh data instead of static generation

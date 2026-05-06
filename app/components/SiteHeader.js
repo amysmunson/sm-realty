@@ -54,7 +54,7 @@ export default function SiteHeader() {
       <div className="flex items-center justify-between p-4 transition-colors duration-200">
         {/* Logo/Site Name */}
         <Link className="text-white text-xl font-medium drop-shadow-sm" href="/">
-          Amelia Huimin Shen
+          Shen Munson Realty
         </Link>
         {/* Navigation and Menu */}
         {/* Only show the text links on med+ screens */}

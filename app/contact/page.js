@@ -2,7 +2,7 @@ import { createClient } from "@supabase/supabase-js";
 import { redirect } from "next/navigation";
 
 export const metadata = {
-  title: "Contact | Amelia Huimin Shen",
+  title: "Contact | Shen Munson Realty",
 };
 
 export default async function ContactPage({ searchParams }) {
@@ -38,7 +38,7 @@ export default async function ContactPage({ searchParams }) {
 
     // Send email notification using Resend API
     const resendApiKey = process.env.RESEND_API_KEY;
-    const resendFrom = "Amelia Huimin Shen <onboarding@resend.dev>";
+    const resendFrom = "Shen Munson Realty <onboarding@resend.dev>";
     const resendTo = process.env.RESEND_TO_EMAIL;
 
     let emailedSuccessfully = false;

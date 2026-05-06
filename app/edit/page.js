@@ -9,7 +9,7 @@ import EditHomepage from "@/app/components/EditHomepage";
 import EditNavigationBar from "@/app/components/EditNavigationBar";
 
 export const metadata = {
-	title: "Edit Dashboard | Amelia Huimin Shen",
+	title: "Edit Dashboard | Shen Munson Realty",
 };
 
 export default function EditPage() {
