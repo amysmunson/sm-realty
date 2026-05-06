@@ -22,11 +22,18 @@ function getPropertyPhoto(property, photoData) {
   return null;
 }
 
+function getPropertyName(p_id, propertyData) {
+  const property = propertyData.find((p) => p.p_id === p_id);
+  return property ? property.address || `Property ${p_id}` : `Property ${p_id}`;
+}
+
 // If a user is not authorized to view the dashboard, permissions error
 function permissionsError() {
   return (
-    <div className="container mx-auto px-4 justify-center text-center">
-      <h1 className="text-2xl font-bold m-4">Dashboard</h1>
+    <div className="container mx-auto px-4 py-20 text-center">
+      <div className="mb-10">
+        <h1 className="justify-center text-center text-black text-4xl font-bold">Dashboard</h1>
+      </div>
       <p className="pb-10">You do not have permission to view this page.</p>
     </div>
   );
@@ -166,9 +173,10 @@ export default function DashboardClient() {
 
       const [{ data: contactRequests, error: contactRequestError }, { data: rentalApps, error: rentalAppError }, { data: showingRequests, error: showingRequestError }, { data: availabilityRows, error: availabilityError }, { data: agents, error: agentError }] =
         await Promise.all([
-          supabase.from("contact_reqs").select("*").order("open", { ascending: false }).order("created_at", { ascending: false }),
-          supabase.from("rental_apps").select("*").order("open", { ascending: false }).order("created_at", { ascending: false }),
-          supabase.from("showing_reqs").select("*").order("open", { ascending: false }).order("created_at", { ascending: false }),
+          // Version that doesn't show closed requests at the bottom, will be shown in edit page
+          supabase.from("contact_reqs").select("*").is("open", true).order("created_at", { ascending: false }),
+          supabase.from("rental_apps").select("*").is("open", true).order("created_at", { ascending: false }),
+          supabase.from("showing_reqs").select("*").is("open", true).order("created_at", { ascending: false }),
           supabase.from("availability").select("showing_id,available_date,start_time,end_time"),
           supabase.from("agents").select("*").order("name", { ascending: true }),
         ]);
@@ -246,7 +254,9 @@ export default function DashboardClient() {
   if (userLoading || loading) {
     return (
       <div className="container mx-auto px-4 py-20 text-center">
-        <h1 className="text-2xl font-bold m-4">Dashboard</h1>
+        <div className="mb-10">
+          <h1 className="justify-center text-center text-black text-4xl font-bold">Dashboard</h1>
+        </div>
         <p className="text-sm text-gray-600">Loading dashboard...</p>
       </div>
     );
@@ -269,14 +279,38 @@ export default function DashboardClient() {
 
   console.log(propertyData);
 
-  // A temporary dashboard setup
+  // The dashboard
   return (
     <div>
       <main>
-        <div className="relative w-full mb-10 p-4 pt-20">
-          <h1 className="justify-center text-center text-black text-4xl font-bold">Dashboard</h1>
+        {/* Upper right corner edit button. Can also click the text */}
+        <div className="text-right p-4 text-sm">
+          <Link
+            href="/edit"
+            className="inline-flex items-center font-inherit text-inherit hover:text-blue-800 leading-none"
+          >
+            Edit
+          </Link>
         </div>
-        
+        <div className="relative w-full mb-10 p-4 pt-8">
+          <h1 className="justify-center text-center text-black text-4xl font-bold">
+            <Link
+              href="/edit"
+              className="inline-flex items-center font-inherit text-inherit hover:text-blue-800 leading-none"
+            >
+              <span>
+                Dashboard
+              </span>
+            </Link>
+          </h1>
+        </div>
+
+        <div label="description" className="container mx-auto px-4 text-center mb-10">
+          <p className="text-md text-gray-700">
+            Here you can view the essentail information about your properties, contact requests, rental applications, and showing requests all in one place. Click "Edit" or any section header to make changes and view all information.
+          </p>
+        </div>
+
         {/* Properties */}
         <div className="container mx-auto px-4 justify-center text-center">
           <h1 className="text-2xl font-bold m-4 text-black">
@@ -284,18 +318,7 @@ export default function DashboardClient() {
               href="/edit#properties"
               className="inline-flex items-center font-inherit text-inherit hover:text-blue-800 leading-none"
             >
-              <span>Properties</span>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={2.5}
-                className="h-[1em] w-[1em] shrink-0"
-                aria-hidden="true"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
-              </svg>
+              Properties
             </Link>
           </h1>
         </div>
@@ -305,31 +328,31 @@ export default function DashboardClient() {
           <table className="table-auto md:table-fixed w-full my-4 mx-auto border-collapse border border-gray-300">
             <thead>
               <tr>
-                <th className="border border-gray-300 p-1">Address</th>
-                <th className="border border-gray-300 p-1">City</th>
-                <th className="border border-gray-300 p-1">Beds</th>
-                <th className="border border-gray-300 p-1">Baths</th>
-                <th className="border border-gray-300 p-1">Sqft</th>
-                <th className="border border-gray-300 p-1">Monthly Rent</th>
-                <th className="border border-gray-300 p-1">Home Type</th>
-                <th className="border border-gray-300 p-1">Rental Status</th>
-                <th className="border border-gray-300 p-1">External Listing</th>
-                <th className="border border-gray-300 p-1">Internal Listing</th>
+                <th className="border border-gray-300 p-1 overflow-auto">Address</th>
+                <th className="border border-gray-300 p-1 overflow-auto">City</th>
+                <th className="border border-gray-300 p-1 overflow-auto">Beds</th>
+                <th className="border border-gray-300 p-1 overflow-auto">Baths</th>
+                <th className="border border-gray-300 p-1 overflow-auto">Sqft</th>
+                <th className="border border-gray-300 p-1 overflow-auto">Monthly Rent</th>
+                <th className="border border-gray-300 p-1 overflow-auto">Home Type</th>
+                <th className="border border-gray-300 p-1 overflow-auto">Rental Status</th>
+                <th className="border border-gray-300 p-1 overflow-auto">External Listing</th>
+                <th className="border border-gray-300 p-1 overflow-auto">Internal Listing</th>
               </tr>
             </thead>
             <tbody>
               {propertyData?.map((property) => {
                 return (
                   <tr key={property.p_id} className={property.open_rental === false ? "bg-gray-100" : ""}>
-                    <td className="border border-gray-300 p-1">{property.address || "—"}</td>
-                    <td className="border border-gray-300 p-1">{property.city || "—"}</td>
-                    <td className="border border-gray-300 p-1">{property.beds || "—"}</td>
-                    <td className="border border-gray-300 p-1">{property.baths || "—"}</td>
-                    <td className="border border-gray-300 p-1">{property.sqft || "—"}</td>
-                    <td className="border border-gray-300 p-1">{property.monthly_rent || "—"}</td>
-                    <td className="border border-gray-300 p-1">{property.home_type || "—"}</td>
-                    <td className="border border-gray-300 p-1">{property.open_rental ? "Open" : "Closed"}</td>
-                    <td className="border border-gray-300 p-1">
+                    <td className="border border-gray-300 p-1 overflow-auto">{property.address || "—"}</td>
+                    <td className="border border-gray-300 p-1 overflow-auto">{property.city || "—"}</td>
+                    <td className="border border-gray-300 p-1 overflow-auto">{property.beds || "—"}</td>
+                    <td className="border border-gray-300 p-1 overflow-auto">{property.baths || "—"}</td>
+                    <td className="border border-gray-300 p-1 overflow-auto">{property.sqft || "—"}</td>
+                    <td className="border border-gray-300 p-1 overflow-auto">{property.monthly_rent || "—"}</td>
+                    <td className="border border-gray-300 p-1 overflow-auto">{property.home_type || "—"}</td>
+                    <td className="border border-gray-300 p-1 overflow-auto">{property.open_rental ? "Open" : "Closed"}</td>
+                    <td className="border border-gray-300 p-1 overflow-auto">
                       {property.ext_link ?
                         (<a href={property.ext_link} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
                           View
@@ -338,7 +361,7 @@ export default function DashboardClient() {
                           —
                         </a>)}
                     </td>
-                    <td className="border border-gray-300 p-1">
+                    <td className="border border-gray-300 p-1 overflow-auto">
                       <Link href={`/properties/${property.p_id} `} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
                         View
                       </Link>
@@ -358,111 +381,90 @@ export default function DashboardClient() {
               href="/edit#contacts"
               className="inline-flex items-center font-inherit text-inherit hover:text-blue-800 leading-none"
             >
-              <span>Contact Requests</span>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={2.5}
-                className="h-[1em] w-[1em] shrink-0"
-                aria-hidden="true"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
-              </svg>
+              Contact Requests
             </Link>
           </h1>
         </div>
 
         <div className="container mx-auto w-full px-4 mb-20 overflow-x-auto text-center">
-
-          <table className="table-auto md:table-fixed w-full my-4 mx-auto border-collapse border border-gray-300">
-            <thead>
-              <tr>
-                <th className="border border-gray-300">Submitted</th>
-                <th className="border border-gray-300">Name</th>
-                <th className="border border-gray-300">Email</th>
-                <th className="border border-gray-300">Phone</th>
-                <th className="border border-gray-300">Message</th>
-                <th className="border border-gray-300">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {contactRequests?.map((request) => {
-                return (
-                  <tr key={request.id} className={request.open === false ? "bg-gray-100" : ""}>
-                    <td className="border border-gray-300 p-1">{formatTimestamp(request.created_at)}</td>
-                    <td className="border border-gray-300 p-1">{request.name || "—"}</td>
-                    <td className="border border-gray-300 p-1">{request.email || "—"}</td>
-                    <td className="border border-gray-300 p-1">{request.phone || "—"}</td>
-                    <td className="border border-gray-300 p-1">{request.message || "—"}</td>
-                    <td className="border border-gray-300 p-1">{request.open ? "Open" : "Closed"}</td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+          {contactRequests && contactRequests.length > 0 ? (
+            <table className="table-auto md:table-fixed w-full my-4 mx-auto border-collapse border border-gray-300">
+              <thead>
+                <tr>
+                  <th className="border border-gray-300">Submitted</th>
+                  <th className="border border-gray-300">Name</th>
+                  <th className="border border-gray-300">Email</th>
+                  <th className="border border-gray-300 w-36">Phone</th>
+                  <th className="border border-gray-300">Message</th>
+                  <th className="border border-gray-300 w-28">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {contactRequests?.map((request) => {
+                  return (
+                    <tr key={request.id} className={request.open === false ? "bg-gray-100" : ""}>
+                      <td className="border border-gray-300 p-1 overflow-auto">{formatTimestamp(request.created_at)}</td>
+                      <td className="border border-gray-300 p-1 overflow-auto">{request.name || "—"}</td>
+                      <td className="border border-gray-300 p-1 overflow-auto">{request.email || "—"}</td>
+                      <td className="border border-gray-300 p-1 overflow-auto">{request.phone || "—"}</td>
+                      <td className="border border-gray-300 p-1 overflow-auto">{request.message || "—"}</td>
+                      <td className="border border-gray-300 p-1 overflow-auto">{request.open ? "Open" : "Closed"}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          ) : (
+            <p className="text-gray-600">No open contact requests at this time. See all existing contact requests <Link href="/edit#contacts" className="text-blue-500 hover:text-blue-700">here</Link>.</p>
+          )}
 
         </div>
 
         {/* Rental Apps */}
         <div className="container mx-auto px-4 justify-center text-center">
           <h1 className="text-2xl font-bold m-4 text-black">
-            {/*
-            <Link className="bg-blue-950 hover:bg-blue-800 text-white font-bold py-2 px-4 rounded" href="/edit#showings">
-              Showing Requests
-            </Link>
-            <Link className="bg-blue-950 hover:bg-blue-800 text-white font-bold py-2 px-4 rounded" href="/edit#agents">
-              Agents
-            </Link> */}
             <Link
               href="/edit#applications"
               className="inline-flex items-center font-inherit text-inherit hover:text-blue-800 leading-none"
             >
-              <span>Rental Applications</span>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={2.5}
-                className="h-[1em] w-[1em] shrink-0"
-                aria-hidden="true"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
-              </svg>
+              Rental Applications
             </Link>
           </h1>
         </div>
 
         <div className="container mx-auto w-full px-4 mb-20 overflow-x-auto text-center">
-
-          <table className="table-auto md:table-fixed w-full my-4 mx-auto border-collapse border border-gray-300">
-            <thead>
-              <tr>
-                <th className="border border-gray-300">Submitted</th>
-                <th className="border border-gray-300">Name</th>
-                <th className="border border-gray-300">Email</th>
-                <th className="border border-gray-300">Phone</th>
-                <th className="border border-gray-300">Notes</th>
-                <th className="border border-gray-300">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rentalApps?.map((application) => {
-                return (
-                  <tr key={application.form_id} className={application.open === false ? "bg-gray-100" : ""}>
-                    <td className="border border-gray-300 p-1">{formatTimestamp(application.created_at)}</td>
-                    <td className="border border-gray-300 p-1">{application.name || "—"}</td>
-                    <td className="border border-gray-300 p-1">{application.email || "—"}</td>
-                    <td className="border border-gray-300 p-1">{application.phone || "—"}</td>
-                    <td className="border border-gray-300 p-1">{application.message || "—"}</td>
-                    <td className="border border-gray-300 p-1">{application.open ? "Open" : "Closed"}</td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+          {rentalApps && rentalApps.length > 0 ? (
+            <table className="table-auto md:table-fixed w-full my-4 mx-auto border-collapse border border-gray-300">
+              <thead>
+                <tr>
+                  <th className="border border-gray-300 w-56">Submitted</th>
+                  <th className="border border-gray-300 w-48">Property</th>
+                  <th className="border border-gray-300 w-56">Name</th>
+                  <th className="border border-gray-300 w-56">Email</th>
+                  <th className="border border-gray-300 w-40">Phone</th>
+                  <th className="border border-gray-300">Notes</th>
+                  <th className="border border-gray-300 w-28">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {rentalApps?.map((application) => {
+                  return (
+                    <tr key={application.form_id} className={application.open === false ? "bg-gray-100" : ""}>
+                      <td className="border border-gray-300 p-1 overflow-auto">{formatTimestamp(application.created_at)}</td>
+                      <td className="border border-gray-300 p-1 overflow-auto">{getPropertyName(application.p_id, propertyData) || "—"}</td>
+                      <td className="border border-gray-300 p-1 overflow-auto">{application.name || "—"}</td>
+                      <td className="border border-gray-300 p-1 overflow-auto">{application.email || "—"}</td>
+                      <td className="border border-gray-300 p-1 overflow-auto">{application.phone || "—"}</td>
+                      <td className="border border-gray-300 p-1 overflow-auto">{application.message || "—"}</td>
+                      <td className="border border-gray-300 p-1 overflow-auto">{application.open ? "Open" : "Closed"}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          ) : (
+            <p className="text-gray-600">No open rental applications at this time. See all existing applications <Link href="/edit#applications" className="text-blue-500 hover:text-blue-700">here</Link>.</p>
+          )}
 
         </div>
 
@@ -473,56 +475,48 @@ export default function DashboardClient() {
               href="/edit#showings"
               className="inline-flex items-center font-inherit text-inherit hover:text-blue-800 leading-none"
             >
-              <span>Showing Requests</span>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={2.5}
-                className="h-[1em] w-[1em] shrink-0"
-                aria-hidden="true"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
-              </svg>
+              Showing Requests
             </Link>
           </h1>
         </div>
 
         <div className="container mx-auto w-full px-4 mb-20 overflow-x-auto text-center">
-
-          <table className="table-auto md:table-fixed w-full my-4 mx-auto border-collapse border border-gray-300">
-            <thead>
-              <tr>
-                <th className="border border-gray-300 p-1">Submitted</th>
-                <th className="border border-gray-300 p-1">Property</th>
-                <th className="border border-gray-300 p-1">Name</th>
-                <th className="border border-gray-300 p-1">Email</th>
-                <th className="border border-gray-300 p-1">Phone</th>
-                <th className="border border-gray-300 p-1">Notes</th>
-                <th className="border border-gray-300 p-1">Availability</th>
-                <th className="border border-gray-300 p-1">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {showingRequests?.map((request) => {
-                return (
-                  <tr key={request.showing_id} className={request.open === false ? "bg-gray-100" : ""}>
-                    <td className="border border-gray-300 p-1">{formatTimestamp(request.created_at)}</td>
-                    <td className="border border-gray-300 p-1">{propertyIdToAddress[request.p_id] || "—"}</td>
-                    <td className="border border-gray-300 p-1">{request.name || "—"}</td>
-                    <td className="border border-gray-300 p-1">{request.email || "—"}</td>
-                    <td className="border border-gray-300 p-1">{request.phone || "—"}</td>
-                    <td className="border border-gray-300 p-1">{request.notes || "—"}</td>
-                    <td className="border border-gray-300 p-1 whitespace-pre-line text-left">
-                      {formatAvailabilityDisplay(availabilityByShowingId[request.showing_id] || [])}
-                    </td>
-                    <td className="border border-gray-300 p-1">{request.open ? "Open" : "Closed"}</td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+          {showingRequests && showingRequests.length > 0 ? (
+            <table className="table-auto md:table-fixed w-full my-4 mx-auto border-collapse border border-gray-300">
+              <thead>
+                <tr>
+                  <th className="border border-gray-300 p-1 overflow-auto">Submitted</th>
+                  <th className="border border-gray-300 p-1 overflow-auto">Property</th>
+                  <th className="border border-gray-300 p-1 overflow-auto">Name</th>
+                  <th className="border border-gray-300 p-1 overflow-auto">Email</th>
+                  <th className="border border-gray-300 p-1 overflow-auto w-36">Phone</th>
+                  <th className="border border-gray-300 p-1 overflow-auto">Notes</th>
+                  <th className="border border-gray-300 p-1 overflow-auto">Availability</th>
+                  <th className="border border-gray-300 p-1 overflow-auto w-28">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {showingRequests?.map((request) => {
+                  return (
+                    <tr key={request.showing_id} className={request.open === false ? "bg-gray-100" : ""}>
+                      <td className="border border-gray-300 p-1 overflow-auto">{formatTimestamp(request.created_at)}</td>
+                      <td className="border border-gray-300 p-1 overflow-auto">{propertyIdToAddress[request.p_id] || "—"}</td>
+                      <td className="border border-gray-300 p-1 overflow-auto">{request.name || "—"}</td>
+                      <td className="border border-gray-300 p-1 overflow-auto">{request.email || "—"}</td>
+                      <td className="border border-gray-300 p-1 overflow-auto">{request.phone || "—"}</td>
+                      <td className="border border-gray-300 p-1 overflow-auto">{request.notes || "—"}</td>
+                      <td className="border border-gray-300 p-1 whitespace-pre-line text-left">
+                        {formatAvailabilityDisplay(availabilityByShowingId[request.showing_id] || [])}
+                      </td>
+                      <td className="border border-gray-300 p-1 overflow-auto">{request.open ? "Open" : "Closed"}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          ) : (
+            <p className="text-gray-600">No open showing requests at this time. See all existing showing requests <Link href="/edit#showings" className="text-blue-500 hover:text-blue-700">here</Link>.</p>
+          )}
 
         </div>
 
@@ -533,18 +527,7 @@ export default function DashboardClient() {
               href="/edit#agents"
               className="inline-flex items-center font-inherit text-inherit hover:text-blue-800 leading-none"
             >
-              <span>Agents</span>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={2.5}
-                className="h-[1em] w-[1em] shrink-0"
-                aria-hidden="true"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
-              </svg>
+              Agents
             </Link>
           </h1>
         </div>
@@ -554,22 +537,22 @@ export default function DashboardClient() {
           <table className="table-auto md:table-fixed w-full my-4 mx-auto border-collapse border border-gray-300">
             <thead>
               <tr>
-                <th className="border border-gray-300 p-1">Name</th>
-                <th className="border border-gray-300 p-1">Email</th>
-                <th className="border border-gray-300 p-1">Phone</th>
-                <th className="border border-gray-300 p-1">License</th>
-                <th className="border border-gray-300 p-1">DRE #</th>
+                <th className="border border-gray-300 p-1 overflow-auto">Name</th>
+                <th className="border border-gray-300 p-1 overflow-auto">Email</th>
+                <th className="border border-gray-300 p-1 overflow-auto">Phone</th>
+                <th className="border border-gray-300 p-1 overflow-auto">License</th>
+                <th className="border border-gray-300 p-1 overflow-auto">DRE #</th>
               </tr>
             </thead>
             <tbody>
               {agents?.map((agent) => {
                 return (
                   <tr key={agent.id}>
-                    <td className="border border-gray-300 p-1">{agent.name || "—"}</td>
-                    <td className="border border-gray-300 p-1">{agent.email || "—"}</td>
-                    <td className="border border-gray-300 p-1">{agent.phone || "—"}</td>
-                    <td className="border border-gray-300 p-1">{agent.license || "—"}</td>
-                    <td className="border border-gray-300 p-1">{agent.dre_num || "—"}</td>
+                    <td className="border border-gray-300 p-1 overflow-auto">{agent.name || "—"}</td>
+                    <td className="border border-gray-300 p-1 overflow-auto">{agent.email || "—"}</td>
+                    <td className="border border-gray-300 p-1 overflow-auto">{agent.phone || "—"}</td>
+                    <td className="border border-gray-300 p-1 overflow-auto">{agent.license || "—"}</td>
+                    <td className="border border-gray-300 p-1 overflow-auto">{agent.dre_num || "—"}</td>
                   </tr>
                 );
               })}
@@ -577,29 +560,6 @@ export default function DashboardClient() {
           </table>
 
         </div>
-
-        {/* Buttons */}
-        {/* <div className="container mx-auto px-4 justify-center text-center">
-          <h2 className="text-xl font-bold m-4 text-black">Edit and See Closed Entries</h2>
-          <div className="flex justify-center m-4 gap-4">
-            <Link className="bg-blue-950 hover:bg-blue-800 text-white font-bold py-2 px-4 rounded" href="/edit#properties">
-              Properties
-            </Link>
-            <Link className="bg-blue-950 hover:bg-blue-800 text-white font-bold py-2 px-4 rounded" href="/edit#contacts">
-              Contact Requests
-            </Link>
-            <Link className="bg-blue-950 hover:bg-blue-800 text-white font-bold py-2 px-4 rounded" href="/edit#applications">
-              Rental Applications
-            </Link>
-            <Link className="bg-blue-950 hover:bg-blue-800 text-white font-bold py-2 px-4 rounded" href="/edit#showings">
-              Showing Requests
-            </Link>
-            <Link className="bg-blue-950 hover:bg-blue-800 text-white font-bold py-2 px-4 rounded" href="/edit#agents">
-              Agents
-            </Link>
-          </div>
-        </div> */}
-
       </main>
     </div>
   );
