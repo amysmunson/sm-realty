@@ -2,7 +2,8 @@
 
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
+import { setComponentUnsaved } from "@/lib/unsavedClient";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { useCurrentUserId } from "@/app/components/CurrentUserId";
@@ -39,6 +40,7 @@ export default function EditAgentsClient() {
     const [savingId, setSavingId] = useState(null);
     const [deletingId, setDeletingId] = useState(null);
 
+    // On mount, check if user is authorized to view this page and load agents if so. Redirect if not authorized.
     useEffect(() => {
         let active = true;
 
@@ -129,69 +131,13 @@ export default function EditAgentsClient() {
 
     const hasUnsavedChanges = agents.some((item) => isRowDirty(item));
 
-    // Warn the user if they try to leave with unsaved changes, either by navigating within the app or closing the tab/window
-    useEffect(() => {
-        if (!hasUnsavedChanges) {
-            return;
-        }
-
-        function handleBeforeUnload(event) {
-            event.preventDefault();
-            event.returnValue = "";
-        }
-
-        window.addEventListener("beforeunload", handleBeforeUnload);
-        return () => {
-            window.removeEventListener("beforeunload", handleBeforeUnload);
-        };
-    }, [hasUnsavedChanges]);
+    // Register this component's unsaved state with the centralized handler to avoid duplicate prompts
+    const _unsavedId = useRef(null);
+    if (_unsavedId.current === null) _unsavedId.current = String(Math.random());
 
     useEffect(() => {
-        if (!hasUnsavedChanges) {
-            return;
-        }
-
-        function handleDocumentClick(event) {
-            if (!(event.target instanceof Element)) {
-                return;
-            }
-
-            const anchor = event.target.closest("a[href]");
-            if (!anchor) {
-                return;
-            }
-
-            if (anchor.target === "_blank" || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
-                return;
-            }
-
-            const href = anchor.getAttribute("href");
-            if (!href || href.startsWith("#")) {
-                return;
-            }
-
-            const nextUrl = new URL(anchor.href, window.location.href);
-            const currentUrl = new URL(window.location.href);
-            const isSameLocation =
-                nextUrl.origin === currentUrl.origin &&
-                nextUrl.pathname === currentUrl.pathname &&
-                nextUrl.search === currentUrl.search &&
-                nextUrl.hash === currentUrl.hash;
-
-            if (isSameLocation) {
-                return;
-            }
-
-            const shouldLeave = window.confirm("You have unsaved changes. Leave without saving?");
-            if (!shouldLeave) {
-                event.preventDefault();
-            }
-        }
-
-        document.addEventListener("click", handleDocumentClick, true);
-        return () => {
-            document.removeEventListener("click", handleDocumentClick, true);
-        };
+        setComponentUnsaved(_unsavedId.current, hasUnsavedChanges);
+        return () => setComponentUnsaved(_unsavedId.current, false);
     }, [hasUnsavedChanges]);
 
     // Helper functions for changes to an agent via DB request
@@ -335,7 +281,7 @@ export default function EditAgentsClient() {
                                         />
                                     </td>
                                     <td className="border border-gray-300 p-2">
-                                        <div className="flex items-center gap-2">
+                                        <div className="flex flex-col items-center gap-2">
                                             <button
                                                 type="button"
                                                 onClick={() => saveAgent(item)}

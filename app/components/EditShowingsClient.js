@@ -3,7 +3,8 @@
 
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
+import { setComponentUnsaved } from "@/lib/unsavedClient";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { useCurrentUserId } from "@/app/components/CurrentUserId";
@@ -293,68 +294,13 @@ export default function EditShowingsClient() {
     // Check if any rows are dirty to prompt user about unsaved changes if they try to navigate away
     const hasUnsavedChanges = requests.some((item) => isRowDirty(item));
 
-    useEffect(() => {
-        if (!hasUnsavedChanges) {
-            return;
-        }
-
-        function handleBeforeUnload(event) {
-            event.preventDefault();
-            event.returnValue = "";
-        }
-
-        window.addEventListener("beforeunload", handleBeforeUnload);
-        return () => {
-            window.removeEventListener("beforeunload", handleBeforeUnload);
-        };
-    }, [hasUnsavedChanges]);
+    // Register this component's unsaved state with global handler to avoid duplicates
+    const _unsavedId = useRef(null);
+    if (_unsavedId.current === null) _unsavedId.current = String(Math.random());
 
     useEffect(() => {
-        if (!hasUnsavedChanges) {
-            return;
-        }
-
-        function handleDocumentClick(event) {
-            if (!(event.target instanceof Element)) {
-                return;
-            }
-
-            const anchor = event.target.closest("a[href]");
-            if (!anchor) {
-                return;
-            }
-
-            if (anchor.target === "_blank" || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
-                return;
-            }
-
-            const href = anchor.getAttribute("href");
-            if (!href || href.startsWith("#")) {
-                return;
-            }
-
-            const nextUrl = new URL(anchor.href, window.location.href);
-            const currentUrl = new URL(window.location.href);
-            const isSameLocation =
-                nextUrl.origin === currentUrl.origin &&
-                nextUrl.pathname === currentUrl.pathname &&
-                nextUrl.search === currentUrl.search &&
-                nextUrl.hash === currentUrl.hash;
-
-            if (isSameLocation) {
-                return;
-            }
-
-            const shouldLeave = window.confirm("You have unsaved changes. Leave without saving?");
-            if (!shouldLeave) {
-                event.preventDefault();
-            }
-        }
-
-        document.addEventListener("click", handleDocumentClick, true);
-        return () => {
-            document.removeEventListener("click", handleDocumentClick, true);
-        };
+        setComponentUnsaved(_unsavedId.current, hasUnsavedChanges);
+        return () => setComponentUnsaved(_unsavedId.current, false);
     }, [hasUnsavedChanges]);
 
     // DB helpers
@@ -536,7 +482,7 @@ export default function EditShowingsClient() {
                                         <select
                                             value={item.p_id ?? ""}
                                             onChange={(event) => updateField(item.showing_id, "p_id", event.target.value)}
-                                            className="w-56 rounded p-1"
+                                            className="w-40 rounded p-1"
                                         >
                                             <option className="text-gray-500" value=""></option>
                                             {propertyOptions.map((option) => (
@@ -567,7 +513,7 @@ export default function EditShowingsClient() {
                                             type="text"
                                             value={item.phone || ""}
                                             onChange={(event) => updateField(item.showing_id, "phone", event.target.value)}
-                                            className="w-36 rounded p-1"
+                                            className="w-24 rounded p-1"
                                         />
                                     </td>
                                     <td className="border border-gray-300 p-2">
@@ -575,7 +521,7 @@ export default function EditShowingsClient() {
                                             value={item.notes || ""}
                                             onChange={(event) => updateField(item.showing_id, "notes", event.target.value)}
                                             rows={3}
-                                            className="w-72 rounded p-1"
+                                            className="w-60 rounded p-1"
                                         />
                                     </td>
                                     <td className="border border-gray-300 p-2">
@@ -584,7 +530,7 @@ export default function EditShowingsClient() {
                                             onChange={(event) => updateField(item.showing_id, "availabilityText", event.target.value)}
                                             rows={3}
                                             placeholder="YYYY-MM-DD HH:MM-HH:MM"
-                                            className="w-72 rounded p-1"
+                                            className="w-40 rounded p-1"
                                         />
                                     </td>
                                     <td className="border border-gray-300 p-2 text-center">
@@ -595,7 +541,7 @@ export default function EditShowingsClient() {
                                         />
                                     </td>
                                     <td className="border border-gray-300 p-2">
-                                        <div className="flex items-center gap-2">
+                                        <div className="flex flex-col items-center gap-2">
                                             <button
                                                 type="button"
                                                 onClick={() => saveRequest(item)}
