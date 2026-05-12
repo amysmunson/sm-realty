@@ -1,6 +1,6 @@
 // Signup Page
 
-import UserRegistration from "@/app/components/UserRegistration";
+import UserRegistration from "@/app/components/forms/UserRegistration";
 
 export const metadata = {
   title: "Sign Up | Shen Munson Realty",

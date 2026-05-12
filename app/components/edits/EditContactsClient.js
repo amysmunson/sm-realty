@@ -1,5 +1,4 @@
-// Edit Applications Client Component
-// Shows all rental applications/contact requests and allows editing and deleting them.
+// Edit Contact Requests Client Component
 
 "use client";
 
@@ -7,7 +6,7 @@ import { useEffect, useState, useRef } from "react";
 import { setComponentUnsaved } from "@/lib/unsavedClient";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { useCurrentUserId } from "@/app/components/CurrentUserId";
+import { useCurrentUserId } from "@/lib/useCurrentUserId";
 
 const EDITABLE_FIELDS = ["name", "email", "phone", "message", "open"];
 
@@ -19,13 +18,13 @@ function toNullableText(value) {
     return String(value);
 }
 
-function normalizeApplication(application) {
+function normalizeRequest(request) {
     return {
-        name: toNullableText(application.name),
-        email: toNullableText(application.email),
-        phone: toNullableText(application.phone),
-        message: toNullableText(application.message),
-        open: Boolean(application.open),
+        name: toNullableText(request.name),
+        email: toNullableText(request.email),
+        phone: toNullableText(request.phone),
+        message: toNullableText(request.message),
+        open: Boolean(request.open),
     };
 }
 
@@ -43,11 +42,11 @@ function formatTimestamp(value) {
     }).format(date);
 }
 
-export default function EditApplicationsClient() {
+export default function EditContactsClient() {
     const router = useRouter();
     const { userId, loading: userLoading } = useCurrentUserId();
 
-    const [applications, setApplications] = useState([]);
+    const [requests, setRequests] = useState([]);
     const [originalById, setOriginalById] = useState({});
     const [loading, setLoading] = useState(true);
     const [authorized, setAuthorized] = useState(false);
@@ -55,7 +54,7 @@ export default function EditApplicationsClient() {
     const [savingId, setSavingId] = useState(null);
     const [deletingId, setDeletingId] = useState(null);
 
-    // Check user admin status and load applications
+    // Check user admin status and load contact requests on page load
     useEffect(() => {
         let active = true;
 
@@ -92,9 +91,9 @@ export default function EditApplicationsClient() {
 
             setAuthorized(true);
 
-            const { data, error: applicationsError } = await supabase
-                .from("rental_apps")
-                .select("form_id,created_at,name,email,phone,message,open")
+            const { data, error: requestsError } = await supabase
+                .from("contact_reqs")
+                .select("id,created_at,name,email,phone,message,open")
                 .order("open", { ascending: false })
                 .order("created_at", { ascending: false });
 
@@ -102,12 +101,12 @@ export default function EditApplicationsClient() {
                 return;
             }
 
-            if (applicationsError) {
-                setError(applicationsError.message || "Unable to load rental applications.");
+            if (requestsError) {
+                setError(requestsError.message || "Unable to load contact requests.");
             } else {
                 const loaded = data || [];
-                setApplications(loaded);
-                setOriginalById(Object.fromEntries(loaded.map((item) => [item.form_id, normalizeApplication(item)])));
+                setRequests(loaded);
+                setOriginalById(Object.fromEntries(loaded.map((item) => [item.id, normalizeRequest(item)])));
             }
 
             setLoading(false);
@@ -120,10 +119,10 @@ export default function EditApplicationsClient() {
         };
     }, [router, userId, userLoading]);
 
-    function updateField(formId, field, value) {
-        setApplications((prev) =>
+    function updateField(id, field, value) {
+        setRequests((prev) =>
             prev.map((item) => {
-                if (item.form_id !== formId) {
+                if (item.id !== id) {
                     return item;
                 }
 
@@ -134,16 +133,16 @@ export default function EditApplicationsClient() {
 
     // Mark rows dirty if there are unsaved changes different from original
     function isRowDirty(item) {
-        const original = originalById[item.form_id];
+        const original = originalById[item.id];
         if (!original) {
             return false;
         }
 
-        const current = normalizeApplication(item);
+        const current = normalizeRequest(item);
         return EDITABLE_FIELDS.some((field) => current[field] !== original[field]);
     }
 
-    const hasUnsavedChanges = applications.some((item) => isRowDirty(item));
+    const hasUnsavedChanges = requests.some((item) => isRowDirty(item));
 
     // Register this component's unsaved state with global handler to avoid duplicates
     const _unsavedId = useRef(null);
@@ -154,9 +153,9 @@ export default function EditApplicationsClient() {
         return () => setComponentUnsaved(_unsavedId.current, false);
     }, [hasUnsavedChanges]);
 
-    // Database helpers
-    async function saveApplication(item) {
-        setSavingId(item.form_id);
+    // db/form helpers
+    async function saveRequest(item) {
+        setSavingId(item.id);
         setError("");
 
         const payload = {
@@ -168,24 +167,24 @@ export default function EditApplicationsClient() {
         };
 
         const { error: updateError } = await supabase
-            .from("rental_apps")
+            .from("contact_reqs")
             .update(payload)
-            .eq("form_id", item.form_id);
+            .eq("id", item.id);
 
         if (updateError) {
-            setError(updateError.message || "Unable to save rental application.");
+            setError(updateError.message || "Unable to save contact request.");
         } else {
             setOriginalById((prev) => ({
                 ...prev,
-                [item.form_id]: normalizeApplication(item),
+                [item.id]: normalizeRequest(item),
             }));
         }
 
         setSavingId(null);
     }
 
-    async function deleteApplication(item) {
-        if (!item?.form_id || deletingId) {
+    async function deleteRequest(item) {
+        if (!item?.id || deletingId) {
             return;
         }
 
@@ -194,21 +193,21 @@ export default function EditApplicationsClient() {
             return;
         }
 
-        setDeletingId(item.form_id);
+        setDeletingId(item.id);
         setError("");
 
-        const { error: deleteError } = await supabase.from("rental_apps").delete().eq("form_id", item.form_id);
+        const { error: deleteError } = await supabase.from("contact_reqs").delete().eq("id", item.id);
 
         if (deleteError) {
-            setError(deleteError.message || "Unable to delete rental application.");
+            setError(deleteError.message || "Unable to delete contact request.");
             setDeletingId(null);
             return;
         }
 
-        setApplications((prev) => prev.filter((application) => application.form_id !== item.form_id));
+        setRequests((prev) => prev.filter((request) => request.id !== item.id));
         setOriginalById((prev) => {
             const next = { ...prev };
-            delete next[item.form_id];
+            delete next[item.id];
             return next;
         });
         setDeletingId(null);
@@ -217,7 +216,7 @@ export default function EditApplicationsClient() {
     if (userLoading || loading) {
         return (
             <div className="container mx-auto px-4 py-10 text-center">
-                <p className="text-sm text-gray-600">Loading rental applications...</p>
+                <p className="text-sm text-gray-600">Loading contact requests...</p>
             </div>
         );
     }
@@ -244,23 +243,23 @@ export default function EditApplicationsClient() {
                             <th className="border border-gray-300 p-2">Name</th>
                             <th className="border border-gray-300 p-2">Email</th>
                             <th className="border border-gray-300 p-2">Phone</th>
-                            <th className="border border-gray-300 p-2">Notes</th>
+                            <th className="border border-gray-300 p-2">Message</th>
                             <th className="border border-gray-300 p-2">Open</th>
                             <th className="border border-gray-300 p-2">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {applications.map((item) => {
+                        {requests.map((item) => {
                             const rowDirty = isRowDirty(item);
 
                             return (
-                                <tr key={item.form_id} className={item.open ? "" : "bg-gray-50"}>
+                                <tr key={item.id} className={item.open ? "" : "bg-gray-50"}>
                                     <td className="border border-gray-300 p-2">{formatTimestamp(item.created_at)}</td>
                                     <td className="border border-gray-300 p-2">
                                         <input
                                             type="text"
                                             value={item.name || ""}
-                                            onChange={(event) => updateField(item.form_id, "name", event.target.value)}
+                                            onChange={(event) => updateField(item.id, "name", event.target.value)}
                                             className="w-40 rounded p-1"
                                         />
                                     </td>
@@ -268,7 +267,7 @@ export default function EditApplicationsClient() {
                                         <input
                                             type="email"
                                             value={item.email || ""}
-                                            onChange={(event) => updateField(item.form_id, "email", event.target.value)}
+                                            onChange={(event) => updateField(item.id, "email", event.target.value)}
                                             className="w-52 rounded p-1"
                                         />
                                     </td>
@@ -276,43 +275,43 @@ export default function EditApplicationsClient() {
                                         <input
                                             type="text"
                                             value={item.phone || ""}
-                                            onChange={(event) => updateField(item.form_id, "phone", event.target.value)}
+                                            onChange={(event) => updateField(item.id, "phone", event.target.value)}
                                             className="w-36 rounded p-1"
                                         />
                                     </td>
-                                    <td className="border border-gray-300 p-2">
+                                    <td className="border border-gray-300 p-2 w-80">
                                         <textarea
                                             value={item.message || ""}
-                                            onChange={(event) => updateField(item.form_id, "message", event.target.value)}
+                                            onChange={(event) => updateField(item.id, "message", event.target.value)}
                                             rows={3}
-                                            className="w-80 rounded p-1"
+                                            className="rounded p-1 w-full"
                                         />
                                     </td>
                                     <td className="border border-gray-300 p-2 text-center">
                                         <input
                                             type="checkbox"
                                             checked={Boolean(item.open)}
-                                            onChange={(event) => updateField(item.form_id, "open", event.target.checked)}
+                                            onChange={(event) => updateField(item.id, "open", event.target.checked)}
                                         />
                                     </td>
                                     <td className="border border-gray-300 p-2">
                                         <div className="flex flex-col items-center gap-2">
                                             <button
                                                 type="button"
-                                                onClick={() => saveApplication(item)}
-                                                disabled={savingId === item.form_id || !rowDirty || deletingId === item.form_id}
+                                                onClick={() => saveRequest(item)}
+                                                disabled={savingId === item.id || !rowDirty || deletingId === item.id}
                                                 className={`rounded px-3 py-1 text-white disabled:opacity-60 ${rowDirty ? "bg-blue-950 hover:bg-blue-800" : "bg-gray-400 cursor-not-allowed"
                                                     }`}
                                             >
-                                                {savingId === item.form_id ? "Saving..." : "Save"}
+                                                {savingId === item.id ? "Saving..." : "Save"}
                                             </button>
                                             <button
                                                 type="button"
-                                                onClick={() => deleteApplication(item)}
-                                                disabled={deletingId === item.form_id || savingId === item.form_id}
+                                                onClick={() => deleteRequest(item)}
+                                                disabled={deletingId === item.id || savingId === item.id}
                                                 className="rounded border border-red-200 px-3 py-1 text-red-700 hover:bg-red-50 disabled:opacity-50"
                                             >
-                                                {deletingId === item.form_id ? "Deleting..." : "Delete"}
+                                                {deletingId === item.id ? "Deleting..." : "Delete"}
                                             </button>
                                         </div>
                                     </td>

@@ -2,7 +2,7 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Deployed Site on Vercel
 
-Check out [Amelia Huimin Shen, Broker](https://amelia-shen.vercel.app/)!
+Check out [Shen Munson Realty](https://www.shenmunson.com/)!
 
 ## Local Development
 

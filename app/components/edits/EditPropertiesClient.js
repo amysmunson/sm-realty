@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { setComponentUnsaved } from "@/lib/unsavedClient";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { useCurrentUserId } from "@/app/components/CurrentUserId";
+import { useCurrentUserId } from "@/lib/useCurrentUserId";
 import {
   FEATURE_POLICY_GROUPS,
   getEmptyFeaturePolicyData,

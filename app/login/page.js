@@ -1,5 +1,5 @@
 // Login Page 
-import UserLogin from "@/app/components/UserLogin";
+import UserLogin from "@/app/components/forms/UserLogin";
 
 export const metadata = {
   title: "Login | Shen Munson Realty",

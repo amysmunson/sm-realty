@@ -1,9 +1,9 @@
 // Page for specific listing accessed via /properties/[id]
 
 import { supabase } from "@/lib/supabase";
-import RequestShowing from "@/app/components/RequestShowing";
-import RentalApp from "@/app/components/RentalApp";
-import PropertyPhotos from "@/app/components/PropertyPhotos";
+import RequestShowing from "@/app/components/forms/RequestShowing";
+import RentalApp from "@/app/components/forms/RentalApp";
+import PropertyPhotos from "@/app/components/photos/PropertyPhotos";
 import { getFeaturePolicyDisplaySections } from "@/app/components/PropertyFeaturesPolicies";
 
 const siteName = "Shen Munson Realty";

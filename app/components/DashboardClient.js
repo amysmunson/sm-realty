@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
-import { useCurrentUserId } from "@/app/components/CurrentUserId";
+import { useCurrentUserId } from "@/lib/useCurrentUserId";
 
 // Get the first photo for a property, if it exists, from the given data
 function getPropertyPhoto(property, photoData) {

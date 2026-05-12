@@ -5,7 +5,7 @@
 import { use, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { useCurrentUserId } from "@/app/components/CurrentUserId";
+import { useCurrentUserId } from "@/lib/useCurrentUserId";
 
 
 export default function ProfileClient() {

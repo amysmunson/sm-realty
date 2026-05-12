@@ -6,7 +6,7 @@ import { useEffect, useState, useRef } from "react";
 import { setComponentUnsaved } from "@/lib/unsavedClient";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { useCurrentUserId } from "@/app/components/CurrentUserId";
+import { useCurrentUserId } from "@/lib/useCurrentUserId";
 
 const EDITABLE_FIELDS = ["name", "email", "phone", "license", "dre_num"];
 

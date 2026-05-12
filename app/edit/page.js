@@ -1,12 +1,12 @@
 // Page to edit all tables. Shows all entries, even if closed.
 
-import EditAgentsClient from "@/app/components/EditAgentsClient";
-import EditPropertiesClient from "@/app/components/EditPropertiesClient";
-import EditShowingsClient from "@/app/components/EditShowingsClient";
-import EditApplicationsClient from "@/app/components/EditApplicationsClient";
-import EditContactsClient from "@/app/components/EditContactsClient";
-import EditHomepage from "@/app/components/EditHomepage";
-import EditNavigationBar from "@/app/components/EditNavigationBar";
+import EditAgentsClient from "@/app/components/edits/EditAgentsClient";
+import EditPropertiesClient from "@/app/components/edits/EditPropertiesClient";
+import EditShowingsClient from "@/app/components/edits/EditShowingsClient";
+import EditApplicationsClient from "@/app/components/edits/EditApplicationsClient";
+import EditContactsClient from "@/app/components/edits/EditContactsClient";
+import EditHomepage from "@/app/components/edits/EditHomepage";
+import EditNavigationBar from "@/app/components/edits/EditNavigationBar";
 
 export const metadata = {
 	title: "Edit Dashboard | Shen Munson Realty",
