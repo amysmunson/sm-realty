@@ -1,5 +1,8 @@
 import { createClient } from "@supabase/supabase-js";
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
+import Script from "next/script";
+import TurnstileWidget from "../components/forms/TurnstileWidget";
 
 export const metadata = {
   title: "Contact | Shen Munson Realty",
@@ -10,9 +13,51 @@ export default async function ContactPage({ searchParams }) {
   const submitted = params?.submitted === "1";
   const emailed = params?.emailed === "1";
 
+  const turnstileSiteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
+
   // Function to handle contact request form submission
   async function submitContact(formData) {
     "use server";
+
+    // Verify Cloudflare Turnstile token before doing anything else
+    const turnstileToken = String(formData.get("cf-turnstile-response") ?? "").trim();
+    const turnstileSecret = process.env.TURNSTILE_SECRET_KEY;
+
+    if (!turnstileSecret) {
+      throw new Error("Missing TURNSTILE_SECRET_KEY environment variable.");
+    }
+
+    if (!turnstileToken) {
+      throw new Error("Missing Turnstile token.");
+    }
+
+    const headerList = await headers();
+    const remoteIp =
+      headerList.get("cf-connecting-ip") ||
+      headerList.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+      "";
+
+    const verifyBody = new URLSearchParams({
+      secret: turnstileSecret,
+      response: turnstileToken,
+    });
+    if (remoteIp) verifyBody.append("remoteip", remoteIp);
+
+    const verifyResponse = await fetch(
+      "https://challenges.cloudflare.com/turnstile/v0/siteverify",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: verifyBody,
+      }
+    );
+
+    const verifyResult = await verifyResponse.json().catch(() => ({ success: false }));
+
+    if (!verifyResult.success) {
+      console.error("Turnstile verification failed:", verifyResult);
+      throw new Error("Turnstile verification failed.");
+    }
 
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const anonKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
@@ -94,6 +139,12 @@ export default async function ContactPage({ searchParams }) {
 
   return (
     <main>
+      <Script
+        src="https://challenges.cloudflare.com/turnstile/v0/api.js"
+        strategy="afterInteractive"
+        async
+        defer
+      />
       <div className="relative w-full mb-10 p-4 pt-20">
         <h1 className="justify-center text-center text-black text-4xl font-bold">Contact Us</h1>
       </div>
@@ -109,7 +160,7 @@ export default async function ContactPage({ searchParams }) {
               Your message was submitted, but the email notification could not be sent.
             </p>
           )
-        ) : 
+        ) :
 
         (<form action={submitContact} className="max-w-lg mx-auto space-y-6">
           <div>
@@ -163,14 +214,7 @@ export default async function ContactPage({ searchParams }) {
               placeholder="Your message"
             />
           </div>
-          <div>
-            <button
-              type="submit"
-              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-sm shadow-sm cursor-pointer text-white bg-blue-950 hover:bg-blue-900 focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-blue-950 transition"
-            >
-              Submit
-            </button>
-          </div>
+          <TurnstileWidget siteKey={turnstileSiteKey} />
         </form>)}
       </div>
     </main>
