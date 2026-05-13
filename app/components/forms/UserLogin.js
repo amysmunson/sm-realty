@@ -85,7 +85,7 @@ export default function UserLogin() {
 
   return (
     <section className="max-w-md mx-auto text-left mt-6 mb-10 border border-gray-200 rounded-lg p-6 bg-white shadow-sm">
-      <h2 className="text-xl font-semibold mb-4">Sign In</h2>
+      <h2 className="text-xl font-semibold mb-4">Log In</h2>
       {!linkStep ? (
         <form onSubmit={handleCredentialsSubmit} className="space-y-4">
           <div>
