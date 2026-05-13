@@ -1,8 +1,9 @@
-import { createClient } from "@supabase/supabase-js";
-import { redirect } from "next/navigation";
-import { headers } from "next/headers";
-import Script from "next/script";
+// Contact submission page
+// Calls server component action for Turnstile verification, database insert, and email sending
+// Promoting modularity
+
 import TurnstileWidget from "../components/forms/TurnstileWidget";
+import { submitContact } from "../components/forms/contactAction";
 
 export const metadata = {
   title: "Contact | Shen Munson Realty",
@@ -15,154 +16,26 @@ export default async function ContactPage({ searchParams }) {
 
   const turnstileSiteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
 
-  // Function to handle contact request form submission
-  async function submitContact(formData) {
-    "use server";
-
-    // Verify Cloudflare Turnstile token before doing anything else
-    const turnstileToken = String(formData.get("cf-turnstile-response") ?? "").trim();
-    const turnstileSecret = process.env.TURNSTILE_SECRET_KEY;
-
-    if (!turnstileSecret) {
-      throw new Error("Missing TURNSTILE_SECRET_KEY environment variable.");
-    }
-
-    if (!turnstileToken) {
-      throw new Error("Missing Turnstile token.");
-    }
-
-    const headerList = await headers();
-    const remoteIp =
-      headerList.get("cf-connecting-ip") ||
-      headerList.get("x-forwarded-for")?.split(",")[0]?.trim() ||
-      "";
-
-    const verifyBody = new URLSearchParams({
-      secret: turnstileSecret,
-      response: turnstileToken,
-    });
-    if (remoteIp) verifyBody.append("remoteip", remoteIp);
-
-    const verifyResponse = await fetch(
-      "https://challenges.cloudflare.com/turnstile/v0/siteverify",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: verifyBody,
-      }
-    );
-
-    const verifyResult = await verifyResponse.json().catch(() => ({ success: false }));
-
-    if (!verifyResult.success) {
-      console.error("Turnstile verification failed:", verifyResult);
-      throw new Error("Turnstile verification failed.");
-    }
-
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const anonKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
-
-    if (!supabaseUrl || !anonKey) {
-      throw new Error("Missing Supabase environment variables.");
-    }
-
-    const supabase = createClient(supabaseUrl, anonKey);
-
-    const payload = {
-      name: String(formData.get("name") ?? "").trim(),
-      email: String(formData.get("email") ?? "").trim(),
-      phone: String(formData.get("phone") ?? "").trim(),
-      message: String(formData.get("message") ?? "").trim(),
-    };
-
-    const { error } = await supabase.from("contact_reqs").insert([payload]);
-
-    if (error) {
-      throw new Error(`Failed to submit contact request: ${error.message}`);
-    }
-
-    // Send email notification using Resend API
-    const resendApiKey = process.env.RESEND_API_KEY;
-    const resendFrom = "Shen Munson Realty <onboarding@resend.dev>";
-    const resendTo = process.env.RESEND_TO_EMAIL;
-
-    let emailedSuccessfully = false;
-
-    if (resendApiKey && resendTo) {
-      try {
-        const emailResponse = await fetch("https://api.resend.com/emails", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${resendApiKey}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            from: resendFrom,
-            to: [resendTo],
-            replyTo: payload.email || resendFrom,
-            subject: `New contact request from ${payload.name || "website visitor"}`,
-            text: [
-              "New contact request received from the website.",
-              `Name: ${payload.name || "(not provided)"}`,
-              `Email: ${payload.email || "(not provided)"}`,
-              `Phone: ${payload.phone || "(not provided)"}`,
-              "",
-              "Message:",
-              payload.message || "(not provided)",
-            ].join("\n"),
-            html: `
-              <div style="font-family:Arial,sans-serif;line-height:1.5;color:#111827">
-                <h2 style="margin:0 0 12px 0">New contact request</h2>
-                <p style="margin:0 0 8px 0"><strong>Name:</strong> ${payload.name || "(not provided)"}</p>
-                <p style="margin:0 0 8px 0"><strong>Email:</strong> ${payload.email || "(not provided)"}</p>
-                <p style="margin:0 0 8px 0"><strong>Phone:</strong> ${payload.phone || "(not provided)"}</p>
-                <p style="margin:16px 0 8px 0"><strong>Message:</strong></p>
-                <div style="white-space:pre-wrap;background:#f9fafb;border:1px solid #e5e7eb;padding:12px;border-radius:8px">${payload.message || "(not provided)"}</div>
-              </div>
-            `,
-          }),
-        });
-
-        emailedSuccessfully = emailResponse.ok;
-        if (!emailResponse.ok) {
-          console.error("Failed to send contact email via Resend:", await emailResponse.text());
-        }
-      } catch (emailError) {
-        console.error("Failed to send contact email via Resend:", emailError);
-      }
-    } else {
-      console.error("Missing RESEND_API_KEY or RESEND_TO_EMAIL environment variables.");
-    }
-
-    redirect(`/contact?submitted=1&emailed=${emailedSuccessfully ? "1" : "0"}`);
-  }
-
   return (
     <main>
-      <Script
-        src="https://challenges.cloudflare.com/turnstile/v0/api.js"
-        strategy="afterInteractive"
-        async
-        defer
-      />
-      <div className="relative w-full mb-10 p-4 pt-20">
+      <div className="relative w-full p-4 pt-20">
         <h1 className="justify-center text-center text-black text-4xl font-bold">Contact Us</h1>
       </div>
 
-      <div className="container mx-auto px-4 justify-center text-center mb-10">
-        {submitted ? (
-          emailed ? (
-            <p className="mx-auto mb-6 max-w-lg rounded-sm bg-green-100 px-4 py-3 text-sm text-green-800">
-              Your message was submitted and emailed successfully.
-            </p>
-          ) : (
-            <p className="mx-auto mb-6 max-w-lg rounded-sm bg-yellow-100 px-4 py-3 text-sm text-yellow-800">
-              Your message was submitted, but the email notification could not be sent.
-            </p>
-          )
-        ) :
+      <div className="container mx-auto px-4 justify-center text-center mb-20">
+          {submitted ? (
+            emailed ? (
+              <div className="mx-auto mb-8 max-w-lg rounded-sm bg-green-100 px-4 py-3 text-sm text-green-800">
+                Your message was submitted and emailed successfully.
+              </div>
+            ) : (
+              <div className="mx-auto mb-8 max-w-lg rounded-sm bg-yellow-100 px-4 py-3 text-sm text-yellow-800">
+                Your message was saved, but the email could not be sent. It may take us a little longer to get back to you, but we will respond as soon as we can.
+              </div>
+            )
+          ) : (<div className="min-h-12"></div>)}
 
-        (<form action={submitContact} className="max-w-lg mx-auto space-y-6">
+        <form action={submitContact} className="max-w-lg mx-auto space-y-6">
           <div>
             <label htmlFor="name" className="block text-left text-sm font-medium text-gray-700">
               Name
@@ -215,7 +88,7 @@ export default async function ContactPage({ searchParams }) {
             />
           </div>
           <TurnstileWidget siteKey={turnstileSiteKey} />
-        </form>)}
+        </form>
       </div>
     </main>
   );
