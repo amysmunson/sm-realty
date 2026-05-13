@@ -1,5 +1,4 @@
 import Image from "next/image";
-import Link from "next/link";
 
 export default function AgentCard({ id, agent, photoSrc }) {
   return (
@@ -42,6 +41,7 @@ export default function AgentCard({ id, agent, photoSrc }) {
           {/* format as phone number */}
           <div className="text-sm">{agent.phone ? agent.phone.replace(/(\d{3})(\d{3})(\d{4})/, "($1)$2-$3") : ""}</div>
           <div className="text-sm">{agent.email || ""}</div>
+          <div className="text-sm">DRE #{agent.dre_num || ""}</div>
         </div>
       </div>
     </div>

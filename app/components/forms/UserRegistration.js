@@ -155,7 +155,6 @@ export default function UserRegistration() {
       </form>
       )}
 
-      {message ? <p className="text-green-700 mt-3 text-sm">{message}</p> : null}
       {error ? <p className="text-red-700 mt-3 text-sm">{error}</p> : null}
     </section>
   );
