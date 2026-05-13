@@ -38,192 +38,6 @@ export default async function PropertyDetailsPage({ params }) {
   const { id } = await params;
   const property = await getProperty(id);
 
-  // Helper to send notification emails for both showing requests and rental applications.
-  async function notifyRequest(kind, payload) {
-    "use server";
-
-    const resendApiKey = process.env.RESEND_API_KEY;
-    const resendFrom = "Shen Munson Realty <onboarding@resend.dev>";
-    const resendTo = process.env.RESEND_TO_EMAIL;
-
-    if (!resendApiKey || !resendTo) {
-      return { emailedSuccessfully: false };
-    }
-
-    const propertyLabel = property?.address || `Property ID ${id}`;
-    const subject =
-      kind === "showing"
-        ? `New showing request for ${propertyLabel}`
-        : `New rental application for ${propertyLabel}`;
-
-    const textLines = [
-      `${kind === "showing" ? "New showing request" : "New rental application"} received from the website.`,
-      `Property: ${propertyLabel}`,
-      `Name: ${payload.name || "(not provided)"}`,
-      `Email: ${payload.email || "(not provided)"}`,
-      `Phone: ${payload.phone || "(not provided)"}`,
-    ];
-
-    if (kind === "showing") {
-      textLines.push("", "Preferred showing times:");
-      (payload.slots || []).forEach((slot, index) => {
-        textLines.push(
-          `${index + 1}. ${slot.date || "(no date)"} ${slot.startTime || "(no start)"} - ${slot.endTime || "(no end)"}`
-        );
-      });
-      textLines.push("", "Notes:", payload.notes || "(not provided)");
-    } else {
-      textLines.push("", "Message:", payload.message || "(not provided)");
-    }
-
-    try {
-      const emailResponse = await fetch("https://api.resend.com/emails", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${resendApiKey}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          from: resendFrom,
-          to: [resendTo],
-          replyTo: payload.email || resendFrom,
-          subject,
-          text: textLines.join("\n"),
-          html: `
-            <div style="font-family:Arial,sans-serif;line-height:1.5;color:#111827">
-              <h2 style="margin:0 0 12px 0">${subject}</h2>
-              <p style="margin:0 0 8px 0"><strong>Property:</strong> ${propertyLabel}</p>
-              <p style="margin:0 0 8px 0"><strong>Name:</strong> ${payload.name || "(not provided)"}</p>
-              <p style="margin:0 0 8px 0"><strong>Email:</strong> ${payload.email || "(not provided)"}</p>
-              <p style="margin:0 0 8px 0"><strong>Phone:</strong> ${payload.phone || "(not provided)"}</p>
-              ${kind === "showing"
-              ? `
-                    <p style="margin:16px 0 8px 0"><strong>Preferred showing times:</strong></p>
-                    <div style="white-space:pre-wrap;background:#f9fafb;border:1px solid #e5e7eb;padding:12px;border-radius:8px">${textLines
-                .slice(6)
-                .join("\n")}</div>
-                  `
-              : `
-                    <p style="margin:16px 0 8px 0"><strong>Message:</strong></p>
-                    <div style="white-space:pre-wrap;background:#f9fafb;border:1px solid #e5e7eb;padding:12px;border-radius:8px">${payload.message || "(not provided)"}</div>
-                  `
-            }
-            </div>
-          `,
-        }),
-      });
-
-      if (!emailResponse.ok) {
-        console.error("Failed to send notification email via Resend:", await emailResponse.text());
-        return { emailedSuccessfully: false };
-      }
-
-      return { emailedSuccessfully: true };
-    } catch (error) {
-      console.error("Failed to send notification email via Resend:", error);
-      return { emailedSuccessfully: false };
-    }
-  }
-
-  // Handles form submission for showing requests. Parses the dynamic showing time slots and saves both the request and availability to Supabase, then sends a notification email.
-  async function submitShowing(formData) {
-    "use server";
-
-    const rawSlots = [];
-    for (const [key, value] of formData.entries()) {
-      if (!key.startsWith("showingDate-") || !value) {
-        continue;
-      }
-
-      const slotIndex = key.split("-")[1];
-      const startTime = String(formData.get(`showingStartTime-${slotIndex}`) ?? "").trim();
-      const endTime = String(formData.get(`showingEndTime-${slotIndex}`) ?? "").trim();
-
-      rawSlots.push({
-        date: String(value),
-        startTime,
-        endTime,
-      });
-    }
-
-    const name = String(formData.get("name") ?? "").trim();
-    const email = String(formData.get("email") ?? "").trim();
-    const phone = String(formData.get("phone") ?? "").trim();
-    const notes = String(formData.get("notes") ?? "").trim();
-
-    const { error: requestError, data: showingRequest } = await supabase
-      .from("showing_reqs")
-      .insert({
-        p_id: id,
-        name,
-        email,
-        phone,
-        notes: notes || null,
-      })
-      .select("showing_id")
-      .single();
-
-    if (requestError) {
-      throw new Error(requestError.message || "Unable to save showing request.");
-    }
-
-    const availabilityRows = rawSlots.map(({ date, startTime, endTime }) => ({
-      showing_id: showingRequest.showing_id,
-      available_date: date,
-      start_time: new Date(`${date}T${startTime}`).toISOString(),
-      end_time: new Date(`${date}T${endTime}`).toISOString(),
-    }));
-
-    const { error: availabilityError } = await supabase.from("availability").insert(availabilityRows);
-
-    if (availabilityError) {
-      throw new Error(availabilityError.message || "Unable to save showing availability.");
-    }
-
-    const notificationResult = await notifyRequest("showing", {
-      name,
-      email,
-      phone,
-      notes,
-      slots: rawSlots,
-      propertyAddress: property?.address,
-    });
-
-    return { emailedSuccessfully: notificationResult.emailedSuccessfully };
-  }
-
-  // Helper for submitting a rental application/interest form
-  async function submitRental(formData) {
-    "use server";
-
-    const name = String(formData.get("name") ?? "").trim();
-    const email = String(formData.get("email") ?? "").trim();
-    const phone = String(formData.get("phone") ?? "").trim();
-    const message = String(formData.get("message") ?? "").trim();
-
-    const { error } = await supabase.from("rental_apps").insert({
-      p_id: id,
-      name,
-      email,
-      phone,
-      message,
-    });
-
-    if (error) {
-      throw new Error(error.message || "Unable to save rental application.");
-    }
-
-    const notificationResult = await notifyRequest("rental", {
-      name,
-      email,
-      phone,
-      message,
-      propertyAddress: property?.address,
-    });
-
-    return { emailedSuccessfully: notificationResult.emailedSuccessfully };
-  }
-
   // Pull photos
   const { data: photos, error: photoError } = await supabase
     .from("photos")
@@ -360,7 +174,6 @@ export default async function PropertyDetailsPage({ params }) {
             <RequestShowing
               propertyId={property.p_id}
               propertyAddress={property?.address}
-              submitShowing={submitShowing}
             />
           </div>
           <div className="my-4">
@@ -368,7 +181,6 @@ export default async function PropertyDetailsPage({ params }) {
             <RentalApp
               propertyId={property.p_id}
               propertyAddress={property?.address}
-              submitRental={submitRental}
             />
           </div>
         </div>
