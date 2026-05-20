@@ -51,7 +51,7 @@ export default function SiteHeader() {
 
   return (
     <header className={headerClassName} style={headerStyle}>
-      <div className="flex items-center justify-between p-4 transition-colors duration-200">
+      <div className="flex items-center justify-between p-4 transition-colors duration-200 py-2">
         {/* Logo/Site Name */}
         <Link className="text-white text-xl font-medium drop-shadow-sm" href="/">
           Shen Munson Realty

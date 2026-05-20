@@ -12,6 +12,10 @@ export default function PropertyGalleryModal({ photos = [], address }) {
     const [visibleCount, setVisibleCount] = useState(18);
     // Index of photo currently shown full-screen; null means no photo is open
     const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(null);
+    // Whether the SiteHeader is in the viewport when the modal opens. When
+    // the user has scrolled the header offscreen we don't want extra top
+    // padding reserving space for it.
+    const [headerVisible, setHeaderVisible] = useState(true);
     const scrollContainerRef = useRef(null);
     const loadMoreSentinelRef = useRef(null);
 
@@ -56,6 +60,16 @@ export default function PropertyGalleryModal({ photos = [], address }) {
         if (!isOpen) return;
         setVisibleCount(18);
         setSelectedPhotoIndex(null);
+
+        // Measure whether the SiteHeader (rendered by the root layout) is
+        // still in view. Body scroll is locked below, so this value remains
+        // accurate for the lifetime of this open.
+        const header = document.querySelector("header");
+        if (header) {
+            setHeaderVisible(header.getBoundingClientRect().bottom > 0);
+        } else {
+            setHeaderVisible(false);
+        }
     }, [isOpen]);
 
     // IntersectionObserver for infinite scroll through the gallery instead of pages
@@ -103,7 +117,7 @@ export default function PropertyGalleryModal({ photos = [], address }) {
             {/* Full gallery popup */}
             {isOpen ? (
                 <div
-                    className="fixed inset-0 z-100 flex items-start justify-center bg-black/80 p-6 pt-18 sm:p-10 sm:pt-22"
+                    className={`fixed inset-0 z-100 flex items-start justify-center bg-black/80 p-6 sm:p-10 ${headerVisible ? "pt-20 sm:pt-20" : "pt-14 sm:pt-14"}`}
                     onClick={() => setIsOpen(false)}
                 >
                     <div
