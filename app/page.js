@@ -113,8 +113,14 @@ export default async function Home() {
         <div className="container mx-auto px-4 pb-12 justify-center text-center">
           <div className="pt-4">
             <h1 className="text-2xl font-bold m-4">About</h1>
-            <p className="pb-10">
-              We help clients rent and sell properties.
+            <p className="px-24 pb-10">
+              Based in Sillicon Valley, Shen Munson Realty is a real estate brokerage serving buyers, 
+              sellers, landlords, tenants, and property owners throughout the South Bay. Led by a licensed 
+              broker with nearly 30 years of local experience and market expertise, Shen Munson Realty 
+              provides personalized service and practical guidance to help clients achieve their real estate 
+              goals. We specialize in residential rentals, sales, and are committed to helping clients 
+              navigate every step. Whether you are renting, selling, or looking for a property managemer, 
+              Shen Munson Realty is here to help.
             </p>
           </div>
           {property_data.length > 0 && (
