@@ -841,6 +841,7 @@ export default function EditPropertiesClient() {
                             type="button"
                             onClick={() => saveProperty(property)}
                             disabled={savingId === property.p_id || !rowDirty}
+                            aria-label={savingId === property.p_id ? "Saving..." : "Save"}
                             className={`rounded px-1 py-1 text-white disabled:opacity-60 flex justify-center ${rowDirty
                               ? "bg-blue-950 hover:bg-blue-800"
                               : "bg-gray-400 cursor-not-allowed"
