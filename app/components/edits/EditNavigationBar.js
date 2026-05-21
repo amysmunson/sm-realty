@@ -17,9 +17,10 @@ function shouldTriggerSave(button) {
     return false;
   }
 
-  // Check if the button text indicates it's a save button
-  // Will need to be adjusted to save icon if we switch to icon buttons
-  const text = (button.textContent || "").trim().toLowerCase();
+  // Check if the button text indicates it's a save button. Falls back to
+  // aria-label so icon-only buttons (e.g. the property row save) are matched
+  // by their accessible name when textContent is empty.
+  const text = (button.textContent || button.getAttribute("aria-label") || "").trim().toLowerCase();
   return text === "save" || text === "save order";
 }
 
@@ -31,7 +32,7 @@ function hasActiveSavingButtons() {
       return false;
     }
 
-    const text = (button.textContent || "").trim().toLowerCase();
+    const text = (button.textContent || button.getAttribute("aria-label") || "").trim().toLowerCase();
     return text.includes("saving");
   });
 }
