@@ -38,44 +38,43 @@ export default function Menu() {
       {/* Overlay */}
       <div
         onClick={() => setOpen(false)}
-        className={`fixed inset-0 bg-black/50 z-998 transition-all duration-300 ${
-          open ? "opacity-100" : "opacity-0 pointer-events-none"
-        }`}
+        className={`fixed inset-0 bg-black/50 z-998 transition-all duration-300 ${open ? "opacity-100" : "opacity-0 pointer-events-none"
+          }`}
       />
 
       {/* Menu */}
       <nav
         id="site-menu"
-        className={`fixed top-0 right-0 w-[90vw] sm:w-105 max-w-md h-dvh overflow-y-auto bg-white p-4 flex flex-col gap-4 z-999 shadow-xl items-center transform transition-all duration-300 ease-out ${
-          open
+        className={`fixed top-0 right-0 w-[90vw] sm:w-105 max-w-md h-dvh overflow-y-auto bg-blue-950 p-4 flex flex-col gap-4 z-999 shadow-xl items-center transform transition-all duration-300 ease-out ${open
             ? "translate-x-0 opacity-100"
             : "translate-x-full opacity-80"
-        }`}
+          }`}
       >
         {/* Exit button */}
         <button
           type="button"
           onClick={() => setOpen(false)}
-          className="self-end text-lg m-1 cursor-pointer text-gray-700 hover:text-black active:text-black"
+          className="self-end text-lg m-1 cursor-pointer text-white hover:font-bold"
         >
           ✕
         </button>
 
-
         {/* Menu links */}
-        <Link href="/" onClick={() => setOpen(false)} className="text-xl font-medium text-gray-700 hover:text-black active:text-black">
-          Home
-        </Link>
-        <Link href="/properties" onClick={() => setOpen(false)} className="text-xl font-medium text-gray-700 hover:text-black active:text-black">
-          Properties
-        </Link>
-        <Link href="/about" onClick={() => setOpen(false)} className="text-xl font-medium text-gray-700 hover:text-black active:text-black">
-          About
-        </Link>
-        <Link href="/contact" onClick={() => setOpen(false)} className="text-xl font-medium text-gray-700 hover:text-black active:text-black">
-          Contact
-        </Link>
-        <div className="text-gray-700 hover:text-black active:text-black mt-auto">
+        <div className="grid-cols-1 flex flex-col items-left w-full divide-y divide-white/20">
+          <Link href="/" onClick={() => setOpen(false)} className="row-span-full px-4 pb-6 text-xl font-medium text-white hover:font-bold active:font-bold">
+            Home
+          </Link>
+          <Link href="/properties" onClick={() => setOpen(false)} className="row-span-full px-4 py-6 text-xl font-medium text-white hover:font-bold">
+            Properties
+          </Link>
+          <Link href="/about" onClick={() => setOpen(false)} className="row-span-full px-4 py-6 text-xl font-medium text-white hover:font-bold">
+            About
+          </Link>
+          <Link href="/contact" onClick={() => setOpen(false)} className="row-span-full px-4 py-6 text-xl font-medium text-white hover:font-bold">
+            Contact
+          </Link>
+        </div>
+        <div className="text-white hover:font-bold mt-auto">
           <ProfileButton onClick={() => setOpen(false)} />
         </div>
       </nav>

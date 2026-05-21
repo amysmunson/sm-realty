@@ -65,6 +65,9 @@ export default function SiteHeader() {
           <Link href="/about" className="text-white text-lg font-medium mr-4">
             About
           </Link>
+          <Link href="/contact" className="text-white text-lg font-medium mr-4">
+            Contact
+          </Link>
           <Menu />
         </div>
         {/* Always show the menu icon on smaller screens */}
