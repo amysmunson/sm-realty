@@ -110,6 +110,7 @@ export default function EditPropertiesClient() {
   const [authorized, setAuthorized] = useState(false);
   const [error, setError] = useState("");
   const [savingId, setSavingId] = useState(null);
+  const [deletingId, setDeletingId] = useState(null);
   const [galleryProperty, setGalleryProperty] = useState(null);
   const [galleryPhotos, setGalleryPhotos] = useState([]);
   const [savedGalleryPhotoIds, setSavedGalleryPhotoIds] = useState([]);
@@ -594,6 +595,90 @@ export default function EditPropertiesClient() {
     }
 
     setSavingId(null);
+  }
+
+  async function deleteProperty(property) {
+    if (!property?.p_id || deletingId || savingId === property.p_id) {
+      return;
+    }
+
+    const shouldDelete = window.confirm(
+      "Delete this property? This will also remove its photos from the gallery."
+    );
+
+    if (!shouldDelete) {
+      return;
+    }
+
+    setDeletingId(property.p_id);
+    setError("");
+
+    const { data: propertyPhotos, error: photosError } = await supabase
+      .from("photos")
+      .select("id,file_name")
+      .eq("p_id", property.p_id);
+
+    if (photosError) {
+      setError(photosError.message || "Unable to load property photos for deletion.");
+      setDeletingId(null);
+      return;
+    }
+
+    const fileNames = (propertyPhotos || [])
+      .map((photo) => photo.file_name)
+      .filter(Boolean);
+
+    if (fileNames.length > 0) {
+      const { error: storageError } = await supabase.storage
+        .from("photo_bucket")
+        .remove(fileNames);
+
+      if (storageError) {
+        setError(storageError.message || "Unable to remove property photos from storage.");
+        setDeletingId(null);
+        return;
+      }
+    }
+
+    const { error: deletePhotosError } = await supabase
+      .from("photos")
+      .delete()
+      .eq("p_id", property.p_id);
+
+    if (deletePhotosError) {
+      setError(deletePhotosError.message || "Unable to delete property photos.");
+      setDeletingId(null);
+      return;
+    }
+
+    const { error: deleteError } = await supabase
+      .from("properties")
+      .delete()
+      .eq("p_id", property.p_id);
+
+    if (deleteError) {
+      setError(deleteError.message || "Unable to delete property.");
+      setDeletingId(null);
+      return;
+    }
+
+    if (galleryProperty?.p_id === property.p_id) {
+      resetGalleryState();
+    }
+
+    if (detailsProperty?.p_id === property.p_id) {
+      closeDetailsEditor();
+    }
+
+    setProperties((prev) => prev.filter((item) => item.p_id !== property.p_id));
+    setOriginalPropertiesById((prev) => {
+      const next = { ...prev };
+      delete next[property.p_id];
+      return next;
+    });
+
+    setSavingId((current) => (current === property.p_id ? null : current));
+    setDeletingId(null);
   }
 
   async function saveDetailsEditor() {
