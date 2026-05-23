@@ -8,10 +8,6 @@ import { useActionState, useEffect, useMemo, useState } from "react";
 import { submitShowingRequest } from "./requestShowingAction";
 import TurnstileWidget from "./TurnstileWidget";
 
-// Styling for submit button to pass to TurnstileWidget
-const SUBMIT_BUTTON_CLASSNAME = `rounded-md bg-blue-950 px-4 py-2 font-bold text-white shadow-sm transition
-                                hover:bg-blue-800 disabled:opacity-60 disabled:cursor-default disabled:hover:bg-blue-950 cursor-pointer`;
-
 // Formats date and time to be readable 
 function formatLocalDateInputValue(date) {
     const year = date.getFullYear();
@@ -244,7 +240,6 @@ export default function RequestShowing({ propertyId, propertyAddress }) {
                     <TurnstileWidget
                         siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY}
                         label="Submit Request"
-                        buttonClassName={SUBMIT_BUTTON_CLASSNAME}
                     />
                 </form>
             ) : null}

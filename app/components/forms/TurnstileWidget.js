@@ -19,7 +19,6 @@ export default function TurnstileWidget({
   siteKey,
   label = "Submit",
   pendingLabel = "Submitting...",
-  buttonClassName = DEFAULT_BUTTON_CLASSNAME,
 }) {
   const containerRef = useRef(null);
   const widgetIdRef = useRef(null);
@@ -98,7 +97,7 @@ export default function TurnstileWidget({
         </>
       ) : null}
       <div ref={buttonWrapperRef}>
-        <button type="submit" disabled={disabled} className={buttonClassName}>
+        <button type="submit" disabled={disabled} className={DEFAULT_BUTTON_CLASSNAME}>
           {pending ? pendingLabel : label}
         </button>
       </div>

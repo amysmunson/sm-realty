@@ -8,10 +8,6 @@ import { useActionState } from "react";
 import { submitRentalApp } from "./rentalAppAction";
 import TurnstileWidget from "./TurnstileWidget";
 
-// Submit button styling for the TurnstileWidget instance in this form
-const SUBMIT_BUTTON_CLASSNAME = `bg-blue-950 hover:bg-blue-800 text-white font-bold py-2 px-4 rounded
-  disabled:opacity-50 disabled:cursor-default disabled:hover:bg-blue-950 cursor-pointer`;
-
 export default function RentalApp({ propertyId, propertyAddress }) {
   const [state, formAction] = useActionState(submitRentalApp, {});
 
@@ -77,7 +73,6 @@ export default function RentalApp({ propertyId, propertyAddress }) {
         <TurnstileWidget
           siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY}
           label="Submit Interest"
-          buttonClassName={SUBMIT_BUTTON_CLASSNAME}
         />
       </form>
     </div>
