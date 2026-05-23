@@ -8,16 +8,16 @@ export default function Footer() {
         <footer className="text-left p-4 text-sm text-white bg-blue-950">
             <div className="flex flex-col md:flex-row m-15 mb-10 md:gap-48">
                 <div className="">
-                    <Link href="/" onClick={() => setOpen(false)} className="block mb-5">
+                    <Link href="/" className="block mb-5">
                         Home
                     </Link>
-                    <Link href="/properties" onClick={() => setOpen(false)} className="block mb-5">
+                    <Link href="/properties" className="block mb-5">
                         Properties
                     </Link>
-                    <Link href="/about" onClick={() => setOpen(false)} className="block mb-5">
+                    <Link href="/about" className="block mb-5">
                         About
                     </Link>
-                    <Link href="/contact" onClick={() => setOpen(false)} className="block mb-5">
+                    <Link href="/contact" className="block mb-5">
                         Contact
                     </Link>
                 </div>
