@@ -189,9 +189,7 @@ export default function ProfileClient() {
               <button
                 type="button"
                 onClick={() => router.push("/dashboard")}
-                className="rounded bg-blue-950 px-4 py-2 text-white cursor-pointer
-                hover:bg-blue-900 transition focus-visible:bg-blue-900 
-                active:scale-95 active:bg-blue-900 active:shadow-lg"
+                className="btn-primary"
               >
                 Dashboard
               </button>

@@ -48,7 +48,6 @@ export default function EditPage() {
         </div>
 
         <div id="properties" className="mb-8 scroll-mt-24 rounded-xl border border-slate-200 bg-white p-2 shadow-sm sm:p-4">
-          <h2 className="justify-center text-center text-black text-2xl font-bold m-4">Properties</h2>
           <EditPropertiesClient />
         </div>
 
@@ -68,7 +67,6 @@ export default function EditPage() {
         </div>
 
         <div id="agents" className="mb-40 scroll-mt-24 rounded-xl border border-slate-200 bg-white p-2 shadow-sm sm:p-4">
-          <h2 className="justify-center text-center text-black text-2xl font-bold m-4">Agents</h2>
           <EditAgentsClient />
         </div>
 			</main>

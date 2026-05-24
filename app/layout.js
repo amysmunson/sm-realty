@@ -1,5 +1,6 @@
 import { Lato } from "next/font/google";
 import "./globals.css";
+import "./styles.css";
 import SiteHeader from "./components/utils/SiteHeader";
 import Footer from "./components/utils/Footer";
 

@@ -183,7 +183,7 @@ export default async function Home() {
                 <div className="my-8">
                   <Link
                     href="/properties"
-                    className="bg-white border-2 border-blue-950 hover:bg-blue-950 text-blue-950 hover:text-white font-bold py-2 px-4 rounded mt-4"
+                    className="btn-secondary-blue mt-4 font-bold"
                   >
                     See All
                   </Link>
