@@ -70,8 +70,8 @@ export default async function Properties() {
   );
 
   return (
-    <div>
-      <main>
+    <div style={{ minHeight: "calc(100vh - 6rem)" }}>
+      <main className="w-full">
         <div className="relative w-full mb-10 p-4 pt-20">
           <h1 className="justify-center text-center text-black text-4xl font-bold">Properties </h1>
         </div>
@@ -80,7 +80,7 @@ export default async function Properties() {
           {propertyData.length === 0 ? (
             <p className="text-center text-gray-500">No properties currently available.</p>
           ) :
-            <div className="grid grid-cols-1 h-150 gap-4 mb-20">
+            <div className="grid grid-cols-1 gap-4 mb-20">
               {propertyData.map((property) => (
                 <PropertyCard
                   key={property.p_id}

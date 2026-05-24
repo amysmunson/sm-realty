@@ -3,9 +3,10 @@ import Link from "next/link";
 
 export default function PropertyCard({ property, photoUrl }) {
   return (
+    // set height
     <Link
       href={`/properties/${property.p_id}`}
-      className="flex items-center overflow-hidden gap-4 p-4 lg:pl-0 bg-white border-gray-200 border b rounded-lg shadow-md hover:bg-gray-100 transition cursor-pointer"
+      className="flex items-center h-45 md:h-50 overflow-hidden gap-4 p-4 lg:pl-0 bg-white border-gray-200 border b rounded-lg shadow-md hover:bg-gray-100 transition cursor-pointer"
     >
       <div className="flex-none flex items-center justify-center relative aspect-4/3 h-32 sm:h-40 lg:h-60 rounded-md lg:rounded-l-lg lg:rounded-r-md overflow-hidden bg-gray-300">
         {photoUrl ? (

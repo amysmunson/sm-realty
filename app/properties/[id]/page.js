@@ -73,6 +73,10 @@ export default async function PropertyDetailsPage({ params }) {
   // Pull out the features and policies for display for this property
   const featurePolicySections = getFeaturePolicyDisplaySections(property);
 
+  // Find out how many sections actually are full, not just how many sections
+  // Useful for conditionally rendering the whole section only if there is at least one section with items to show, instead of showing empty section headers with no content underneath
+  const fullSections = featurePolicySections.filter((section) => section.items && section.items.length > 0);
+
   // Render the bullet list for a given array of items, or return null if there are no items to display for the features and policies sections.
   function renderBulletList(items) {
     if (!items || items.length === 0) {
@@ -115,7 +119,7 @@ export default async function PropertyDetailsPage({ params }) {
 
               {/* Need lines between each row */}
 
-              <div className="grid grid-cols-2 md:grid-cols-5 divide-x divide-gray-200 border-y border-gray-200 py-4 gap-4 items-center">
+              <div className="grid grid-cols-2 md:grid-cols-6 divide-x divide-gray-200 border-y border-gray-200 py-4 gap-4 items-center">
                 <div className="px-4 text-center">
                     <div className="text-xl font-semibold text-gray-900">
                       ${property.monthly_rent?.toLocaleString()}
@@ -136,17 +140,22 @@ export default async function PropertyDetailsPage({ params }) {
                   </div>
                   <div className="text-xs uppercase tracking-wide text-gray-500">Sq Ft</div>
                 </div>
-                <div className="px-4 text-center md:col-span-1 col-span-2">
+                <div className="px-4 text-center col-span-2">
                   <div className="text-xl font-semibold text-gray-900">{property.home_type}</div>
                   <div className="text-xs uppercase tracking-wide text-gray-500">Type</div>
                 </div>
               </div>
             </div>
             <h2 className="font-bold text-lg mb-2">Property Description</h2>
-            <p className="text-gray-700 mb-2 whitespace-pre-line">{property.home_desc}</p>
+            { property.home_desc ? (
+              <p className="text-gray-700 mb-2 whitespace-pre-line">{property.home_desc}</p>
+            ) : (
+              <p className="text-gray-400 mb-2 text-sm">No description provided.</p>
+            )}
             <h2 className="font-bold text-lg mb-2">Features and Policies</h2>
+            {fullSections.length > 0 ? (
             <div className="space-y-5">
-              {featurePolicySections.map((section) => (
+              {fullSections.map((section) => (
                 <section key={section.title}>
                   {renderBulletList(section.items) ? (
                     <h3 className="font-semibold text-gray-900 mb-2 text-md">{section.title}</h3>
@@ -154,7 +163,9 @@ export default async function PropertyDetailsPage({ params }) {
                   {renderBulletList(section.items) || null}
                 </section>
               ))}
-            </div>
+            </div>) : (
+              <p className="text-gray-400 mb-2 text-sm">No additional features or policies listed.</p>
+            )}
           </div>
           {/* External Link, either Zillow or Redfin */}
           {property.ext_link ? (
