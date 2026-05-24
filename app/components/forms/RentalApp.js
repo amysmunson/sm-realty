@@ -13,7 +13,7 @@ export default function RentalApp({ propertyId, propertyAddress }) {
 
   if (state?.success) {
     return (
-      <div className="bg-gray-100 p-6 rounded shadow-md">
+      <div className="card-form">
         <h2 className="text-lg font-bold mb-2">Success</h2>
         <p className="mb-4 text-sm text-gray-700">
           Your interest has been submitted. We will contact you soon.
@@ -23,8 +23,8 @@ export default function RentalApp({ propertyId, propertyAddress }) {
   }
 
   return (
-    <div className="bg-gray-100 p-6 rounded shadow-md">
-      <h2 className="text-lg font-bold mb-4">Express Your Interest in Renting</h2>
+    <div className="card-form">
+      <h2 className="text-lg font-bold mb-4">Contact Us</h2>
       <form action={formAction} className="space-y-4">
         <input type="hidden" name="propertyId" value={propertyId} />
         <input type="hidden" name="propertyAddress" value={propertyAddress ?? ""} />
@@ -32,42 +32,42 @@ export default function RentalApp({ propertyId, propertyAddress }) {
           <p className="rounded-sm bg-red-100 px-4 py-3 text-sm text-red-800">{state.error}</p>
         ) : null}
         <div>
-          <label className="block text-sm font-medium mb-1" htmlFor="rental-name">Name</label>
+          <label className="label-form" htmlFor="rental-name">Name</label>
           <input
             type="text"
             id="rental-name"
             name="name"
             required
-            className="w-full border border-gray-300 rounded px-3 py-2"
+            className="input-form"
           />
         </div>
         <div>
-          <label className="block text-sm font-medium mb-1" htmlFor="rental-email">Email</label>
+          <label className="label-form" htmlFor="rental-email">Email</label>
           <input
             type="email"
             id="rental-email"
             name="email"
             required
-            className="w-full border border-gray-300 rounded px-3 py-2"
+            className="input-form"
           />
         </div>
         <div>
-          <label className="block text-sm font-medium mb-1" htmlFor="rental-phone">Phone</label>
+          <label className="label-form" htmlFor="rental-phone">Phone</label>
           <input
             type="tel"
             id="rental-phone"
             name="phone"
             required
-            className="w-full border border-gray-300 rounded px-3 py-2"
+            className="input-form"
           />
         </div>
         <div>
-          <label className="block text-sm font-medium mb-1" htmlFor="rental-message">Message</label>
+          <label className="label-form" htmlFor="rental-message">Message</label>
           <textarea
             id="rental-message"
             name="message"
             rows={4}
-            className="w-full border border-gray-300 rounded px-3 py-2"
+            className="input-form"
           />
         </div>
         <TurnstileWidget

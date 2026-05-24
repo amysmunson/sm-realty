@@ -1,0 +1,181 @@
+/* ============================================================
+   Repeated className patterns extracted from the JSX in this app.
+   ============================================================ */
+
+@reference "./globals.css";
+
+@layer components {
+
+  /* ============================================================
+     PRIMARY BLUE BUTTONS (bg-blue-950 family)
+     ============================================================ */
+
+  /* Primary blue button style */
+  .btn-primary {
+    @apply px-4 py-2 rounded cursor-pointer
+           bg-blue-950 text-white border-2 border-blue-950
+           hover:bg-blue-900 hover:border-blue-900 transition 
+           focus-visible:bg-blue-900 focus-visible:border-blue-900 focus-visible:outline-blue-900
+           active:scale-95 active:bg-blue-900 active:shadow-lg
+           disabled:opacity-60 disabled:cursor-default disabled:hover:bg-blue-950
+           disabled:active:scale-100 disabled:active:bg-blue-950 disabled:active:shadow-none;
+  }
+
+  /* Modal "Save" button (Features/Policies modal, Gallery modal). */
+  /* Files: app/components/edits/EditPropertiesClient.js (modal footers) */
+  .btn-modal-save {
+    @apply px-4 py-2 rounded 
+           bg-blue-950 text-sm font-semibold text-white
+           hover:bg-blue-900
+           disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+
+  /* ============================================================
+     SECONDARY / GHOST BUTTONS
+     ============================================================ */
+
+  /* See all "secondary" buttons. (Homepage) */
+  .btn-secondary-blue {
+    @apply inline-block px-4 py-2 rounded cursor-pointer
+    bg-white border-2 border-blue-950 text-blue-950
+    hover:bg-blue-950 hover:text-white transition
+    focus-visible:outline-blue-950
+    active:scale-95 active:bg-blue-950 active:text-white;
+  }
+    /* Dark mode support */
+  @media (prefers-color-scheme: dark) {
+    .btn-secondary-blue {
+      @apply bg-gray-900 border-2 border-blue-800 text-blue-800
+    hover:bg-blue-900 hover:text-white;
+    }
+  }
+
+  /* "Back" button in UserLogin's link step. */
+  /* Files: app/components/forms/UserLogin.js (inline) */
+  .btn-secondary-gray {
+    @apply w-full bg-gray-100 text-gray-800 rounded px-4 py-2 cursor-pointer;
+  }
+
+  /* Modal "Cancel" button. */
+  /* Files: app/components/edits/EditPropertiesClient.js (modal footers) */
+  .btn-modal-cancel {
+    @apply rounded border border-gray-300 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100;
+  }
+
+  .btn-secondary-delete {
+    @apply px-2 py-2 rounded-md cursor-pointer 
+    border border-slate-300 shadow-sm 
+    bg-white text-sm text-slate-700 
+    hover:bg-slate-50 transition
+    focus-visible:outline-blue-900 focus-visible:outline-1
+    disabled:opacity-50;
+  }
+  
+
+  /* ============================================================
+     EDIT TABLE ICON BUTTONS
+     Many close cousins — all small bordered square buttons used
+     in rows for save/delete/expand/etc. Distinguished mostly by
+     hover color. Probably worth a `.btn-icon` base + variants.
+     ============================================================ */
+
+  .btn-add-entry{
+    @apply mx-2 p-2 rounded-full cursor-pointer
+    hover:bg-blue-950 hover:text-white transition;
+  }
+
+  .btn-edit {
+    @apply flex justify-center px-1 py-1 rounded 
+    border border-blue-950 text-blue-950
+    hover:bg-blue-950 hover:text-white transition;
+  }
+  
+  .btn-save {
+    @apply flex justify-center px-1 py-1 rounded cursor-pointer
+    bg-blue-950 text-white 
+    hover:bg-blue-900 transition 
+    focus-visible:bg-blue-900
+    active:bg-blue-900 
+    disabled:bg-gray-400 disabled:cursor-default disabled:hover:bg-gray-400 disabled:active:bg-gray-400;
+  }
+
+  .btn-delete {
+    @apply flex justify-center px-1 py-1 rounded 
+    border border-blue-950 text-blue-950 
+    hover:bg-red-800 hover:border-red-800 hover:text-white transition;
+  }
+
+
+  /* ============================================================
+     FORM INPUTS
+     Four different "input styles" across the codebase.
+     `.input-rental` and `.input-auth` are visually identical
+     (only class-string order differs). Strong consolidation target.
+     ============================================================ */
+
+  /* Slate border + blue focus ring. */
+  /* Can add a shadow-sm if desired */
+  .input-form {
+    @apply w-full px-3 py-2 rounded-md
+           border border-slate-300 bg-white text-slate-900
+           outline-none transition
+           focus:border-blue-950 focus:ring-2 focus:ring-blue-100;
+  }
+
+  .input-add {
+    @apply px-1 py-1 rounded cursor-pointer
+    text-sm font-medium text-blue-950 
+    hover:text-blue-800 
+    focus:outline-1 focus:outline-blue-900
+  }
+
+
+  /* Inline table input — caller supplies width (e.g. `w-12`, `w-32`, `w-84`). */
+  /* Files: app/components/edits/EditPropertiesClient.js, EditAgentsClient.js */
+  .input-table {
+    @apply rounded p-1;
+  }
+
+  /* Centered numeric variant for table inputs (beds, baths, sqft, monthly_rent). */
+  /* Files: app/components/edits/EditPropertiesClient.js */
+  .input-table-center {
+    @apply rounded p-1 block mx-auto text-center;
+  }
+
+
+  /* ============================================================
+     FORM LABELS
+     ============================================================ */
+
+  /* Form labels */
+  .label-form {
+    @apply block mb-1 
+    text-left text-sm font-medium;
+  }
+
+  /* ============================================================
+     FORM CONTAINER CARDS (form wrappers)
+     ============================================================ */
+
+  /* White gradient card — RequestShowing and RentalApp. */
+  .card-form {
+    @apply p-6 rounded-xl shadow-md
+    border border-slate-200 bg-linear-to-br from-slate-50 to-white;
+  }
+
+  /* Centered narrow white card — auth pages. */
+  /* Files: app/components/forms/UserLogin.js, app/components/forms/UserRegistration.js */
+  .card-auth {
+    @apply max-w-md mx-auto text-left my-6
+           border border-gray-200 rounded-lg p-6 bg-white shadow-sm;
+  }
+
+  /* Height calculation so the form takes up the whole screen
+     Subtracting room for header */
+  .container-page {
+    min-height: calc(100vh - 1rem);
+    @apply flex items-center justify-center px-4 py-6;
+  }
+
+}

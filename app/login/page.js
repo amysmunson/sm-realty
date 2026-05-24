@@ -7,14 +7,16 @@ export const metadata = {
 
 export default async function Login() {
   return (
-    <div>
-      <UserLogin />
-      <p className="mt-4 mb-20 text-center">
-        Don't have an account?{" "}
-        <a href="/signup" className="text-blue-500 cursor-pointer">
-          Sign up here.
-        </a>
-      </p>
+    <div className="container-page">
+      <div className="w-full">
+        <UserLogin />
+        <p className="mt-4 mb-20 text-center">
+          Don't have an account?{" "}
+          <a href="/signup" className="text-blue-500 cursor-pointer">
+            Sign up here.
+          </a>
+        </p>
+      </div>
     </div>
   );
 }

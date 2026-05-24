@@ -75,7 +75,7 @@ export default function UserRegistration() {
   }
 
   return (
-    <section className="max-w-md mx-auto text-left mt-6 mb-10 border border-gray-200 rounded-lg p-6 bg-white shadow-sm">
+    <section className="card-auth">
       <h2 className="text-xl font-semibold mb-4">Create Account</h2>
       {success ? (
         <p className="text-green-700 mt-3 text-sm">
@@ -94,7 +94,7 @@ export default function UserRegistration() {
             value={form.name}
             onChange={(e) => updateField("name", e.target.value)}
             required
-            className="w-full rounded border border-gray-300 px-3 py-2"
+            className="input-form"
           />
         </div>
 
@@ -108,7 +108,7 @@ export default function UserRegistration() {
             value={form.email}
             onChange={(e) => updateField("email", e.target.value)}
             required
-            className="w-full rounded border border-gray-300 px-3 py-2"
+            className="input-form"
           />
         </div>
 
@@ -125,7 +125,7 @@ export default function UserRegistration() {
             // Regex to require a special character, num, lower, and upper case for password security 
             pattern="^(?=.*[^A-Za-z0-9])(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).*$"
             required
-            className="w-full rounded border border-gray-300 px-3 py-2"
+            className="input-form"
           />
         </div>
 
@@ -139,7 +139,7 @@ export default function UserRegistration() {
             value={form.phone}
             pattern="^\+?[1-9]\d{1,14}$"
             onChange={(e) => updateField("phone", e.target.value)}
-            className="w-full rounded border border-gray-300 px-3 py-2"
+            className="input-form"
           />
         </div>
 
@@ -148,7 +148,7 @@ export default function UserRegistration() {
         <button
           type="submit"
           disabled={submitting}
-          className="w-full bg-blue-950 text-white rounded px-4 py-2 disabled:opacity-50"
+          className="w-full btn-primary"
         >
           {submitting ? "Creating..." : "Sign Up"}
         </button>

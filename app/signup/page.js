@@ -9,14 +9,17 @@ export const metadata = {
 
 export default async function Signup() {
   return (
-    <div>
+    // Adjusts for header and takes up full screen height
+    <div className="container-page">
+      <div className="w-full">
         <UserRegistration />
-        <p className="mt-4 mb-20 text-center">
+        <p className="my-4 text-center">
           Already have an account?{" "}
           <a href="/login" className="text-blue-500 cursor-pointer">
-            Log in here. 
+            Log in here.
           </a>
         </p>
+      </div>
     </div>
   );
 }

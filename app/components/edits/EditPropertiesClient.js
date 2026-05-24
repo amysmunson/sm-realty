@@ -111,6 +111,7 @@ export default function EditPropertiesClient() {
   const [error, setError] = useState("");
   const [savingId, setSavingId] = useState(null);
   const [deletingId, setDeletingId] = useState(null);
+  const [addingRow, setAddingRow] = useState(false);
   const [galleryProperty, setGalleryProperty] = useState(null);
   const [galleryPhotos, setGalleryPhotos] = useState([]);
   const [savedGalleryPhotoIds, setSavedGalleryPhotoIds] = useState([]);
@@ -597,6 +598,49 @@ export default function EditPropertiesClient() {
     setSavingId(null);
   }
 
+  async function addPropertyRow() {
+    if (addingRow) {
+      return;
+    }
+
+    setAddingRow(true);
+    setError("");
+
+    const { data, error: insertError } = await supabase
+      .from("properties")
+      .insert({
+        address: null,
+        city: null,
+        zip: null,
+        beds: null,
+        baths: null,
+        full_baths: null,
+        sqft: null,
+        monthly_rent: null,
+        home_type: null,
+        home_desc: null,
+        ext_link: null,
+        feature_policy_data: serializeFeaturePolicyData(getEmptyFeaturePolicyData()),
+        open_rental: false,
+      })
+      .select("p_id,address,city,zip,beds,baths,full_baths,sqft,monthly_rent,home_type,home_desc,ext_link,feature_policy_data,open_rental")
+      .single();
+
+    if (insertError || !data) {
+      setError(insertError?.message || "Unable to add a new property row.");
+      setAddingRow(false);
+      return;
+    }
+
+    setProperties((prev) => [...prev, data]);
+    setOriginalPropertiesById((prev) => ({
+      ...prev,
+      [data.p_id]: normalizeProperty(data),
+    }));
+
+    setAddingRow(false);
+  }
+
   async function deleteProperty(property) {
     if (!property?.p_id || deletingId || savingId === property.p_id) {
       return;
@@ -758,6 +802,24 @@ export default function EditPropertiesClient() {
         <p className="mb-4 rounded border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</p>
       ) : null}
 
+      <div className="my-4 flex items-center justify-between">
+        <div className="flex-1" />
+        <h2 className="flex-1 text-center text-2xl font-bold text-black">Properties</h2>
+        <div className="flex flex-1 justify-end">
+          <button
+            type="button"
+            onClick={addPropertyRow}
+            disabled={addingRow}
+            className="btn-add-entry"
+            aria-label="Add New Property Row"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="size-5">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
       <div className="overflow-x-auto">
         <table className="min-w-full border-collapse border border-gray-300 text-sm">
           <thead>
@@ -888,7 +950,7 @@ export default function EditPropertiesClient() {
                           <button
                             type="button"
                             onClick={() => openDetailsEditor(property)}
-                            className="rounded border border-blue-950 px-3 py-1 text-blue-950 hover:bg-blue-950 hover:text-white flex justify-center"
+                            className="btn-edit"
                           >
                             Features and Policies
                           </button>
@@ -915,7 +977,7 @@ export default function EditPropertiesClient() {
                           <button
                             type="button"
                             onClick={() => openGalleryEditor(property)}
-                            className="rounded border border-blue-950 px-1 py-1 text-blue-950 hover:bg-blue-50 flex justify-center"
+                            className="btn-edit"
                           >
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
                               <path strokeLinecap="round" strokeLinejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
@@ -927,10 +989,7 @@ export default function EditPropertiesClient() {
                             onClick={() => saveProperty(property)}
                             disabled={savingId === property.p_id || !rowDirty}
                             aria-label={savingId === property.p_id ? "Saving..." : "Save"}
-                            className={`rounded px-1 py-1 text-white disabled:opacity-60 flex justify-center ${rowDirty
-                              ? "bg-blue-950 hover:bg-blue-800"
-                              : "bg-gray-400 cursor-not-allowed"
-                              }`}
+                            className="btn-save"
                           >
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
                               <path strokeLinecap="round" strokeLinejoin="round" d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0 1 10.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0 .229 2.523a1.125 1.125 0 0 1-1.12 1.227H7.231c-.662 0-1.18-.568-1.12-1.227L6.34 18m11.318 0h1.091A2.25 2.25 0 0 0 21 15.75V9.456c0-1.081-.768-2.015-1.837-2.175a48.055 48.055 0 0 0-1.913-.247M6.34 18H5.25A2.25 2.25 0 0 1 3 15.75V9.456c0-1.081.768-2.015 1.837-2.175a48.041 48.041 0 0 1 1.913-.247m10.5 0a48.536 48.536 0 0 0-10.5 0m10.5 0V3.375c0-.621-.504-1.125-1.125-1.125h-8.25c-.621 0-1.125.504-1.125 1.125v3.659M18 10.5h.008v.008H18V10.5Zm-3 0h.008v.008H15V10.5Z" />
@@ -941,7 +1000,8 @@ export default function EditPropertiesClient() {
                           <button
                             type="button"
                             onClick={() => deleteProperty(property)}
-                            className="rounded border border-blue-950 px-1 py-1 text-blue-950 hover:bg-red-800 hover:text-white hover:border-red-800 flex justify-center"
+                            disabled={deletingId === property.p_id || savingId === property.p_id}
+                            className="btn-delete"
                           >
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
                               <path strokeLinecap="round" strokeLinejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
@@ -990,33 +1050,33 @@ export default function EditPropertiesClient() {
 
               <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
                 <h3 className="text-base font-semibold text-slate-900">Features</h3>
-                <p className="mt-1 text-sm text-slate-600">Add each bullet as its own line item. No formatting needed.</p>
+                <p className="my-1 text-sm text-slate-600">Add each bullet as its own line item. No formatting needed.</p>
                 <div className="grid gap-4 md:grid-cols-3">
                   <label className="block">
-                    <span className="mb-1 block text-sm font-medium text-slate-700">Beds</span>
+                    <span className="label-form">Beds</span>
                     <input
                       type="number"
                       value={detailsProperty.beds ?? ""}
                       onChange={(event) => updateDetailsField("beds", event.target.value)}
-                      className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900 shadow-sm outline-none transition focus:border-blue-900 focus:ring-2 focus:ring-blue-100"
+                      className="input-form"
                     />
                   </label>
                   <label className="block">
-                    <span className="mb-1 block text-sm font-medium text-slate-700">Total Baths</span>
+                    <span className="label-form">Total Baths</span>
                     <input
                       type="number"
                       value={detailsProperty.baths ?? ""}
                       onChange={(event) => updateDetailsField("baths", event.target.value)}
-                      className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900 shadow-sm outline-none transition focus:border-blue-900 focus:ring-2 focus:ring-blue-100"
+                      className="input-form"
                     />
                   </label>
                   <label className="block">
-                    <span className="mb-1 block text-sm font-medium text-slate-700">Full Baths</span>
+                    <span className="label-form">Full Baths</span>
                     <input
                       type="number"
                       value={detailsProperty.full_baths ?? ""}
                       onChange={(event) => updateDetailsField("full_baths", event.target.value)}
-                      className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900 shadow-sm outline-none transition focus:border-blue-900 focus:ring-2 focus:ring-blue-100"
+                      className="input-form"
                     />
                   </label>
                 </div>
@@ -1025,13 +1085,6 @@ export default function EditPropertiesClient() {
                     <div key={group.key} className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
                       <div className="mb-3 flex items-center justify-between gap-3">
                         <h4 className="font-medium text-slate-900">{group.label}</h4>
-                        <button
-                          type="button"
-                          onClick={() => addDetailsFeaturePolicy(group.key)}
-                          className="rounded-md border border-blue-200 px-3 py-1 text-sm text-blue-800 hover:bg-blue-50"
-                        >
-                          + Add bullet
-                        </button>
                       </div>
                       <div className="space-y-2">
                         {/* {getFeaturePolicyItems(detailsProperty, group.key).length === 0 ? (
@@ -1043,17 +1096,26 @@ export default function EditPropertiesClient() {
                               type="text"
                               value={item}
                               onChange={(event) => updateDetailsFeaturePolicy(group.key, index, event.target.value)}
-                              className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900 shadow-sm outline-none transition focus:border-blue-900 focus:ring-2 focus:ring-blue-100"
+                              className="input-form"
                             />
                             <button
                               type="button"
                               onClick={() => removeDetailsFeaturePolicy(group.key, index)}
-                              className="rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-700 hover:bg-slate-100"
+                              className="btn-secondary-delete"
                             >
-                              Remove
+                              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                              </svg>
                             </button>
                           </div>
                         ))}
+                        <button
+                          type="button"
+                          onClick={() => addDetailsFeaturePolicy(group.key)}
+                          className="input-add"
+                        >
+                          + Add bullet
+                        </button>
                       </div>
                     </div>
                   ))}
@@ -1068,13 +1130,6 @@ export default function EditPropertiesClient() {
                     <div key={group.key} className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
                       <div className="mb-3 flex items-center justify-between gap-3">
                         <h4 className="font-medium text-slate-900">{group.label}</h4>
-                        <button
-                          type="button"
-                          onClick={() => addDetailsFeaturePolicy(group.key)}
-                          className="rounded-md border border-blue-200 px-3 py-1 text-sm text-blue-800 hover:bg-blue-50"
-                        >
-                          + Add bullet
-                        </button>
                       </div>
                       <div className="space-y-2">
                         {/* {getFeaturePolicyItems(detailsProperty, group.key).length === 0 ? (
@@ -1086,17 +1141,26 @@ export default function EditPropertiesClient() {
                               type="text"
                               value={item}
                               onChange={(event) => updateDetailsFeaturePolicy(group.key, index, event.target.value)}
-                              className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900 shadow-sm outline-none transition focus:border-blue-900 focus:ring-2 focus:ring-blue-100"
+                              className="input-form"
                             />
                             <button
                               type="button"
                               onClick={() => removeDetailsFeaturePolicy(group.key, index)}
-                              className="rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-700 hover:bg-slate-100"
+                              className="btn-secondary-delete"
                             >
-                              Remove
+                              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                              </svg>
                             </button>
                           </div>
                         ))}
+                        <button
+                          type="button"
+                          onClick={() => addDetailsFeaturePolicy(group.key)}
+                          className="input-add"
+                        >
+                          + Add bullet
+                        </button>
                       </div>
                     </div>
                   ))}
