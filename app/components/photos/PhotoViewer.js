@@ -80,7 +80,7 @@ export default function PhotoViewer({ photos = [], selectedIndex, onClose, onCha
                     event.stopPropagation();
                     onClose();
                 }}
-                className="absolute top-4 right-4 z-10 rounded-full bg-black/50 p-2 text-white hover:bg-black/70 cursor-pointer"
+                className="btn-photo-viewer top-4 right-4"
                 aria-label="Close full screen photo"
             >
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
@@ -89,7 +89,7 @@ export default function PhotoViewer({ photos = [], selectedIndex, onClose, onCha
             </button>
 
             {/* Photo counter */}
-            <div className="absolute top-4 left-4 z-10 rounded-full bg-black/50 px-3 py-1 text-sm text-white">
+            <div className="btn-photo-viewer top-4 left-4 text-sm cursor-default">
                 {selectedIndex + 1} / {photos.length}
             </div>
 
@@ -101,7 +101,7 @@ export default function PhotoViewer({ photos = [], selectedIndex, onClose, onCha
                         event.stopPropagation();
                         showPrev();
                     }}
-                    className="absolute left-4 z-10 rounded-full bg-black/50 p-3 text-white hover:bg-black/70 cursor-pointer"
+                    className="btn-photo-viewer left-4"
                     aria-label="Previous photo"
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
@@ -126,7 +126,7 @@ export default function PhotoViewer({ photos = [], selectedIndex, onClose, onCha
                         event.stopPropagation();
                         showNext();
                     }}
-                    className="absolute right-4 z-10 rounded-full bg-black/50 p-3 text-white hover:bg-black/70 cursor-pointer"
+                    className="btn-photo-viewer right-4"
                     aria-label="Next photo"
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">

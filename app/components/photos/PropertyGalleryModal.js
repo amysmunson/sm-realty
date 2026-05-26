@@ -109,7 +109,7 @@ export default function PropertyGalleryModal({ photos = [], address }) {
             <button
                 type="button"
                 onClick={() => setIsOpen(true)}
-                className="bg-black/60 px-4 py-2 text-sm font-medium text-white shadow-md hover:bg-black/70 cursor-pointer"
+                className="btn-gallery"
             >
                 Gallery
             </button>
@@ -117,22 +117,22 @@ export default function PropertyGalleryModal({ photos = [], address }) {
             {/* Full gallery popup */}
             {isOpen ? (
                 <div
-                    className={`fixed inset-0 z-100 flex items-start justify-center bg-black/80 p-6 sm:p-10 ${headerVisible ? "pt-20 sm:pt-20" : "pt-14 sm:pt-14"}`}
+                    className={`gallery-modal ${headerVisible ? "gallery-modal-with-header" : "gallery-modal-no-header"}`}
                     onClick={() => setIsOpen(false)}
                 >
                     <div
-                        className="mx-auto flex max-h-[86vh] w-full max-w-5xl flex-col overflow-hidden rounded bg-white cursor-auto"
+                        className="gallery-card"
                         onClick={(event) => event.stopPropagation()}
                     >
-                        <div className="flex items-center justify-between border-b px-4 py-3">
-                            <h2 className="text-lg font-semibold text-gray-900">
+                        <div className="gallery-titlebar">
+                            <h2 className="heading-modal">
                                 {address ? `${address} Photos` : "Property Photos"}
                             </h2>
                             {/* Close button */}
                             <button
                                 type="button"
                                 onClick={() => setIsOpen(false)}
-                                className="px-3 py-1 text-sm text-gray-700 cursor-pointer"
+                                className="btn-close"
                             >
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
@@ -141,8 +141,8 @@ export default function PropertyGalleryModal({ photos = [], address }) {
                         </div>
 
                         {/* overscroll-contain stops scroll from chaining out to the page behind */}
-                        <div ref={scrollContainerRef} className="overflow-y-auto overscroll-contain p-4 sm:p-6">
-                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                        <div ref={scrollContainerRef} className="gallery-scroll">
+                            <div className="gap-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                                 {visiblePhotos.map((photo, index) => (
                                     <button
                                         type="button"
@@ -156,7 +156,7 @@ export default function PropertyGalleryModal({ photos = [], address }) {
                                             containIntrinsicSize: "400px 300px",
                                             contain: "strict",
                                         }}
-                                        className="relative aspect-4/3 overflow-hidden rounded bg-gray-100 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        className="gallery-tile"
                                         aria-label={`View ${photo.alt} full screen`}
                                     >
                                         {/* width/height attributes give the browser an intrinsic ratio.

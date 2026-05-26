@@ -16,7 +16,7 @@ export default function PropertyPhotos({ photos = [], address }) {
     // Display placeholder if no photos
     if (photos.length === 0) {
         return (
-            <div className="relative w-full mx-auto h-88 md:h-136 bg-gray-200 mb-6 flex items-center justify-center overflow-hidden">
+            <div className="photo-main w-full mx-auto bg-gray-200 mb-6 flex items-center justify-center">
                 <span className="text-gray-500">No photos available.</span>
             </div>
         );
@@ -32,7 +32,7 @@ export default function PropertyPhotos({ photos = [], address }) {
                 <button
                     type="button"
                     onClick={() => setSelectedPhotoIndex(0)}
-                    className="relative w-full h-88 md:h-136 overflow-hidden block cursor-pointer"
+                    className="photo-main w-full block cursor-pointer"
                     aria-label={`View ${mainPhoto.alt} full screen`}
                 >
                     <Image
@@ -52,7 +52,7 @@ export default function PropertyPhotos({ photos = [], address }) {
                     <button
                         type="button"
                         onClick={() => setSelectedPhotoIndex(0)}
-                        className="relative h-88 md:h-120 overflow-hidden md:col-span-10 block cursor-pointer"
+                        className="photo-main md:h-120 md:col-span-10 block cursor-pointer"
                         aria-label={`View photo 1 of ${address || "property"} full screen`}
                     >
                         <Image
@@ -66,6 +66,7 @@ export default function PropertyPhotos({ photos = [], address }) {
                         />
                     </button>
 
+                    {/* Side gallery */}
                     <div className="hidden md:grid md:col-span-2 w-full max-w-56 md:justify-self-center h-88 md:h-120 grid-rows-4 gap-2">
                         {gridPhotos.map((photo, index) => {
                             // photoIndex is the photo's position in the full `photos` array.
