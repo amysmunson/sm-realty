@@ -20,15 +20,15 @@ export default async function ContactPage({ searchParams }) {
     <main>
       <div className="container-page">
         <div className="w-full">
-          <h1 className="justify-center text-center text-black text-4xl font-bold">Contact Us</h1>
+          <h1 className="heading-page">Contact Us</h1>
           <div className="card-auth">
             {submitted ? (
               emailed ? (
-                <div className="mx-auto mb-8 max-w-lg rounded-sm bg-green-100 px-4 py-3 text-sm text-green-800">
-                  Your message was submitted and emailed successfully.
+                <div className="banner-success mb-4">
+                  Your message was submitted successfully.
                 </div>
               ) : (
-                <div className="mx-auto mb-8 max-w-lg rounded-sm bg-yellow-100 px-4 py-3 text-sm text-yellow-800">
+                <div className="banner-warning mb-4">
                   Your message was saved, but the email could not be sent. It may take us a little longer to get back to you, but we will respond as soon as we can.
                 </div>
               )
