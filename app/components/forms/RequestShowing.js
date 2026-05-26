@@ -108,7 +108,7 @@ export default function RequestShowing({ propertyId, propertyAddress }) {
     if (view === "success") {
         return (
             <div className="card-form">
-                <h2 className="text-lg font-bold mb-2">Success</h2>
+                <h2 className="heading-form">Success</h2>
                 <p className="mb-4 text-sm text-gray-700">
                     Your showing request has been submitted. We will contact you soon.
                 </p>
@@ -132,11 +132,11 @@ export default function RequestShowing({ propertyId, propertyAddress }) {
             <button
                 type="button"
                 onClick={() => setIsExpanded((prev) => !prev)}
-                className="mb-4 flex w-full items-center justify-between text-left"
+                className="flex w-full items-center justify-between text-left"
                 aria-expanded={isExpanded}
                 aria-controls="request-showing-form"
             >
-                <h2 className="text-lg font-bold tracking-tight text-slate-900">Request a Showing</h2>
+                <h2 className="heading-form mb-0">Request a Showing</h2>
                 <span className="rounded-md p-1.5 text-sm font-medium text-slate-600">
                     {isExpanded ?
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
@@ -149,13 +149,13 @@ export default function RequestShowing({ propertyId, propertyAddress }) {
                 </span>
             </button>
             {isExpanded ? (
-                <form id="request-showing-form" action={formAction} className="space-y-4">
+                <form id="request-showing-form" action={formAction} className="space-y-4 mt-4">
                     <input type="hidden" name="propertyId" value={propertyId} />
                     <input type="hidden" name="propertyAddress" value={propertyAddress ?? ""} />
                     <input type="hidden" name="slots" value={JSON.stringify(showingSlots)} />
                     {state?.error ? (
-                        <p className="rounded-sm bg-red-100 px-4 py-3 text-sm text-red-800">{state.error}</p>
-                    ) : null}
+                        <p className="banner-error">{state.error}</p>
+                    ) : null }
                     <div>
                         <label className="label-form" htmlFor="name">Name</label>
                         <input type="text" name="name" id="name" required className="input-form" />

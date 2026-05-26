@@ -14,7 +14,7 @@ export default function RentalApp({ propertyId, propertyAddress }) {
   if (state?.success) {
     return (
       <div className="card-form">
-        <h2 className="text-lg font-bold mb-2">Success</h2>
+        <h2 className="heading-form">Success</h2>
         <p className="mb-4 text-sm text-gray-700">
           Your interest has been submitted. We will contact you soon.
         </p>
@@ -24,13 +24,13 @@ export default function RentalApp({ propertyId, propertyAddress }) {
 
   return (
     <div className="card-form">
-      <h2 className="text-lg font-bold mb-4">Contact Us</h2>
+      <h2 className="heading-form">Contact Us</h2>
       <form action={formAction} className="space-y-4">
         <input type="hidden" name="propertyId" value={propertyId} />
         <input type="hidden" name="propertyAddress" value={propertyAddress ?? ""} />
         {state?.error ? (
-          <p className="rounded-sm bg-red-100 px-4 py-3 text-sm text-red-800">{state.error}</p>
-        ) : null}
+          <p className="banner-error">{state.error}</p>
+        ) : null }
         <div>
           <label className="label-form" htmlFor="rental-name">Name</label>
           <input
