@@ -281,19 +281,10 @@ export default function DashboardClient() {
 
   // The dashboard
   return (
-    <div>
-      <main>
-        {/* Upper right corner edit button. Can also click the text */}
-        <div className="text-right p-4 text-sm">
-          <Link
-            href="/edit"
-            className="inline-flex items-center font-inherit text-inherit hover:text-blue-800 leading-none"
-          >
-            Edit
-          </Link>
-        </div>
-        <div className="relative w-full mb-10 p-4 pt-8">
-          <h1 className="justify-center text-center text-black text-4xl font-bold">
+    <div className="min-h-screen pb-16">
+			<main className="mx-auto w-full max-w-375 px-4 pt-20 sm:px-6 lg:px-8">
+        <div className="relative w-full">
+          <h1 className="heading-page">
             <Link
               href="/edit"
               className="inline-flex items-center font-inherit text-inherit hover:text-blue-800 leading-none"
@@ -305,54 +296,80 @@ export default function DashboardClient() {
           </h1>
         </div>
 
-        <div label="description" className="container mx-auto px-4 text-center mb-10">
-          <p className="text-md text-gray-700">
-            Here you can view the essentail information about your properties, contact requests, rental applications, and showing requests all in one place. Click "Edit" or any section header to make changes and view all information.
-          </p>
-        </div>
+        <section className="card-intro">
+          <div className="pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full bg-blue-200/60 blur-2xl" />
+          <div className="pointer-events-none absolute -left-12 bottom-0 h-36 w-36 rounded-full bg-cyan-200/50 blur-2xl" />
+
+          <div className="relative p-6 sm:p-8">
+            <p className="mt-3 text-sm leading-relaxed text-slate-700 sm:text-base">
+              This page displays the relevant property, contact request, showing request, and agent information in a centralized location. 
+              The navigation buttons below allow you to jump to the relevant section on this page.
+              To view closed contact requests, change the homepage image, or make any edits to the data displayed, click the Edit button. You can also
+              click on a section header to jump to editing that secion.
+            </p>
+
+            <div className="mt-5 flex flex-wrap gap-2">
+              <a href="#properties" className="btn-nav-pill">Properties</a>
+              <a href="#contacts" className="btn-nav-pill">Contacts</a>
+              <a href="#showings" className="btn-nav-pill">Showings</a>
+              <a href="#applications" className="btn-nav-pill">Applications</a>
+              <a href="#agents" className="btn-nav-pill">Agents</a>
+            </div>
+
+            <div className="mt-6 rounded-xl">
+              <Link
+                href="/edit"
+                className="btn-primary"
+              >
+                Edit
+              </Link>
+            </div>
+
+          </div>
+        </section>
 
         {/* Properties */}
-        <div className="container mx-auto px-4 justify-center text-center">
-          <h1 className="text-2xl font-bold m-4 text-black">
+        <div id="properties" className="container mx-auto px-4 justify-center text-center">
+          <h1 className="heading-dashboard-section">
             <Link
               href="/edit#properties"
-              className="inline-flex items-center font-inherit text-inherit hover:text-blue-800 leading-none"
+              className="heading-dashboard-link"
             >
               Properties
             </Link>
           </h1>
         </div>
 
-        <div className="container mx-auto w-full px-4 mb-20 overflow-x-auto text-center">
+        <div className="container-table">
 
-          <table className="table-auto md:table-fixed w-full my-4 mx-auto border-collapse border border-gray-300">
+          <table className="table-dashboard">
             <thead>
-              <tr>
-                <th className="border border-gray-300 p-1 overflow-auto">Address</th>
-                <th className="border border-gray-300 p-1 overflow-auto">City</th>
-                <th className="border border-gray-300 p-1 overflow-auto">Beds</th>
-                <th className="border border-gray-300 p-1 overflow-auto">Baths</th>
-                <th className="border border-gray-300 p-1 overflow-auto">Sqft</th>
-                <th className="border border-gray-300 p-1 overflow-auto">Monthly Rent</th>
-                <th className="border border-gray-300 p-1 overflow-auto">Home Type</th>
-                <th className="border border-gray-300 p-1 overflow-auto">Rental Status</th>
-                <th className="border border-gray-300 p-1 overflow-auto">External Listing</th>
-                <th className="border border-gray-300 p-1 overflow-auto">Internal Listing</th>
+              <tr className="bg-gray-100">
+                <th className="text-table">Address</th>
+                <th className="text-table">City</th>
+                <th className="text-table">Beds</th>
+                <th className="text-table">Baths</th>
+                <th className="text-table">Sqft</th>
+                <th className="text-table">Monthly Rent</th>
+                <th className="text-table">Home Type</th>
+                <th className="text-table">Rental Status</th>
+                <th className="text-table">External Listing</th>
+                <th className="text-table">Internal Listing</th>
               </tr>
             </thead>
             <tbody>
               {propertyData?.map((property) => {
                 return (
                   <tr key={property.p_id} className={property.open_rental === false ? "bg-gray-100" : ""}>
-                    <td className="border border-gray-300 p-1 overflow-auto">{property.address || "—"}</td>
-                    <td className="border border-gray-300 p-1 overflow-auto">{property.city || "—"}</td>
-                    <td className="border border-gray-300 p-1 overflow-auto">{property.beds || "—"}</td>
-                    <td className="border border-gray-300 p-1 overflow-auto">{property.baths || "—"}</td>
-                    <td className="border border-gray-300 p-1 overflow-auto">{property.sqft || "—"}</td>
-                    <td className="border border-gray-300 p-1 overflow-auto">{property.monthly_rent || "—"}</td>
-                    <td className="border border-gray-300 p-1 overflow-auto">{property.home_type || "—"}</td>
-                    <td className="border border-gray-300 p-1 overflow-auto">{property.open_rental ? "Open" : "Closed"}</td>
-                    <td className="border border-gray-300 p-1 overflow-auto">
+                    <td className="text-table">{property.address || "—"}</td>
+                    <td className="text-table">{property.city || "—"}</td>
+                    <td className="text-table">{property.beds || "—"}</td>
+                    <td className="text-table">{property.baths || "—"}</td>
+                    <td className="text-table">{property.sqft || "—"}</td>
+                    <td className="text-table">{property.monthly_rent || "—"}</td>
+                    <td className="text-table">{property.home_type || "—"}</td>
+                    <td className="text-table">{property.open_rental ? "Open" : "Closed"}</td>
+                    <td className="text-table">
                       {property.ext_link ?
                         (<a href={property.ext_link} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
                           <div className="w-full flex items-center justify-center">
@@ -365,7 +382,7 @@ export default function DashboardClient() {
                           —
                         </a>)}
                     </td>
-                    <td className="border border-gray-300 p-1 overflow-auto">
+                    <td className="text-table">
                       <Link href={`/properties/${property.p_id} `} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
                         <div className="w-full flex items-center justify-center">
                           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-4">
@@ -383,40 +400,38 @@ export default function DashboardClient() {
         </div>
 
         {/* Contact Requests */}
-        <div className="container mx-auto px-4 justify-center text-center">
-          <h1 className="text-2xl font-bold m-4 text-black">
+        <div id="contacts" className="container mx-auto px-4 justify-center text-center">
+          <h1 className="heading-dashboard-section">
             <Link
               href="/edit#contacts"
-              className="inline-flex items-center font-inherit text-inherit hover:text-blue-800 leading-none"
+              className="heading-dashboard-link"
             >
               Contact Requests
             </Link>
           </h1>
         </div>
 
-        <div className="container mx-auto w-full px-4 mb-20 overflow-x-auto text-center">
+        <div className="container-table">
           {contactRequests && contactRequests.length > 0 ? (
-            <table className="table-auto md:table-fixed w-full my-4 mx-auto border-collapse border border-gray-300">
+            <table className="table-dashboard">
               <thead>
-                <tr>
-                  <th className="border border-gray-300">Submitted</th>
-                  <th className="border border-gray-300">Name</th>
-                  <th className="border border-gray-300">Email</th>
-                  <th className="border border-gray-300 w-36">Phone</th>
-                  <th className="border border-gray-300">Message</th>
-                  <th className="border border-gray-300 w-28">Status</th>
+                <tr className="bg-gray-100">
+                  <th className="text-table w-52">Submitted</th>
+                  <th className="text-table">Name</th>
+                  <th className="text-table">Email</th>
+                  <th className="text-table w-36">Phone</th>
+                  <th className="text-table w-96">Message</th>
                 </tr>
               </thead>
               <tbody>
                 {contactRequests?.map((request) => {
                   return (
                     <tr key={request.id} className={request.open === false ? "bg-gray-100" : ""}>
-                      <td className="border border-gray-300 p-1 overflow-auto">{formatTimestamp(request.created_at)}</td>
-                      <td className="border border-gray-300 p-1 overflow-auto">{request.name || "—"}</td>
-                      <td className="border border-gray-300 p-1 overflow-auto">{request.email || "—"}</td>
-                      <td className="border border-gray-300 p-1 overflow-auto">{request.phone || "—"}</td>
-                      <td className="border border-gray-300 p-1 overflow-auto">{request.message || "—"}</td>
-                      <td className="border border-gray-300 p-1 overflow-auto">{request.open ? "Open" : "Closed"}</td>
+                      <td className="text-table">{formatTimestamp(request.created_at)}</td>
+                      <td className="text-table">{request.name || "—"}</td>
+                      <td className="text-table">{request.email || "—"}</td>
+                      <td className="text-table">{request.phone || "—"}</td>
+                      <td className="text-table">{request.message || "—"}</td>
                     </tr>
                   );
                 })}
@@ -429,42 +444,40 @@ export default function DashboardClient() {
         </div>
 
         {/* Rental Apps */}
-        <div className="container mx-auto px-4 justify-center text-center">
-          <h1 className="text-2xl font-bold m-4 text-black">
+        <div id="applications" className="container mx-auto px-4 justify-center text-center">
+          <h1 className="heading-dashboard-section">
             <Link
               href="/edit#applications"
-              className="inline-flex items-center font-inherit text-inherit hover:text-blue-800 leading-none"
+              className="heading-dashboard-link"
             >
-              Rental Applications
+              Property-Specific Contact Requests
             </Link>
           </h1>
         </div>
 
-        <div className="container mx-auto w-full px-4 mb-20 overflow-x-auto text-center">
+        <div className="container-table">
           {rentalApps && rentalApps.length > 0 ? (
-            <table className="table-auto md:table-fixed w-full my-4 mx-auto border-collapse border border-gray-300">
+            <table className="table-dashboard">
               <thead>
-                <tr>
-                  <th className="border border-gray-300 w-56">Submitted</th>
-                  <th className="border border-gray-300 w-48">Property</th>
-                  <th className="border border-gray-300 w-56">Name</th>
-                  <th className="border border-gray-300 w-56">Email</th>
-                  <th className="border border-gray-300 w-40">Phone</th>
-                  <th className="border border-gray-300">Notes</th>
-                  <th className="border border-gray-300 w-28">Status</th>
+                <tr className="bg-gray-100">
+                  <th className="text-table w-52">Submitted</th>
+                  <th className="text-table">Property</th>
+                  <th className="text-table">Name</th>
+                  <th className="text-table">Email</th>
+                  <th className="text-table w-36">Phone</th>
+                  <th className="text-table w-96">Notes</th>
                 </tr>
               </thead>
               <tbody>
                 {rentalApps?.map((application) => {
                   return (
                     <tr key={application.form_id} className={application.open === false ? "bg-gray-100" : ""}>
-                      <td className="border border-gray-300 p-1 overflow-auto">{formatTimestamp(application.created_at)}</td>
-                      <td className="border border-gray-300 p-1 overflow-auto">{getPropertyName(application.p_id, propertyData) || "—"}</td>
-                      <td className="border border-gray-300 p-1 overflow-auto">{application.name || "—"}</td>
-                      <td className="border border-gray-300 p-1 overflow-auto">{application.email || "—"}</td>
-                      <td className="border border-gray-300 p-1 overflow-auto">{application.phone || "—"}</td>
-                      <td className="border border-gray-300 p-1 overflow-auto">{application.message || "—"}</td>
-                      <td className="border border-gray-300 p-1 overflow-auto">{application.open ? "Open" : "Closed"}</td>
+                      <td className="text-table">{formatTimestamp(application.created_at)}</td>
+                      <td className="text-table">{getPropertyName(application.p_id, propertyData) || "—"}</td>
+                      <td className="text-table">{application.name || "—"}</td>
+                      <td className="text-table">{application.email || "—"}</td>
+                      <td className="text-table">{application.phone || "—"}</td>
+                      <td className="text-table">{application.message || "—"}</td>
                     </tr>
                   );
                 })}
@@ -477,46 +490,44 @@ export default function DashboardClient() {
         </div>
 
         {/* Showing Requests */}
-        <div className="container mx-auto px-4 justify-center text-center">
-          <h1 className="text-2xl font-bold m-4 text-black">
+        <div id="showings" className="container mx-auto px-4 justify-center text-center">
+          <h1 className="heading-dashboard-section">
             <Link
               href="/edit#showings"
-              className="inline-flex items-center font-inherit text-inherit hover:text-blue-800 leading-none"
+              className="heading-dashboard-link"
             >
               Showing Requests
             </Link>
           </h1>
         </div>
 
-        <div className="container mx-auto w-full px-4 mb-20 overflow-x-auto text-center">
+        <div className="container-table">
           {showingRequests && showingRequests.length > 0 ? (
-            <table className="table-auto md:table-fixed w-full my-4 mx-auto border-collapse border border-gray-300">
+            <table className="table-dashboard">
               <thead>
-                <tr>
-                  <th className="border border-gray-300 p-1 overflow-auto">Submitted</th>
-                  <th className="border border-gray-300 p-1 overflow-auto">Property</th>
-                  <th className="border border-gray-300 p-1 overflow-auto">Name</th>
-                  <th className="border border-gray-300 p-1 overflow-auto">Email</th>
-                  <th className="border border-gray-300 p-1 overflow-auto w-36">Phone</th>
-                  <th className="border border-gray-300 p-1 overflow-auto">Notes</th>
-                  <th className="border border-gray-300 p-1 overflow-auto">Availability</th>
-                  <th className="border border-gray-300 p-1 overflow-auto w-28">Status</th>
+                <tr className="bg-gray-100">
+                  <th className="text-table w-52">Submitted</th>
+                  <th className="text-table w-44">Property</th>
+                  <th className="text-table w-44">Name</th>
+                  <th className="text-table">Email</th>
+                  <th className="text-table w-36">Phone</th>
+                  <th className="text-table min-w-60">Notes</th>
+                  <th className="text-table min-w-60">Availability</th>
                 </tr>
               </thead>
               <tbody>
                 {showingRequests?.map((request) => {
                   return (
                     <tr key={request.showing_id} className={request.open === false ? "bg-gray-100" : ""}>
-                      <td className="border border-gray-300 p-1 overflow-auto">{formatTimestamp(request.created_at)}</td>
-                      <td className="border border-gray-300 p-1 overflow-auto">{propertyIdToAddress[request.p_id] || "—"}</td>
-                      <td className="border border-gray-300 p-1 overflow-auto">{request.name || "—"}</td>
-                      <td className="border border-gray-300 p-1 overflow-auto">{request.email || "—"}</td>
-                      <td className="border border-gray-300 p-1 overflow-auto">{request.phone || "—"}</td>
-                      <td className="border border-gray-300 p-1 overflow-auto">{request.notes || "—"}</td>
-                      <td className="border border-gray-300 p-1 whitespace-pre-line text-left">
+                      <td className="text-table">{formatTimestamp(request.created_at)}</td>
+                      <td className="text-table">{propertyIdToAddress[request.p_id] || "—"}</td>
+                      <td className="text-table">{request.name || "—"}</td>
+                      <td className="text-table">{request.email || "—"}</td>
+                      <td className="text-table">{request.phone || "—"}</td>
+                      <td className="text-table">{request.notes || "—"}</td>
+                      <td className="text-table p-1 whitespace-pre-line text-left">
                         {formatAvailabilityDisplay(availabilityByShowingId[request.showing_id] || [])}
                       </td>
-                      <td className="border border-gray-300 p-1 overflow-auto">{request.open ? "Open" : "Closed"}</td>
                     </tr>
                   );
                 })}
@@ -529,38 +540,38 @@ export default function DashboardClient() {
         </div>
 
         {/* Agents */}
-        <div className="container mx-auto px-4 justify-center text-center">
-          <h1 className="text-2xl font-bold m-4 text-black">
+        <div id="agents" className="container mx-auto px-4 justify-center text-center">
+          <h1 className="heading-dashboard-section">
             <Link
               href="/edit#agents"
-              className="inline-flex items-center font-inherit text-inherit hover:text-blue-800 leading-none"
+              className="heading-dashboard-link"
             >
               Agents
             </Link>
           </h1>
         </div>
 
-        <div className="container mx-auto w-full px-4 mb-20 overflow-x-auto text-center">
+        <div className="container-table">
 
-          <table className="table-auto md:table-fixed w-full my-4 mx-auto border-collapse border border-gray-300">
+          <table className="table-dashboard">
             <thead>
-              <tr>
-                <th className="border border-gray-300 p-1 overflow-auto">Name</th>
-                <th className="border border-gray-300 p-1 overflow-auto">Email</th>
-                <th className="border border-gray-300 p-1 overflow-auto">Phone</th>
-                <th className="border border-gray-300 p-1 overflow-auto">License</th>
-                <th className="border border-gray-300 p-1 overflow-auto">DRE #</th>
+              <tr className="bg-gray-100">
+                <th className="text-table">Name</th>
+                <th className="text-table">Email</th>
+                <th className="text-table">Phone</th>
+                <th className="text-table">License</th>
+                <th className="text-table">DRE #</th>
               </tr>
             </thead>
             <tbody>
               {agents?.map((agent) => {
                 return (
                   <tr key={agent.id}>
-                    <td className="border border-gray-300 p-1 overflow-auto">{agent.name || "—"}</td>
-                    <td className="border border-gray-300 p-1 overflow-auto">{agent.email || "—"}</td>
-                    <td className="border border-gray-300 p-1 overflow-auto">{agent.phone || "—"}</td>
-                    <td className="border border-gray-300 p-1 overflow-auto">{agent.license || "—"}</td>
-                    <td className="border border-gray-300 p-1 overflow-auto">{agent.dre_num || "—"}</td>
+                    <td className="text-table">{agent.name || "—"}</td>
+                    <td className="text-table">{agent.email || "—"}</td>
+                    <td className="text-table">{agent.phone || "—"}</td>
+                    <td className="text-table">{agent.license || "—"}</td>
+                    <td className="text-table">{agent.dre_num || "—"}</td>
                   </tr>
                 );
               })}
