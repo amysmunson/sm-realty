@@ -93,9 +93,16 @@ export default function ProfileClient() {
   // profile still loading either in userId component or here 
   if (userLoading || loading) {
     return (
-      <div className="container mx-auto px-4 py-20 text-center">
-        <h1 className="text-2xl font-bold m-4">Profile</h1>
-        <p className="text-sm text-gray-600">Loading profile...</p>
+      <div className="container-page-small">
+        <main className="flex flex-col flex-none">
+          <div className="profile-heading-container">
+            <h1 className="heading-page">Profile</h1>
+          </div>
+          <div className="profile-body-container">
+            <p className="text-sm text-gray-600">Loading profile...</p>
+          </div>
+        </main>
+        <div className="flex-1" />
       </div>
     );
   }
@@ -103,37 +110,39 @@ export default function ProfileClient() {
   // User is not signed in or there was an error loading the profile
   if (!profile) {
     return (
-      <div className="relative w-full mx-auto mt-20 px-4 text-center justify-center items-center">
-          <h1 className="text-black text-4xl font-bold mb-10">Profile</h1>
-        {signedIn ? (
-          <div className="mt-6">
-              <p className="text-sm text-red-600">{error || "Profile not found."}</p>
-              <button
-                type="button"
-                onClick={handleLogout}
-                className="rounded bg-black px-4 py-2 text-white cursor-pointer
-                hover:bg-gray-800 transition focus-visible:bg-gray-800 
-                active:scale-95 active:bg-gray-800 active:shadow-lg"
-              >
-                Log Out
-              </button>
-            </div>
-        ) : (
-          <>
-            <p className="text-sm text-gray-700">You are not logged in.</p>
-            <div className="mt-6">
-              <button
-                type="button"
-                onClick={() => router.push("/login")}
-                className="rounded bg-black px-4 py-2 text-white cursor-pointer
-                hover:bg-gray-800 transition focus-visible:bg-gray-800 
-                active:scale-95 active:bg-gray-800 active:shadow-lg"
-              >
-                Log In
-              </button>
-            </div>
-          </>
-        )}
+      <div className="container-page-small">
+        <main className="flex flex-col flex-none">
+          <div className="profile-heading-container">
+            <h1 className="heading-page">Profile</h1>
+          </div>
+          <div className="profile-body-container">
+            {signedIn ? (
+              <div className="flex flex-col items-center gap-6">
+                <p className="text-sm text-red-600">{error || "Profile not found."}</p>
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="px-2 btn-delete"
+                >
+                  Log Out
+                </button>
+              </div>
+            ) : (
+              <div className="flex flex-col items-center gap-6">
+                <p className="text-sm text-gray-700">You are not logged in.</p>
+                <button
+                  type="button"
+                  onClick={() => router.push("/login")}
+                  className="btn-primary"
+                >
+                  Log In
+                </button>
+                {/* </div> */}
+              </div>
+            )}
+          </div>
+        </main>
+        <div className="flex-1" />
       </div>
     );
   }
@@ -141,51 +150,61 @@ export default function ProfileClient() {
   // Normal user
   if (!admin) {
     return (
-      <div>
-        <main>
-          <div className="relative w-full mx-auto mt-20 mb-10 px-4 text-center justify-center items-center">
-            <h1 className="text-black text-4xl font-bold">Profile</h1>
+      <div className="container-page-small">
+        <main className="flex flex-col flex-none">
+          <div className="absolute top-18 right-4">
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="px-2 btn-delete"
+            >
+              Log Out
+            </button>
           </div>
 
-          <div className="container mx-auto px-4 justify-center text-center">
+          <div className="profile-heading-container">
+            <h1 className="heading-page">Profile</h1>
+          </div>
+
+          <div className="profile-body-container">
             <div className="space-y-2">
               <p><span className="font-semibold">Name:</span> {profile.name || "Not provided"}</p>
               <p><span className="font-semibold">Email:</span> {profile.email || "Not provided"}</p>
               <p><span className="font-semibold">Phone:</span> {profile.phone || "Not provided"}</p>
             </div>
-            <div className="mt-6">
-              <button
-                type="button"
-                onClick={handleLogout}
-                className="rounded bg-black px-4 py-2 text-white cursor-pointer
-                hover:bg-gray-800 transition focus-visible:bg-gray-800 
-                active:scale-95 active:bg-gray-800 active:shadow-lg"
-              >
-                Log Out
-              </button>
-            </div>
           </div>
         </main>
+        <div className="flex-1" />
       </div>
     );
-  } 
+  }
 
   // admin
   else {
     return (
-      <div>
-        <main>
-          <div className="relative w-full mx-auto mt-20 mb-10 px-4 text-center justify-center items-center">
-            <h1 className="text-black text-4xl font-bold">Profile</h1>
+      <div className="container-page-small">
+        <main className="flex flex-col flex-none">
+          <div className="absolute top-18 right-4">
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="px-2 btn-delete"
+            >
+              Log Out
+            </button>
           </div>
 
-          <div className="container mx-auto px-4 justify-center text-center">
+          <div className="profile-heading-container">
+            <h1 className="heading-page">Profile</h1>
+          </div>
+
+          <div className="profile-body-container">
             <div className="space-y-2 mb-6">
               <p><span className="font-semibold">Name:</span> {profile.name || "Not provided"}</p>
               <p><span className="font-semibold">Email:</span> {profile.email || "Not provided"}</p>
               <p><span className="font-semibold">Phone:</span> {profile.phone || "Not provided"}</p>
             </div>
-            <div label="Actions" className="flex gap-4 justify-center w-full mb-4 mt-50">
+            <div className="flex gap-4 justify-center w-full mt-16 mb-8">
               <button
                 type="button"
                 onClick={() => router.push("/dashboard")}
@@ -193,20 +212,10 @@ export default function ProfileClient() {
               >
                 Dashboard
               </button>
-              <div className="">
-                <button
-                  type="button"
-                  onClick={handleLogout}
-                  className="rounded bg-black px-4 py-2 text-white cursor-pointer
-                  hover:bg-gray-800 transition focus-visible:bg-gray-800 
-                  active:scale-95 active:bg-gray-800 active:shadow-lg"
-                >
-                  Log Out
-                </button>
-              </div>
             </div>
           </div>
         </main>
+        <div className="flex-1" />
       </div>
     );
   }
