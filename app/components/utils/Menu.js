@@ -56,21 +56,24 @@ export default function Menu() {
           onClick={() => setOpen(false)}
           className="self-end text-lg m-1 cursor-pointer text-white hover:font-bold"
         >
-          ✕
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
+          </svg>
+
         </button>
 
         {/* Menu links */}
-        <div className="grid-cols-1 flex flex-col items-left w-full divide-y divide-white/20">
-          <Link href="/" onClick={() => setOpen(false)} className="row-span-full px-4 pb-6 text-xl font-medium text-white hover:font-bold active:font-bold">
+        <div className="menu-link-list">
+          <Link href="/" onClick={() => setOpen(false)} className="menu-link pt-0">
             Home
           </Link>
-          <Link href="/properties" onClick={() => setOpen(false)} className="row-span-full px-4 py-6 text-xl font-medium text-white hover:font-bold">
+          <Link href="/properties" onClick={() => setOpen(false)} className="menu-link">
             Properties
           </Link>
-          <Link href="/about" onClick={() => setOpen(false)} className="row-span-full px-4 py-6 text-xl font-medium text-white hover:font-bold">
+          <Link href="/about" onClick={() => setOpen(false)} className="menu-link">
             About
           </Link>
-          <Link href="/contact" onClick={() => setOpen(false)} className="row-span-full px-4 py-6 text-xl font-medium text-white hover:font-bold">
+          <Link href="/contact" onClick={() => setOpen(false)} className="menu-link">
             Contact
           </Link>
         </div>

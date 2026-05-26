@@ -9,36 +9,15 @@
   /* Primary blue button style */
   .btn-primary {
     @apply px-4 py-2 rounded cursor-pointer
-           bg-blue-950 text-white border-2 border-blue-950
-           hover:bg-blue-900 hover:border-blue-900 transition 
-           focus-visible:bg-blue-900 focus-visible:border-blue-900 focus-visible:outline-blue-900
-           active:scale-95 active:bg-blue-900 active:shadow-lg
-           disabled:opacity-50 disabled:cursor-default disabled:hover:bg-blue-950
-           disabled:active:scale-100 disabled:active:bg-blue-950 disabled:active:shadow-none;
+    bg-blue-950 text-white border-2 border-blue-950
+    hover:bg-blue-900 hover:border-blue-900 transition 
+    focus-visible:bg-blue-900 focus-visible:border-blue-900 focus-visible:outline-blue-900
+    active:scale-95 active:bg-blue-900 active:shadow-lg
+    disabled:opacity-50 disabled:cursor-default disabled:hover:bg-blue-950
+    disabled:active:scale-100 disabled:active:bg-blue-950 disabled:active:shadow-none;
   }
 
-  /* ============================================================
-     MODAL BUTTONS
-     ============================================================ */
-
-  /* Modal "Save" button (Features/Policies modal, Gallery modal). */
-  .btn-modal-save {
-    @apply px-4 py-2 rounded 
-           bg-blue-950 text-sm font-semibold text-white
-           hover:bg-blue-900
-           disabled:cursor-not-allowed disabled:opacity-50;
-  }
-
-  .btn-close {
-    @apply px-3 py-1 text-sm text-gray-700 cursor-pointer;
-  }
-
-
-  /* ============================================================
-     SECONDARY BUTTONS
-     ============================================================ */
-
-  /* See all "secondary" buttons. (Homepage) */
+    /* Secondary button. Blue outline with full background on hover */
   .btn-secondary-blue {
     @apply inline-block px-4 py-2 rounded cursor-pointer
     bg-white border-2 border-blue-950 text-blue-950
@@ -50,7 +29,7 @@
   @media (prefers-color-scheme: dark) {
     .btn-secondary-blue {
       @apply bg-gray-900 border-2 border-blue-800 text-blue-800
-    hover:bg-blue-900 hover:text-white;
+      hover:bg-blue-900 hover:text-white;
     }
   }
   html.theme-dark .btn-secondary-blue {
@@ -58,19 +37,32 @@
     hover:bg-blue-900 hover:text-white;
   }
 
-  /* "Back" button in UserLogin's link step. */
-  /* Files: app/components/forms/UserLogin.js (inline) */
-  /* Fix this */
+  .btn-secondary-gray {
+    @apply inline-block px-4 py-2 rounded cursor-pointer
+    bg-gray-100 text-gray-800
+    hover:bg-blue-950 hover:text-white transition
+    focus-visible:outline-gray-800 focus-visible:outline-2
+    active:scale-95 active:bg-blue-950 active:text-white;
+  }
+
 
   /* ============================================================
      ICON BUTTONS
      ============================================================ */
 
+   /* Close button for modals (X) */
+  .btn-close {
+    @apply px-3 py-1 cursor-pointer 
+    text-sm text-gray-700;
+  }
+
+  /* Small blue + Add Entry buttons for edit page */
   .btn-add-entry{
     @apply mx-2 p-2 rounded-full cursor-pointer
     hover:bg-blue-950 hover:text-white transition;
   }
 
+  /* Button style for editing buttons (e.g. open modal) */
   .btn-edit {
     @apply flex justify-center px-1 py-1 rounded 
     border border-blue-950 text-blue-950
@@ -78,6 +70,7 @@
     disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-blue-950 disabled:cursor-default;
   }
   
+  /* Save icon button on edit page */
   .btn-save {
     @apply flex justify-center px-1 py-1 rounded cursor-pointer
     bg-blue-950 text-white 
@@ -87,12 +80,14 @@
     disabled:bg-gray-400 disabled:cursor-default disabled:hover:bg-gray-400 disabled:active:bg-gray-400;
   }
 
+  /* Delete icon button */
   .btn-delete {
     @apply flex justify-center px-1 py-1 rounded 
     border border-blue-950 text-blue-950 
     hover:bg-red-800 hover:border-red-800 hover:text-white transition;
   }
 
+  /* Secondary delete icon button, gray instead of blue outline */
   .btn-secondary-delete {
     @apply px-2 py-2 rounded-md cursor-pointer 
     border border-slate-300 shadow-sm 
@@ -102,36 +97,38 @@
     disabled:opacity-50 disabled:hover:bg-white disabled:hover:border-slate-300 disabled:hover:text-slate-700 disabled:cursor-default;
   }
   
-  /* Photo delete button (small red variant). */
-  /* Files: app/components/edits/EditPropertiesClient.js (gallery) */
+  /* Photo delete button. Red version */
   .btn-photo-delete {
-    @apply rounded border border-red-800 px-2 py-1 text-xs text-red-800
-           hover:bg-red-800 hover:text-white transition
-           disabled:opacity-50;
+    @apply rounded border border-red-800 px-2 py-1 
+    text-xs text-red-800
+    hover:bg-red-800 hover:text-white transition
+    disabled:opacity-50;
   }
-
   
   /* Photo arrow buttons (up/down ordering in gallery). */
-  /* Files: app/components/edits/EditPropertiesClient.js (gallery) */
   .btn-photo-arrow {
-    @apply rounded border border-gray-300 px-2 py-1 text-xs text-gray-700 disabled:opacity-50;
+    @apply px-2 py-1 rounded  
+    text-xs text-gray-700 
+    border border-gray-300 
+    disabled:opacity-50;
   }
 
 
   /* ============================================================
-     FORM AND TABLE INPUTS
+     INPUTS
      ============================================================ */
 
+  /* Input for forms */
   /* Slate border + blue focus ring. */
   /* Can add a shadow-sm if desired */
   .input-form {
     @apply w-full px-3 py-2 rounded-md
-           border border-slate-300 bg-white text-slate-900
-           outline-none transition
-           focus:border-blue-950 focus:ring-2 focus:ring-blue-100;
+    border border-slate-300 bg-white text-slate-900
+    outline-none transition
+    focus:border-blue-950 focus:ring-2 focus:ring-blue-100;
   }
 
-  /* LINK / TEXT BUTTON */
+  /* Link/text add bullet/form field button */
   .input-add {
     @apply px-1 py-1 rounded cursor-pointer
     text-sm font-medium text-blue-950 
@@ -140,16 +137,14 @@
   }
 
 
-  /* Inline table input — caller supplies width (e.g. `w-12`, `w-32`, `w-84`). */
-  /* Files: app/components/edits/EditPropertiesClient.js, EditAgentsClient.js */
+  /* Inline table input — caller supplies width (`w-12`, `w-32`, etc) */
   .input-table {
     @apply rounded p-1;
   }
 
-  /* Centered numeric variant for table inputs (beds, baths, sqft, monthly_rent). */
-  /* Files: app/components/edits/EditPropertiesClient.js */
+  /* Centered numeric for table inputs */
   .input-table-center {
-    @apply rounded p-1 block mx-auto text-center;
+    @apply p-1 mx-auto block rounded text-center;
   }
 
 
@@ -168,52 +163,58 @@
     text-left text-sm font-medium;
   }
 
-  /* White gradient card — RequestShowing and RentalApp. */
+  /* White gradient card for forms */
   .card-form {
     @apply p-6 rounded-xl shadow-md
     border border-slate-200 bg-linear-to-br from-white to-slate-50;
   }
 
-  /* Centered narrow white card — auth pages. */
-  /* Files: app/components/forms/UserLogin.js, app/components/forms/UserRegistration.js */
+  /* Centered narrow white card for auth forms/pages */
   .card-auth {
     @apply max-w-md mx-auto text-left my-6
-           border border-gray-200 rounded-lg p-6 bg-white shadow-sm;
+    border border-gray-200 rounded-lg p-6 bg-white shadow-sm;
   }
 
-  /* Height calculation so the form takes up the whole screen
-     Subtracting room for header */
+  /* Height calculation so the form takes up the whole screen. Subtracting room for header */
   .container-page {
     min-height: calc(100vh - 1rem);
     @apply flex items-center justify-center px-4 py-6;
   }
 
+  /* Small container for pages with less content (profile) */
+  .container-page-small {
+    min-height: calc(100vh - 6rem);
+    @apply flex flex-col items-center justify-center px-4 py-6;
+  }
+
 
   /* ============================================================
-     STATUS BANNERS
-     All share the `rounded-sm px-4 py-3 text-sm` core; only the
-     color family differs. Easy candidate for `.banner` base +
-     color modifiers (e.g. `.banner.banner-error`).
+    BANNERS
      ============================================================ */
 
-  /* Success banner — green, centered, wider. */
+  /* Success banner (green)) */
   .banner-success {
-    @apply rounded-sm bg-green-100 px-4 py-2 text-sm text-green-800;
+    @apply px-4 py-2 rounded-sm 
+    text-sm text-green-800 bg-green-100;
   }
 
-  /* Warning banner — yellow, same shape as success. */
+  /* Warning banner (yellow) */
   .banner-warning {
-    @apply px-4 py-2 rounded-sm bg-yellow-100 text-sm text-yellow-800;
+    @apply px-4 py-2 rounded-sm 
+    text-sm text-yellow-800 bg-yellow-100;
   }
 
-  /* Error banner — red */
+  /* Error banner (red) */
   .banner-error {
-    @apply rounded-sm bg-red-100 px-4 py-2 text-sm text-red-800;
+    @apply px-4 py-2 rounded-sm 
+    text-sm text-red-800 bg-red-100;
   }
 
-  /* Info banner — blue, small text. */
+  /* Info banner (blue) */
   .banner-info {
-    @apply flex min-w-0 flex-1 items-center rounded-lg border border-blue-100 bg-blue-50 px-3 py-3 text-xs leading-relaxed text-blue-900;
+    @apply flex flex-1 min-w-0 px-3 py-3 items-center rounded-lg 
+    border border-blue-100 bg-blue-50 
+    text-xs leading-relaxed text-blue-900;
   }
 
 
@@ -221,50 +222,59 @@
      PAGE / SECTION HEADINGS
      ============================================================ */
 
-  /* Big centered page title (h1). `justify-center` is inert on a non-flex element
-     but is present in every existing usage — preserved verbatim. */
+  /* Big centered page title (h1) */
   .heading-page {
-    @apply justify-center text-center text-black text-4xl font-bold;
+    @apply justify-center text-center text-4xl font-bold text-black;
+  }
+
+  .subheading-page {
+    @apply text-2xl font-bold lg:text-4xl text-gray-900;
   }
 
   /* Dashboard and Edit page section heading (h2). */
   .heading-dashboard-section {
-    @apply justify-center text-center my-4 text-2xl text-black font-bold m-4;
+    @apply justify-center text-center m-4 text-2xl font-bold text-black;
   }
 
   /* Class for link headings */
   .heading-dashboard-link{
-    @apply inline-flex items-center hover:text-blue-800 leading-none;
+    @apply inline-flex items-center leading-none
+    hover:text-blue-800;
   }
 
 
   /* ============================================================
-     DASHBOARD LAYOUT
+     DASHBOARD AND EDIT
      ============================================================ */
 
   /* Edit page section wrapper (one per section). */
   .card-edit-table {
-    @apply mb-8 scroll-mt-24 rounded-xl border border-slate-200 bg-white p-2 shadow-sm sm:p-4;
+    @apply mb-8 scroll-mt-24 p-2 sm:p-4 rounded-xl
+    border border-slate-200 bg-white shadow-sm;
   }
 
-  /* Edit dashboard hero/intro card. */
+  /* Edit dashboard intro card. */
   .card-intro {
-    @apply relative my-10 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm;
+    @apply relative my-10 overflow-hidden rounded-2xl 
+    border border-slate-200 bg-white shadow-sm;
   }
 
-  /* Edit page top-nav pill buttons. */
+  /* Intro card navigation pill buttons. */
   .btn-nav-pill {
-    @apply rounded-full border border-blue-950 bg-white px-3 py-1.5
-           text-xs font-semibold text-blue-950 transition hover:bg-slate-100;
+    @apply rounded-full border px-3 py-1.5
+    border-blue-950 bg-white 
+    text-xs font-semibold text-blue-950 
+    hover:bg-blue-950 hover:text-white transition;
   }
 
-  /* Dashboard Table Values */
+  /* Dashboard Tables */
   .container-table {
     @apply container mx-auto w-full px-4 mb-10 overflow-x-auto text-center;
   }
 
   .table-dashboard {
-    @apply table-auto md:table-fixed w-full my-4 mx-auto border-collapse border border-gray-300;
+    @apply table-auto md:table-fixed w-full my-4 mx-auto 
+    border-collapse border border-gray-300;
   }
 
   .text-table {
@@ -274,88 +284,81 @@
   /* Edit Dashboard Table-Specific Values */
   .table-edit {
     min-width: 100%;
-    @apply w-full border-collapse border border-gray-300 text-sm;
+    @apply w-full text-sm 
+    border-collapse border border-gray-300;
   }
 
   .text-edit-table {
-    @apply border border-gray-300 p-2 overflow-auto;
+    @apply p-2 overflow-auto
+    border border-gray-300;
   }
 
 
   /* ============================================================
-     SMALL CARDS & MODAL SECTION WRAPPERS
+     CARDS & MODALS
      ============================================================ */
-
-  /* Section block inside a modal (e.g. features/policies wrapper). */
-  /* Files: app/components/edits/EditPropertiesClient.js */
-  .card-modal-section {
-    @apply rounded-xl border border-slate-200 p-4;
-  }
-
-  /* Individual group card inside a modal section. */
-  /* Files: app/components/edits/EditPropertiesClient.js */
-  .card-modal-subsection {
-    @apply rounded-lg border border-slate-200 bg-white p-4 shadow-sm;
-  }
-
-  /* Gallery editor photo card. */
-  /* Files: app/components/edits/EditPropertiesClient.js (gallery) */
-  .card-photo {
-    @apply rounded-lg border border-gray-200 shadow-sm p-3;
-  }
-
+  
   /* Modal heading. */
   .heading-modal {
     @apply text-xl font-semibold text-gray-900;
   }
 
-
-  /* ============================================================
-     MENU / NAVIGATION (Menu.js)
-     Slide-in side menu on bg-blue-950. The link list uses
-     `divide-y` to draw thin separators between items, and each
-     link supplies its own vertical padding (so the dividers
-     have breathing room on both sides).
-     Files: app/components/utils/Menu.js
-     ============================================================ */
-
-  /* Container for the menu link list. Drives the divider lines. */
-  .menu-link-list {
-    @apply grid-cols-1 flex flex-col w-full divide-y divide-white/20;
+  /* Section block inside a modal */
+  .card-modal-section {
+    @apply p-4 rounded-xl 
+    border border-slate-200;
   }
 
-  /* Standard menu link (items 2..N). py-6 on both sides means the
-     divider above and below each link has matching breathing room. */
+  /* Individual card inside a modal section. */
+  .card-modal-subsection {
+    @apply p-4 rounded-lg 
+    border border-slate-200 bg-white shadow-sm;
+  }
+
+  /* Gallery editor photo card. */
+  .card-photo {
+    @apply p-3 rounded-lg 
+    border border-gray-200 shadow-sm;
+  }
+
+
+  /* ============================================================
+     MENU / NAVIGATION
+     ============================================================ */
+
+  /* Container for the menu link with white divider lines. */
+  .menu-link-list {
+    @apply grid-cols-1 flex flex-col w-full 
+    divide-y divide-white/20;
+  }
+
+  /* Standard menu link */
   .menu-link {
-    @apply row-span-full px-4 py-6 text-xl font-medium text-white hover:font-bold;
+    @apply row-span-full px-4 py-6 
+    text-xl font-medium text-white 
+    hover:font-bold;
   }
 
 
   /* ============================================================
      SITE HEADER
-     The header has two visual modes based on route:
-       1. Homepage (/) — fixed at top, transparent gradient over the
-          hero photo, fades to opaque blue-950 once scrollY > 120.
-       2. Non-homepage — solid blue-950, scrolls with the page.
-     The two .header-* classes below pair with inline-style overrides
-     (rgba background-color/background-image) that the component
-     manages via React state. The classes only handle position +
-     transition; backgrounds are still inline.
-     Files: app/components/utils/SiteHeader.js
+     The header has two modes:
+       1. Homepage — transparent gradient over the home photo, fades to opaque when scrolled
+       2. Other — solid, scrolls with the page.
+    The colors are still handled in components/utils/SiteHeader.js
      ============================================================ */
 
-
-  /* Inner flex row inside the header (logo on the left, nav on the right). */
+  /* Inner flex row inside the header so logo on the left, nav on the right */
   .header-row {
     @apply flex items-center justify-between p-4 transition-colors duration-200 py-2;
   }
 
-  /* Site logo / wordmark link. */
+  /* Site logo / wordmark link */
   .header-logo {
     @apply text-white text-xl font-medium drop-shadow-sm;
   }
 
-  /* Desktop nav link ("Properties", "About"). */
+  /* Med+ size screen nav links */
   .header-nav-link {
     @apply text-white text-lg font-medium mr-4;
   }
@@ -364,12 +367,9 @@
   /* ============================================================
      PROPERTY PAGE PHOTOS
      Handles 3 components:
-        1. PropertyPhotos — the photos on the individual property's
-            page.
-        2. PhotoViewer — the full-screen photo viewer that opens when
-            you click an individual photo tile in the gallery modal.
-        3. Gallery modal — the lightbox-style modal that opens when
-            you click the "Gallery" button on a property page.
+        1. PropertyPhotos: photos on the individual property page
+        2. PhotoViewer: full-screen photo viewer that opens when you click an individual photo tile
+        3. Gallery modal: opens when you click the "Gallery" button on a property page.
      ============================================================ */
 
   /* PROPERTY PHOTOS */
@@ -387,21 +387,22 @@
 
   /* GALLERY */
 
-  /* "Gallery" trigger button that overlays the hero photo. */
+  /* "Gallery" trigger button that overlays the main photo and smaller side gallery. */
   .btn-gallery {
-    @apply bg-black/60 px-4 py-2 text-sm font-medium text-white shadow-md
-           hover:bg-black/70 cursor-pointer;
+    @apply px-4 py-2 cursor-pointer 
+    text-sm font-medium text-white shadow-md 
+    bg-black/60 
+    hover:bg-black/70;
   }
 
-  /* Full-screen modal backdrop. Top padding is applied separately in
-     JSX so it can be conditional on whether the SiteHeader is in view. */
+  /* Full-screen modal backdrop. Top padding is applied separately so it can be conditional on whether the SiteHeader is visible */
   .gallery-modal {
-    @apply fixed inset-0 z-100 flex items-start justify-center bg-black/80 p-6 sm:p-10;
+    @apply fixed inset-0 z-100 flex items-start justify-center p-6 sm:p-10
+    bg-black/80;
   }
 
-  /* Top-padding variants for the backdrop — paired with .gallery-backdrop.
-     Use -with-header when the SiteHeader is visible on the page; use
-     -no-header when the user has scrolled past it. */
+  /* Top-padding variants for the backdrop 
+     Use with with gallery-backdrop according to whether header is visible */
   .gallery-modal-with-header {
     @apply pt-20 sm:pt-20;
   }
@@ -409,72 +410,70 @@
     @apply pt-14 sm:pt-14;
   }
 
-  /* White card that holds the modal contents. */
+  /* White card that holds the gallery modal contents */
   .gallery-card {
     @apply mx-auto flex max-h-[86vh] w-full max-w-5xl flex-col
-           overflow-hidden rounded bg-white cursor-auto;
+    overflow-hidden rounded cursor-auto 
+    bg-white;
   }
 
-  /* Modal title bar (address heading + close button). */
+  /* Modal title bar (address heading + close button) */
   .gallery-titlebar {
-    @apply flex items-center justify-between border-b px-4 py-3;
+    @apply flex items-center justify-between px-4 py-3;
   }
 
-  /* Scrollable body of the modal (contains the photo grid). */
+  /* Scrollable body of the modal */
   .gallery-scroll {
     @apply overflow-y-auto overscroll-contain p-4 sm:p-6;
   }
 
-  /* Individual photo tile button. content-visibility / contain-intrinsic-size
-     are set via inline style in the JSX (not Tailwind utilities). */
+  /* Individual photo tile button
+     content-visibility / contain-intrinsic-size set with inline style */
   .gallery-tile {
-    @apply relative aspect-4/3 overflow-hidden rounded bg-gray-100
-           cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500;
+    @apply relative aspect-4/3 overflow-hidden rounded cursor-pointer 
+    bg-gray-100
+    focus:outline-none focus:ring-2 focus:ring-blue-500;
   }
 
 
   /* ============================================================
      ABOUT PAGE
-     The /about route is composed of three stacked sections:
-       1. Page title bar  ("About")
-       2. Intro paragraph  (centered container, indented body copy)
-       3. Services grid    (three icon-cards: Rentals, Sales, Mgmt)
-       4. Team grid        (AgentCard list — covered by .heading-page
-                            + the agent card pattern in AgentCard.js)
-     The "Our Team" heading uses .heading-page (already cataloged).
-     Files: app/about/page.js
-
-     SERVICES SECTION (about page)
-     Three-column icon-card grid sitting between the about-intro
-     paragraph and the team grid. Collapses to a single column on
-     mobile (md: breakpoint switches to three columns).
-     Files: app/about/page.js
      ============================================================ */
 
-  /* A single service card (icon + heading + description, centered). */
-  /* Files: app/about/page.js (3 places: Rentals, Sales, Management) */
+  /* A single service card (icon + heading + description) */
   .about-card {
     @apply flex flex-col items-center text-center p-6;
   }
 
-  /* The inline SVG icon at the top of each service card. */
-  /* Files: app/about/page.js (3 places) */
+  /* The inline icon for each service card. */
   .about-icon {
-    @apply w-12 h-12 mb-4 text-gray-700;
+    @apply w-12 h-12 mb-4 
+    text-blue-950;
   }
 
-  /* Service card heading (h3). Distinct from .gallery-title
-     (same size/weight, different surrounding layout + margin). */
-  /* Files: app/about/page.js (3 places) */
+  /* Service card heading (h3) */
   .about-card-heading {
-    @apply text-xl font-semibold mb-2;
+    @apply mb-2 text-xl font-semibold;
   }
 
-  /* Service card description copy. */
-  /* Files: app/about/page.js (3 places) */
+  /* Service card description */
   .about-card-text {
     @apply text-sm text-gray-600;
   }
 
+
+  /* ============================================================
+     PROFILE PAGE
+     ============================================================ */
+
+  /* contains main body on the profile page */
+  .profile-body-container {
+    @apply container mx-auto px-4 justify-center text-center;
+  }
+
+  /* contains only the heading on the profile page */
+  .profile-heading-container {
+     @apply relative w-full mx-auto mt-20 mb-10 px-4 text-center justify-center items-center;
+  }
 
 }
