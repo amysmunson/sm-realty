@@ -111,26 +111,39 @@ export default async function Home() {
           </div>
         </div>
         <div className="container mx-auto px-4 pb-12 justify-center text-center">
-          <div className="pt-4">
-            <h1 className="text-2xl font-bold m-4">About</h1>
-            <p className="px-24 pb-10">
-              Based in Sillicon Valley, Shen Munson Realty is a real estate brokerage serving buyers, 
-              sellers, landlords, tenants, and property owners throughout the South Bay. Led by a licensed 
-              broker with nearly 30 years of local experience and market expertise, Shen Munson Realty 
-              provides personalized service and practical guidance to help clients achieve their real estate 
-              goals. We specialize in residential rentals, sales, and are committed to helping clients 
-              navigate every step. Whether you are renting, selling, or looking for a property managemer, 
-              Shen Munson Realty is here to help.
-            </p>
-          </div>
+          <section className="relative mx-4 mb-12 overflow-hidden rounded-3xl px-6 py-16">
+            <div className="pointer-events-none absolute inset-0">
+              <div className="absolute -right-20 top-10 h-56 w-56 rounded-full bg-blue-200/30 blur-3xl" />
+              <div className="absolute -left-24 bottom-0 h-64 w-64 rounded-full bg-slate-200/50 blur-3xl" />
+            </div>
+
+            <div className="relative mx-auto grid min-h-[70vh] max-w-6xl gap-10 lg:grid-cols-2 lg:items-center">
+              <div className="flex flex-col justify-center space-y-5 text-center lg:min-h-[40vh] lg:text-left">
+                <div className="mx-auto h-1 w-20 rounded-full bg-blue-950 lg:mx-0" />
+                <h2 className="subheading-page">About</h2>
+              </div>
+
+              <div className="rounded-3xl p-6 sm:p-8 lg:p-10">
+                <p className="text-pretty text-base leading-8 text-gray-700 sm:text-lg sm:leading-9">
+                  Based in Sillicon Valley, Shen Munson Realty is a real estate brokerage serving buyers,
+                  sellers, landlords, tenants, and property owners throughout the South Bay. Led by a licensed
+                  broker with nearly 30 years of local experience and market expertise, Shen Munson Realty
+                  provides personalized service and practical guidance to help clients achieve their real estate
+                  goals. We specialize in residential rentals, sales, and are committed to helping clients
+                  navigate every step. Whether you are renting, selling, or looking for a property managemer,
+                  Shen Munson Realty is here to help.
+                </p>
+              </div>
+            </div>
+          </section>
           {property_data.length > 0 && (
             <div>
               <div className="py-4">
-                <h1 className="text-2xl font-bold m-4">
-                  <Link href="/properties" className="text-black">
+                <h2 className="text-2xl font-bold m-4 mb-8">
+                  <Link href="/properties" className="subheading-page">
                     Properties
                   </Link>
-                </h1>
+                </h2>
                 {/* grid of properties, card style */}
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                   {property_data?.map(property => {
