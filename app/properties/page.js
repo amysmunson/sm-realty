@@ -73,7 +73,7 @@ export default async function Properties() {
     <div style={{ minHeight: "calc(100vh - 6rem)" }}>
       <main className="w-full">
         <div className="relative w-full mb-10 p-4 pt-20">
-          <h1 className="justify-center text-center text-black text-4xl font-bold">Properties </h1>
+          <h1 className="heading-page">Properties </h1>
         </div>
 
         <div className="container mx-auto px-4 mb-40 justify-center text-center">

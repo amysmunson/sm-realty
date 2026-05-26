@@ -100,7 +100,7 @@ export default async function PropertyDetailsPage({ params }) {
       </div>
       {/* Display Property Info */}
       <div className="relative w-full max-w-360 mx-auto mb-4 px-2 md:px-4">
-        <h1 className="justify-center text-center text-black text-4xl font-bold">{property.address}</h1>
+        <h1 className="heading-page">{property.address}</h1>
         <p className="text-gray-700 text-center text-lg">{property.city}, CA {property.zip}</p>
       </div>
       {/* Make this left column of the grid smaller */}
@@ -110,12 +110,6 @@ export default async function PropertyDetailsPage({ params }) {
           {/* Address, City, CA. Beds, Baths, Sqft, Rent, Open Listing Period, Home type, home description */}
           <div className="text-left mb-10">
             <div className="mb-8">
-              {/* <div className="flex items-baseline gap-2 mb-4">
-                <span className="text-3xl font-bold text-gray-900">
-                  ${property.monthly_rent?.toLocaleString()}
-                </span>
-                <span className="text-gray-500">/month</span>
-              </div> */}
 
               {/* Need lines between each row */}
 
@@ -127,21 +121,21 @@ export default async function PropertyDetailsPage({ params }) {
                     <div className="text-xs uppercase tracking-wide text-gray-500">/month</div>
                 </div>
                 <div className="px-4 text-center">
-                  <div className="text-xl font-semibold text-gray-900">{property.beds}</div>
+                  <div className="text-xl font-semibold text-gray-900">{property.beds || "—"}</div>
                   <div className="text-xs uppercase tracking-wide text-gray-500">Beds</div>
                 </div>
                 <div className="px-4 text-center">
-                  <div className="text-xl font-semibold text-gray-900">{property.baths}</div>
+                  <div className="text-xl font-semibold text-gray-900">{property.baths || "—"}</div>
                   <div className="text-xs uppercase tracking-wide text-gray-500">Baths</div>
                 </div>
                 <div className="px-4 text-center">
                   <div className="text-xl font-semibold text-gray-900">
-                    {property.sqft?.toLocaleString()}
+                    {property.sqft?.toLocaleString() || "—"}
                   </div>
                   <div className="text-xs uppercase tracking-wide text-gray-500">Sq Ft</div>
                 </div>
                 <div className="px-4 text-center col-span-2">
-                  <div className="text-xl font-semibold text-gray-900">{property.home_type}</div>
+                  <div className="text-xl font-semibold text-gray-900">{property.home_type || "—"}</div>
                   <div className="text-xs uppercase tracking-wide text-gray-500">Type</div>
                 </div>
               </div>
@@ -167,16 +161,6 @@ export default async function PropertyDetailsPage({ params }) {
               <p className="text-gray-400 mb-2 text-sm">No additional features or policies listed.</p>
             )}
           </div>
-          {/* External Link, either Zillow or Redfin */}
-          {property.ext_link ? (
-            <div>
-              <a href={property.ext_link} target="_blank" rel="noopener noreferrer">
-                <button className="bg-blue-950 hover:bg-blue-800 text-white font-bold py-2 px-4 rounded mb-4">
-                  {property.ext_link?.includes("zillow") ? "Zillow" : "Redfin"} Listing
-                </button>
-              </a>
-            </div>
-          ) : null}
         </div>
         <div className="md:col-span-5">
           {/* Right side */}
@@ -194,6 +178,16 @@ export default async function PropertyDetailsPage({ params }) {
               propertyAddress={property?.address}
             />
           </div>
+          {/* External Link, either Zillow or Redfin */}
+          {property.ext_link ? (
+            <div className="mb-4">
+              <a href={property.ext_link} target="_blank" rel="noopener noreferrer">
+                <button className="btn-primary w-full rounded-lg">
+                  {property.ext_link?.includes("zillow") ? "Zillow" : "Redfin"} Listing
+                </button>
+              </a>
+            </div>
+          ) : <div className="mb-16"/>}
         </div>
       </div>
     </main>
