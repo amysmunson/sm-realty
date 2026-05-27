@@ -76,15 +76,15 @@ export default function UserRegistration() {
 
   return (
     <section className="card-auth">
-      <h2 className="text-xl font-semibold mb-4">Create Account</h2>
+      <h2 className="heading-form">Create Account</h2>
       {success ? (
-        <p className="text-green-700 mt-3 text-sm">
+        <p className="banner-success">
           {message}
         </p>
       ) : (
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label htmlFor="register-name" className="block text-sm font-medium mb-1">
+            <label htmlFor="register-name" className="label-form">
               Name <span className="text-red-500">*</span> 
             </label>
             {/* This can have more text formatting rules */}
@@ -99,7 +99,7 @@ export default function UserRegistration() {
         </div>
 
         <div>
-          <label htmlFor="register-email" className="block text-sm font-medium mb-1">
+          <label htmlFor="register-email" className="label-form">
             Email <span className="text-red-500">*</span>
           </label>
           <input
@@ -113,7 +113,7 @@ export default function UserRegistration() {
         </div>
 
         <div>
-          <label htmlFor="register-password" className="block text-sm font-medium mb-1">
+          <label htmlFor="register-password" className="label-form">
             Password <span className="text-red-500">*</span>
           </label>
           <input
@@ -130,7 +130,7 @@ export default function UserRegistration() {
         </div>
 
         <div>
-          <label htmlFor="register-phone" className="block text-sm font-medium mb-1">
+          <label htmlFor="register-phone" className="label-form">
             Phone
           </label>
           <input
@@ -155,7 +155,7 @@ export default function UserRegistration() {
       </form>
       )}
 
-      {error ? <p className="text-red-700 mt-3 text-sm">{error}</p> : null}
+      {error ? <p className="banner-error mt-4">{error}</p> : null}
     </section>
   );
 }

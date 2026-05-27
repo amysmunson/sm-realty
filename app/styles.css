@@ -154,7 +154,7 @@
 
   /* Form/card heading (h2). */
   .heading-form {
-    @apply text-lg font-bold mb-4;
+    @apply text-xl font-bold mb-4;
   }
 
   /* Form labels */

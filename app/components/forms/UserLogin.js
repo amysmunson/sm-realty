@@ -85,11 +85,11 @@ export default function UserLogin() {
 
   return (
     <section className="card-auth">
-      <h2 className="text-xl font-semibold mb-4">Log In</h2>
+      <h2 className="heading-form">Log In</h2>
       {!linkStep ? (
         <form onSubmit={handleCredentialsSubmit} className="space-y-4">
           <div>
-            <label htmlFor="register-email" className="block text-sm font-medium mb-1">
+            <label htmlFor="register-email" className="label-form">
               Email
             </label>
             <input
@@ -103,7 +103,7 @@ export default function UserLogin() {
           </div>
 
           <div>
-            <label htmlFor="register-password" className="block text-sm font-medium mb-1">
+            <label htmlFor="register-password" className="label-form">
               Password
             </label>
             <input
@@ -139,15 +139,15 @@ export default function UserLogin() {
               setMessage("");
               setError("");
             }}
-            className="w-full bg-gray-100 text-gray-800 rounded px-4 py-2 cursor-pointer"
+            className="w-full btn-secondary-gray"
           >
             Back
           </button>
         </div>
       )}
 
-      {message ? <p className="text-green-700 mt-3 text-sm">{message}</p> : null}
-      {error ? <p className="text-red-700 mt-3 text-sm">{error}</p> : null}
+      {message ? <p className="banner-success mt-4">{message}</p> : null}
+      {error ? <p className="banner-error mt-4">{error}</p> : null}
     </section>
   );
 }
