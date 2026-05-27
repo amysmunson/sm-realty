@@ -236,16 +236,16 @@ export default function EditContactsClient() {
             ) : null}
 
             <div className="overflow-x-auto">
-                <table className="min-w-full border-collapse border border-gray-300 text-sm">
+                <table className="table-edit">
                     <thead>
                         <tr className="bg-gray-100">
-                            <th className="border border-gray-300 p-2">Submitted</th>
-                            <th className="border border-gray-300 p-2">Name</th>
-                            <th className="border border-gray-300 p-2">Email</th>
-                            <th className="border border-gray-300 p-2">Phone</th>
-                            <th className="border border-gray-300 p-2">Message</th>
-                            <th className="border border-gray-300 p-2">Open</th>
-                            <th className="border border-gray-300 p-2">Actions</th>
+                            <th className="text-edit-table">Submitted</th>
+                            <th className="text-edit-table">Name</th>
+                            <th className="text-edit-table">Email</th>
+                            <th className="text-edit-table">Phone</th>
+                            <th className="text-edit-table">Message</th>
+                            <th className="text-edit-table w-10">Open</th>
+                            <th className="text-edit-table w-10">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -253,48 +253,48 @@ export default function EditContactsClient() {
                             const rowDirty = isRowDirty(item);
 
                             return (
-                                <tr key={item.id} className={item.open ? "" : "bg-gray-50"}>
-                                    <td className="border border-gray-300 p-2">{formatTimestamp(item.created_at)}</td>
-                                    <td className="border border-gray-300 p-2">
+                                <tr key={item.id} className={item.open ? "" : "bg-gray-100"}>
+                                    <td className="text-edit-table">{formatTimestamp(item.created_at)}</td>
+                                    <td className="text-edit-table">
                                         <input
                                             type="text"
                                             value={item.name || ""}
                                             onChange={(event) => updateField(item.id, "name", event.target.value)}
-                                            className="w-40 rounded p-1"
+                                            className="w-40 input-table"
                                         />
                                     </td>
-                                    <td className="border border-gray-300 p-2">
+                                    <td className="text-edit-table">
                                         <input
                                             type="email"
                                             value={item.email || ""}
                                             onChange={(event) => updateField(item.id, "email", event.target.value)}
-                                            className="w-52 rounded p-1"
+                                            className="w-52 input-table"
                                         />
                                     </td>
-                                    <td className="border border-gray-300 p-2">
+                                    <td className="text-edit-table">
                                         <input
                                             type="text"
                                             value={item.phone || ""}
                                             onChange={(event) => updateField(item.id, "phone", event.target.value)}
-                                            className="w-36 rounded p-1"
+                                            className="w-36 input-table"
                                         />
                                     </td>
-                                    <td className="border border-gray-300 p-2 w-80">
+                                    <td className="text-edit-table w-80">
                                         <textarea
                                             value={item.message || ""}
                                             onChange={(event) => updateField(item.id, "message", event.target.value)}
                                             rows={3}
-                                            className="rounded p-1 w-full"
+                                            className="input-table w-full"
                                         />
                                     </td>
-                                    <td className="border border-gray-300 p-2 text-center">
+                                    <td className="text-edit-table text-center">
                                         <input
                                             type="checkbox"
                                             checked={Boolean(item.open)}
                                             onChange={(event) => updateField(item.id, "open", event.target.checked)}
                                         />
                                     </td>
-                                    <td className="border border-gray-300 p-2">
+                                    <td className="text-edit-table">
                                         <div className="flex flex-col gap-2">
                                             <button
                                                 type="button"

@@ -260,7 +260,7 @@ export default function EditAgentsClient() {
             
             <div className="my-4 flex items-center justify-between">
                 <div className="flex-1" />
-                <h2 className="flex-1 text-center text-2xl font-bold text-black">Agents</h2>
+                <h2 className="heading-dashboard-section my-0">Agents</h2>
                 <div className="flex flex-1 justify-end">
                 <button
                     type="button"
@@ -280,12 +280,12 @@ export default function EditAgentsClient() {
                 <table className="min-w-full border-collapse border border-gray-300 text-sm">
                     <thead>
                         <tr className="bg-gray-100">
-                            <th className="border border-gray-300 p-2">Name</th>
-                            <th className="border border-gray-300 p-2">Email</th>
-                            <th className="border border-gray-300 p-2">Phone</th>
-                            <th className="border border-gray-300 p-2">License</th>
-                            <th className="border border-gray-300 p-2">DRE #</th>
-                            <th className="border border-gray-300 p-2">Actions</th>
+                            <th className="text-edit-table">Name</th>
+                            <th className="text-edit-table">Email</th>
+                            <th className="text-edit-table">Phone</th>
+                            <th className="text-edit-table">License</th>
+                            <th className="text-edit-table">DRE #</th>
+                            <th className="text-edit-table w-10">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -294,48 +294,48 @@ export default function EditAgentsClient() {
 
                             return (
                                 <tr key={item.id}>
-                                    <td className="border border-gray-300 p-2">
+                                    <td className="text-edit-table">
                                         <input
                                             type="text"
                                             value={item.name || ""}
                                             onChange={(event) => updateField(item.id, "name", event.target.value)}
-                                            className="w-44 rounded p-1"
+                                            className="w-44 input-table"
                                         />
                                     </td>
-                                    <td className="border border-gray-300 p-2">
+                                    <td className="text-edit-table">
                                         <input
                                             type="email"
                                             value={item.email || ""}
                                             onChange={(event) => updateField(item.id, "email", event.target.value)}
-                                            className="w-56 rounded p-1"
+                                            className="w-56 input-table"
                                         />
                                     </td>
-                                    <td className="border border-gray-300 p-2">
+                                    <td className="text-edit-table">
                                         <input
                                             type="text"
                                             value={item.phone || ""}
                                             onChange={(event) => updateField(item.id, "phone", event.target.value)}
-                                            className="w-40 rounded p-1"
+                                            className="w-40 input-table"
                                         />
                                     </td>
-                                    <td className="border border-gray-300 p-2">
+                                    <td className="text-edit-table">
                                         <input
                                             type="text"
                                             value={item.license || ""}
                                             onChange={(event) => updateField(item.id, "license", event.target.value)}
-                                            className="w-40 rounded p-1"
+                                            className="w-40 input-table"
                                         />
                                     </td>
-                                    <td className="border border-gray-300 p-2">
+                                    <td className="text-edit-table">
                                         <input
                                             type="text"
                                             value={item.dre_num || ""}
                                             onChange={(event) => updateField(item.id, "dre_num", event.target.value)}
-                                            className="w-32 rounded p-1"
+                                            className="w-32 input-table"
                                         />
                                     </td>
-                                    <td className="border border-gray-300 p-2">
-                                        <div className="flex flex-col items-center gap-2">
+                                    <td className="text-edit-table">
+                                        <div className="flex flex-col gap-2">
                                             <button
                                                 type="button"
                                                 onClick={() => saveAgent(item)}

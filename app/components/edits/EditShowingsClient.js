@@ -460,15 +460,15 @@ export default function EditShowingsClient() {
                 <table className="min-w-full border-collapse border border-gray-300 text-sm">
                     <thead>
                         <tr className="bg-gray-100">
-                            <th className="border border-gray-300 p-2">Submitted</th>
-                            <th className="border border-gray-300 p-2">Property</th>
-                            <th className="border border-gray-300 p-2">Name</th>
-                            <th className="border border-gray-300 p-2">Email</th>
-                            <th className="border border-gray-300 p-2">Phone</th>
-                            <th className="border border-gray-300 p-2">Notes</th>
-                            <th className="border border-gray-300 p-2">Availability</th>
-                            <th className="border border-gray-300 p-2">Open</th>
-                            <th className="border border-gray-300 p-2">Actions</th>
+                            <th className="text-edit-table w-28">Submitted</th>
+                            <th className="text-edit-table w-40">Property</th>
+                            <th className="text-edit-table min-w-40">Name</th>
+                            <th className="text-edit-table min-w-48">Email</th>
+                            <th className="text-edit-table w-32">Phone</th>
+                            <th className="text-edit-table min-w-60">Notes</th>
+                            <th className="text-edit-table w-48">Availability</th>
+                            <th className="text-edit-table w-10">Open</th>
+                            <th className="text-edit-table w-10">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -476,13 +476,13 @@ export default function EditShowingsClient() {
                             const rowDirty = isRowDirty(item);
 
                             return (
-                                <tr key={item.showing_id} className={item.open ? "" : "bg-gray-50"}>
-                                    <td className="border border-gray-300 p-2">{formatTimestamp(item.created_at)}</td>
-                                    <td className="border border-gray-300 p-2">
+                                <tr key={item.showing_id} className={item.open ? "" : "bg-gray-100"}>
+                                    <td className="text-edit-table">{formatTimestamp(item.created_at)}</td>
+                                    <td className="text-edit-table">
                                         <select
                                             value={item.p_id ?? ""}
                                             onChange={(event) => updateField(item.showing_id, "p_id", event.target.value)}
-                                            className="w-40 rounded p-1"
+                                            className="w-full input-table"
                                         >
                                             <option className="text-gray-500" value=""></option>
                                             {propertyOptions.map((option) => (
@@ -492,56 +492,56 @@ export default function EditShowingsClient() {
                                             ))}
                                         </select>
                                     </td>
-                                    <td className="border border-gray-300 p-2">
+                                    <td className="text-edit-table">
                                         <input
                                             type="text"
                                             value={item.name || ""}
                                             onChange={(event) => updateField(item.showing_id, "name", event.target.value)}
-                                            className="w-40 rounded p-1"
+                                            className="w-full input-table"
                                         />
                                     </td>
-                                    <td className="border border-gray-300 p-2">
+                                    <td className="text-edit-table">
                                         <input
                                             type="email"
                                             value={item.email || ""}
                                             onChange={(event) => updateField(item.showing_id, "email", event.target.value)}
-                                            className="w-52 rounded p-1"
+                                            className="w-full input-table"
                                         />
                                     </td>
-                                    <td className="border border-gray-300 p-2">
+                                    <td className="text-edit-table">
                                         <input
                                             type="text"
                                             value={item.phone || ""}
                                             onChange={(event) => updateField(item.showing_id, "phone", event.target.value)}
-                                            className="w-24 rounded p-1"
+                                            className="w-full input-table"
                                         />
                                     </td>
-                                    <td className="border border-gray-300 p-2">
+                                    <td className="text-edit-table">
                                         <textarea
                                             value={item.notes || ""}
                                             onChange={(event) => updateField(item.showing_id, "notes", event.target.value)}
                                             rows={3}
-                                            className="w-60 rounded p-1"
+                                            className="w-full input-table"
                                         />
                                     </td>
-                                    <td className="border border-gray-300 p-2">
+                                    <td className="text-edit-table">
                                         <textarea
                                             value={item.availabilityText || ""}
                                             onChange={(event) => updateField(item.showing_id, "availabilityText", event.target.value)}
                                             rows={3}
                                             placeholder="YYYY-MM-DD HH:MM-HH:MM"
-                                            className="w-40 rounded p-1"
+                                            className="w-full input-table"
                                         />
                                     </td>
-                                    <td className="border border-gray-300 p-2 text-center">
+                                    <td className="text-edit-table text-center">
                                         <input
                                             type="checkbox"
                                             checked={Boolean(item.open)}
                                             onChange={(event) => updateField(item.showing_id, "open", event.target.checked)}
                                         />
                                     </td>
-                                    <td className="border border-gray-300 p-2">
-                                        <div className="flex flex-col items-center gap-2">
+                                    <td className="text-edit-table">
+                                        <div className="flex flex-col gap-2">
                                             <button
                                                 type="button"
                                                 onClick={() => saveRequest(item)}

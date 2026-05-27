@@ -3,7 +3,7 @@
 
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import { setComponentUnsaved } from "@/lib/unsavedClient";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
@@ -48,6 +48,7 @@ export default function EditApplicationsClient() {
     const { userId, loading: userLoading } = useCurrentUserId();
 
     const [applications, setApplications] = useState([]);
+    const [properties, setProperties] = useState([]);
     const [originalById, setOriginalById] = useState({});
     const [loading, setLoading] = useState(true);
     const [authorized, setAuthorized] = useState(false);
@@ -94,7 +95,7 @@ export default function EditApplicationsClient() {
 
             const { data, error: applicationsError } = await supabase
                 .from("rental_apps")
-                .select("form_id,created_at,name,email,phone,message,open")
+                .select("form_id,created_at,p_id,name,email,phone,message,open")
                 .order("open", { ascending: false })
                 .order("created_at", { ascending: false });
 
@@ -110,6 +111,21 @@ export default function EditApplicationsClient() {
                 setOriginalById(Object.fromEntries(loaded.map((item) => [item.form_id, normalizeApplication(item)])));
             }
 
+            const { data: propertiesData, error: propertiesError } = await supabase
+                .from("properties")
+                .select("p_id,address")
+                .order("address", { ascending: true });
+
+            if (!active) {
+                return;
+            }
+
+            if (propertiesError) {
+                setError((prev) => prev || propertiesError.message || "Unable to load properties.");
+            } else {
+                setProperties(propertiesData || []);
+            }
+
             setLoading(false);
         }
 
@@ -119,6 +135,12 @@ export default function EditApplicationsClient() {
             active = false;
         };
     }, [router, userId, userLoading]);
+
+    // Helper to update a specific field for a showing request in local state by showing_id
+    const propertyOptions = useMemo(
+        () => properties.map((property) => ({ value: String(property.p_id), label: property.address || `Property ${property.p_id}` })),
+        [properties]
+    );
 
     function updateField(formId, field, value) {
         setApplications((prev) =>
@@ -240,13 +262,14 @@ export default function EditApplicationsClient() {
                 <table className="min-w-full border-collapse border border-gray-300 text-sm">
                     <thead>
                         <tr className="bg-gray-100">
-                            <th className="border border-gray-300 p-2">Submitted</th>
-                            <th className="border border-gray-300 p-2">Name</th>
-                            <th className="border border-gray-300 p-2">Email</th>
-                            <th className="border border-gray-300 p-2">Phone</th>
-                            <th className="border border-gray-300 p-2">Notes</th>
-                            <th className="border border-gray-300 p-2">Open</th>
-                            <th className="border border-gray-300 p-2">Actions</th>
+                            <th className="text-edit-table">Submitted</th>
+                            <th className="text-edit-table">Property</th>
+                            <th className="text-edit-table">Name</th>
+                            <th className="text-edit-table">Email</th>
+                            <th className="text-edit-table">Phone</th>
+                            <th className="text-edit-table">Notes</th>
+                            <th className="text-edit-table w-10">Open</th>
+                            <th className="text-edit-table w-10">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -254,49 +277,63 @@ export default function EditApplicationsClient() {
                             const rowDirty = isRowDirty(item);
 
                             return (
-                                <tr key={item.form_id} className={item.open ? "" : "bg-gray-50"}>
-                                    <td className="border border-gray-300 p-2">{formatTimestamp(item.created_at)}</td>
-                                    <td className="border border-gray-300 p-2">
+                                <tr key={item.form_id} className={item.open ? "" : "bg-gray-100"}>
+                                    <td className="text-edit-table">{formatTimestamp(item.created_at)}</td>
+                                    <td className="text-edit-table">
+                                        <select
+                                            value={item.p_id ?? ""}
+                                            onChange={(event) => updateField(item.form_id, "p_id", event.target.value)}
+                                            className="w-full input-table"
+                                        >
+                                            <option className="text-gray-500" value=""></option>
+                                            {propertyOptions.map((option) => (
+                                                <option key={option.value} value={option.value}>
+                                                    {option.label}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </td>
+                                    <td className="text-edit-table">
                                         <input
                                             type="text"
                                             value={item.name || ""}
                                             onChange={(event) => updateField(item.form_id, "name", event.target.value)}
-                                            className="w-40 rounded p-1"
+                                            className="w-40 input-table"
                                         />
                                     </td>
-                                    <td className="border border-gray-300 p-2">
+                                    <td className="text-edit-table">
                                         <input
                                             type="email"
                                             value={item.email || ""}
                                             onChange={(event) => updateField(item.form_id, "email", event.target.value)}
-                                            className="w-52 rounded p-1"
+                                            className="w-52 input-table"
                                         />
                                     </td>
-                                    <td className="border border-gray-300 p-2">
+                                    <td className="text-edit-table">
                                         <input
                                             type="text"
                                             value={item.phone || ""}
                                             onChange={(event) => updateField(item.form_id, "phone", event.target.value)}
-                                            className="w-36 rounded p-1"
+                                            className="w-36 input-table"
                                         />
                                     </td>
-                                    <td className="border border-gray-300 p-2">
+                                    <td className="text-edit-table">
                                         <textarea
                                             value={item.message || ""}
                                             onChange={(event) => updateField(item.form_id, "message", event.target.value)}
                                             rows={3}
-                                            className="w-80 rounded p-1"
+                                            className="w-80 input-table"
                                         />
                                     </td>
-                                    <td className="border border-gray-300 p-2 text-center">
+                                    <td className="text-edit-table text-center">
                                         <input
                                             type="checkbox"
                                             checked={Boolean(item.open)}
                                             onChange={(event) => updateField(item.form_id, "open", event.target.checked)}
                                         />
                                     </td>
-                                    <td className="border border-gray-300 p-2">
-                                        <div className="flex flex-col items-center gap-2">
+                                    <td className="text-edit-table">
+                                        <div className="flex flex-col gap-2">
                                             <button
                                                 type="button"
                                                 onClick={() => saveApplication(item)}
