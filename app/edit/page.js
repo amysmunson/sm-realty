@@ -56,14 +56,14 @@ export default function EditPage() {
           <EditContactsClient />
         </div>
 
+		<div id="applications" className="card-edit-table">
+          <h2 className="heading-dashboard-section">Property-Specific Contact Requests</h2>
+          <EditApplicationsClient />
+        </div>
+
         <div id="showings" className="card-edit-table">
           <h2 className="heading-dashboard-section">Showings</h2>
           <EditShowingsClient />
-        </div>
-
-        <div id="applications" className="card-edit-table">
-          <h2 className="heading-dashboard-section">Property-Specific Contact Requests</h2>
-          <EditApplicationsClient />
         </div>
 
         <div id="agents" className="card-edit-table">
