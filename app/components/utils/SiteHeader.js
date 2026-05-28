@@ -50,6 +50,8 @@ export default function SiteHeader() {
     : undefined;
 
   return (
+    <>
+    {isHomePage && <div className="h-0 shrink-0" aria-hidden="true" />}
     <header className={headerClassName} style={headerStyle}>
       <div className="header-row">
         {/* Logo/Site Name */}
@@ -79,5 +81,6 @@ export default function SiteHeader() {
         </div>
       </div>
     </header>
+    </>
   );
 }
