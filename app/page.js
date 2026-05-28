@@ -4,6 +4,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { supabase } from '@/lib/supabase'
 
+
+// Revalidate daily
+export const revalidate = 86400;
+
+
 export const metadata = {
   title: "Shen Munson Realty",
   description: "Shen Munson Realty's Home Page",
