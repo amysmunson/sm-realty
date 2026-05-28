@@ -154,6 +154,9 @@ npm run lint
 
 - [ ] Profile Editing
 - [ ] Proper Dark Mode
+- [ ] MLS Listings
+<!-- Gallery could be thumbnails instead to save on Cached Egress -->
+<!-- Modularize the supabase calls more -->
 <!-- Sign Up Confirmation email disabled temporarily -->
 <!-- Consider email authentication for login only for admin -->
 <!-- Issue with login email, not allowing proper magiclink in deployment. Will fix -->
