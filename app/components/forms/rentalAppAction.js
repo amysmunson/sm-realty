@@ -44,10 +44,10 @@ export async function submitRentalApp(_prevState, formData) {
 
   // Sending notification email using Resend
   await sendNotificationEmail({
-    subject: `New rental application for ${propertyLabel}`,
+    subject: `New rental contact request for ${propertyLabel}`,
     replyTo: payload.email,
     text: [
-      "New rental application received from the website.",
+      "New rental contact request received from the website.",
       `Property: ${propertyLabel}`,
       `Name: ${payload.name || "(not provided)"}`,
       `Email: ${payload.email || "(not provided)"}`,
@@ -58,7 +58,7 @@ export async function submitRentalApp(_prevState, formData) {
     ].join("\n"),
     html: `
       <div style="font-family:Arial,sans-serif;line-height:1.5;color:#111827">
-        <h2 style="margin:0 0 12px 0">New rental application for ${propertyLabel}</h2>
+        <h2 style="margin:0 0 12px 0">New rental contact request for ${propertyLabel}</h2>
         <p style="margin:0 0 8px 0"><strong>Property:</strong> ${propertyLabel}</p>
         <p style="margin:0 0 8px 0"><strong>Name:</strong> ${payload.name || "(not provided)"}</p>
         <p style="margin:0 0 8px 0"><strong>Email:</strong> ${payload.email || "(not provided)"}</p>
