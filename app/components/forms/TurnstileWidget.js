@@ -4,13 +4,6 @@ import { useEffect, useRef, useState } from "react";
 import { useFormStatus } from "react-dom";
 import Script from "next/script";
 
-const DEFAULT_BUTTON_CLASSNAME = `inline-flex items-center px-4 py-2
-  border border-transparent rounded-sm shadow-sm
-  text-sm font-medium text-white
-  focus:outline-none focus:ring-1 focus:ring-offset-1 transition
-  disabled:opacity-50 disabled:cursor-default disabled:hover:bg-blue-950
-  bg-blue-950 hover:bg-blue-900 focus:ring-blue-950 cursor-pointer`;
-
 // Renders the Cloudflare Turnstile widget plus a submit button gated on the
 // widget's verification result and the form's pending status. Uses Turnstile's
 // explicit render API (not implicit auto-scan), so it remounts correctly after
@@ -19,7 +12,6 @@ export default function TurnstileWidget({
   siteKey,
   label = "Submit",
   pendingLabel = "Submitting...",
-  buttonClassName = DEFAULT_BUTTON_CLASSNAME,
 }) {
   const containerRef = useRef(null);
   const widgetIdRef = useRef(null);
@@ -98,7 +90,7 @@ export default function TurnstileWidget({
         </>
       ) : null}
       <div ref={buttonWrapperRef}>
-        <button type="submit" disabled={disabled} className={buttonClassName}>
+        <button type="submit" disabled={disabled} className={"btn-primary"}>
           {pending ? pendingLabel : label}
         </button>
       </div>

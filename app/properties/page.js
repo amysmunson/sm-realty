@@ -40,7 +40,7 @@ export default async function Properties() {
   // fetch property and photo data
   const [{ data: properties, error: propertyError }, { data: photos, error: photoError }] =
     await Promise.all([
-      supabase.from("properties").select("*"),
+      supabase.from("properties").select("*").filter("open_rental", "eq", true),
       supabase.from("photos").select("*"),
     ]);
 
@@ -70,22 +70,26 @@ export default async function Properties() {
   );
 
   return (
-    <div>
-      <main>
+    <div style={{ minHeight: "calc(100vh - 6rem)" }}>
+      <main className="w-full">
         <div className="relative w-full mb-10 p-4 pt-20">
-          <h1 className="justify-center text-center text-black text-4xl font-bold">Properties </h1>
+          <h1 className="heading-page">Properties </h1>
         </div>
 
         <div className="container mx-auto px-4 mb-40 justify-center text-center">
-          <div className="grid grid-cols-1 h-150 gap-4 mb-20">
-            {propertyData.map((property) => (
-              <PropertyCard
-                key={property.p_id}
-                property={property}
-                photoUrl={photoUrls[property.p_id]}
-              />
-            ))}
-          </div>
+          {propertyData.length === 0 ? (
+            <p className="text-center text-gray-500">No properties currently available.</p>
+          ) :
+            <div className="grid grid-cols-1 gap-4 mb-20">
+              {propertyData.map((property) => (
+                <PropertyCard
+                  key={property.p_id}
+                  property={property}
+                  photoUrl={photoUrls[property.p_id]}
+                />
+              ))}
+            </div>
+          }
         </div>
       </main>
     </div>

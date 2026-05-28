@@ -110,6 +110,8 @@ export default function EditPropertiesClient() {
   const [authorized, setAuthorized] = useState(false);
   const [error, setError] = useState("");
   const [savingId, setSavingId] = useState(null);
+  const [deletingId, setDeletingId] = useState(null);
+  const [addingRow, setAddingRow] = useState(false);
   const [galleryProperty, setGalleryProperty] = useState(null);
   const [galleryPhotos, setGalleryPhotos] = useState([]);
   const [savedGalleryPhotoIds, setSavedGalleryPhotoIds] = useState([]);
@@ -122,6 +124,9 @@ export default function EditPropertiesClient() {
   const [detailsFeaturePolicyData, setDetailsFeaturePolicyData] = useState(getEmptyFeaturePolicyData());
   const [detailsSaving, setDetailsSaving] = useState(false);
   const [detailsError, setDetailsError] = useState("");
+  const [linkProperty, setLinkProperty] = useState(null);
+  const [linkSaving, setLinkSaving] = useState(false);
+  const [linkError, setLinkError] = useState("");
   const uploadInputRef = useRef(null);
 
   // Check user admin status and load properties on page load
@@ -317,8 +322,93 @@ export default function EditPropertiesClient() {
     }));
   }
 
-// End of features and policies editor helpers
+  // End of features and policies editor helpers
 
+  // Helper that opens an ext link editor for a property
+  function openExtLinkEditor(property) {
+    setLinkProperty({
+      ...property,
+      ext_link: property?.ext_link || "",
+    });
+    setLinkSaving(false);
+    setLinkError("");
+  }
+
+  function closeExtLinkEditor() {
+    setLinkProperty(null);
+    setLinkSaving(false);
+    setLinkError("");
+  }
+
+  function updateLinkField(field, value) {
+    setLinkProperty((prev) => {
+      if (!prev) {
+        return prev;
+      }
+
+      return {
+        ...prev,
+        [field]: value,
+      };
+    });
+
+    setProperties((prev) =>
+      prev.map((property) => {
+        if (!linkProperty || property.p_id !== linkProperty.p_id) {
+          return property;
+        }
+
+        return {
+          ...property,
+          [field]: value,
+        };
+      })
+    );
+  }
+
+  async function saveExtLinkEditor() {
+    if (!linkProperty) {
+      return;
+    }
+
+    setLinkSaving(true);
+    setLinkError("");
+
+    const normalizedLinkProperty = {
+      ...linkProperty,
+      ext_link: linkProperty.ext_link || null,
+    };
+
+    setProperties((prev) =>
+      prev.map((property) =>
+        property.p_id === normalizedLinkProperty.p_id ? normalizedLinkProperty : property
+      )
+    );
+
+    const { error: updateError } = await supabase
+      .from("properties")
+      .update({ ext_link: normalizedLinkProperty.ext_link })
+      .eq("p_id", normalizedLinkProperty.p_id);
+
+    if (updateError) {
+      setLinkError(updateError.message || "Unable to save external link.");
+      setLinkSaving(false);
+      return;
+    }
+
+    setOriginalPropertiesById((prev) => ({
+      ...prev,
+      [normalizedLinkProperty.p_id]: {
+        ...(prev[normalizedLinkProperty.p_id] || {}),
+        ext_link: normalizedLinkProperty.ext_link,
+      },
+    }));
+
+    setLinkSaving(false);
+    closeExtLinkEditor();
+  }
+
+  // Gallery and photo helpers
   function closeGalleryEditor() {
     if (hasUnsavedGalleryChanges) {
       const shouldDiscard = window.confirm("You have unsaved gallery changes. Close without saving?");
@@ -596,6 +686,133 @@ export default function EditPropertiesClient() {
     setSavingId(null);
   }
 
+  async function addPropertyRow() {
+    if (addingRow) {
+      return;
+    }
+
+    setAddingRow(true);
+    setError("");
+
+    const { data, error: insertError } = await supabase
+      .from("properties")
+      .insert({
+        address: null,
+        city: null,
+        zip: null,
+        beds: null,
+        baths: null,
+        full_baths: null,
+        sqft: null,
+        monthly_rent: null,
+        home_type: null,
+        home_desc: null,
+        ext_link: null,
+        feature_policy_data: serializeFeaturePolicyData(getEmptyFeaturePolicyData()),
+        open_rental: false,
+      })
+      .select("p_id,address,city,zip,beds,baths,full_baths,sqft,monthly_rent,home_type,home_desc,ext_link,feature_policy_data,open_rental")
+      .single();
+
+    if (insertError || !data) {
+      setError(insertError?.message || "Unable to add a new property row.");
+      setAddingRow(false);
+      return;
+    }
+
+    setProperties((prev) => [...prev, data]);
+    setOriginalPropertiesById((prev) => ({
+      ...prev,
+      [data.p_id]: normalizeProperty(data),
+    }));
+
+    setAddingRow(false);
+  }
+
+  async function deleteProperty(property) {
+    if (!property?.p_id || deletingId || savingId === property.p_id) {
+      return;
+    }
+
+    const shouldDelete = window.confirm(
+      "Delete this property? This will also remove its photos from the gallery."
+    );
+
+    if (!shouldDelete) {
+      return;
+    }
+
+    setDeletingId(property.p_id);
+    setError("");
+
+    const { data: propertyPhotos, error: photosError } = await supabase
+      .from("photos")
+      .select("id,file_name")
+      .eq("p_id", property.p_id);
+
+    if (photosError) {
+      setError(photosError.message || "Unable to load property photos for deletion.");
+      setDeletingId(null);
+      return;
+    }
+
+    const fileNames = (propertyPhotos || [])
+      .map((photo) => photo.file_name)
+      .filter(Boolean);
+
+    if (fileNames.length > 0) {
+      const { error: storageError } = await supabase.storage
+        .from("photo_bucket")
+        .remove(fileNames);
+
+      if (storageError) {
+        setError(storageError.message || "Unable to remove property photos from storage.");
+        setDeletingId(null);
+        return;
+      }
+    }
+
+    const { error: deletePhotosError } = await supabase
+      .from("photos")
+      .delete()
+      .eq("p_id", property.p_id);
+
+    if (deletePhotosError) {
+      setError(deletePhotosError.message || "Unable to delete property photos.");
+      setDeletingId(null);
+      return;
+    }
+
+    const { error: deleteError } = await supabase
+      .from("properties")
+      .delete()
+      .eq("p_id", property.p_id);
+
+    if (deleteError) {
+      setError(deleteError.message || "Unable to delete property.");
+      setDeletingId(null);
+      return;
+    }
+
+    if (galleryProperty?.p_id === property.p_id) {
+      resetGalleryState();
+    }
+
+    if (detailsProperty?.p_id === property.p_id) {
+      closeDetailsEditor();
+    }
+
+    setProperties((prev) => prev.filter((item) => item.p_id !== property.p_id));
+    setOriginalPropertiesById((prev) => {
+      const next = { ...prev };
+      delete next[property.p_id];
+      return next;
+    });
+
+    setSavingId((current) => (current === property.p_id ? null : current));
+    setDeletingId(null);
+  }
+
   async function saveDetailsEditor() {
     if (!detailsProperty) {
       return;
@@ -669,121 +886,138 @@ export default function EditPropertiesClient() {
 
   return (
     <div className="container mx-auto px-4 pb-4">
+      <div className="my-4 flex items-center justify-between">
+        <div className="flex-1" />
+        <h2 className="heading-dashboard-section my-0">Properties</h2>
+        <div className="flex flex-1 justify-end">
+          <button
+            type="button"
+            onClick={addPropertyRow}
+            disabled={addingRow}
+            className="btn-add-entry"
+            aria-label="Add New Property Row"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="size-5">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
       {error ? (
-        <p className="mb-4 rounded border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</p>
-      ) : null}
+        <p className="banner-error mb-4">{error}</p>
+      ) : null }
 
       <div className="overflow-x-auto">
         <table className="min-w-full border-collapse border border-gray-300 text-sm">
           <thead>
             <tr className="bg-gray-100">
-              <th className="border border-gray-300 p-2">Address</th>
-              <th className="border border-gray-300 p-2">City</th>
-              <th className="border border-gray-300 p-2">ZIP</th>
-              <th className="border border-gray-300 p-2">Beds</th>
-              <th className="border border-gray-300 p-2">Baths</th>
-              <th className="border border-gray-300 p-2">Full Baths</th>
-              <th className="border border-gray-300 p-2">Sqft</th>
-              <th className="border border-gray-300 p-2">Monthly Rent</th>
-              <th className="border border-gray-300 p-2">Home Type</th>
-              <th className="border border-gray-300 p-2">Description</th>
-              <th className="border border-gray-300 p-2">External Link</th>
-              <th className="border border-gray-300 p-2">Open</th>
-              <th className="border border-gray-300 p-2">Actions</th>
+              <th className="text-edit-table">Address</th>
+              <th className="text-edit-table">City</th>
+              <th className="text-edit-table">ZIP</th>
+              <th className="text-edit-table">Beds</th>
+              <th className="text-edit-table">Baths</th>
+              <th className="text-edit-table">Full Baths</th>
+              <th className="text-edit-table">Sqft</th>
+              <th className="text-edit-table">Monthly Rent</th>
+              <th className="text-edit-table">Home Type</th>
+              <th className="text-edit-table">Description</th>
+              <th className="text-edit-table w-10">Open</th>
+              <th className="text-edit-table">Actions</th>
             </tr>
           </thead>
           <tbody>
             {properties.map((property) => (
-              <tr key={property.p_id} className={property.open_rental ? "" : "bg-gray-50"}>
+              <tr key={property.p_id} className={property.open_rental ? "" : "bg-gray-100"}>
                 {(() => {
                   const rowDirty = isRowDirty(property);
                   return (
                     <>
-                      <td className="border border-gray-300 p-2">
+                      <td className="text-edit-table">
                         <input
                           type="text"
                           value={property.address || ""}
                           placeholder={"—"}
                           onChange={(event) => updatePropertyField(property.p_id, "address", event.target.value)}
-                          className="w-32 rounded  p-1"
+                          className="w-32 rounded"
                         />
                       </td>
-                      <td className="border border-gray-300 p-2">
+                      <td className="text-edit-table">
                         <input
                           type="text"
                           value={property.city || ""}
                           placeholder={"—"}
                           onChange={(event) => updatePropertyField(property.p_id, "city", event.target.value)}
-                          className="w-20 rounded  p-1"
+                          className="w-20 rounded"
                         />
                       </td>
-                      <td className="border border-gray-300 p-2">
+                      <td className="text-edit-table">
                         <input
                           type="text"
                           value={property.zip || ""}
                           placeholder={"—"}
                           onChange={(event) => updatePropertyField(property.p_id, "zip", event.target.value)}
-                          className="w-12 rounded  p-1 text-center"
+                          className="w-12 input-table-center"
                         />
                       </td>
-                      <td className="border border-gray-300 p-2">
+                      <td className="text-edit-table">
                         <input
                           type="number"
                           value={property.beds ?? ""}
                           placeholder={"0"}
                           onChange={(event) => updatePropertyField(property.p_id, "beds", event.target.value)}
-                          className="w-12 rounded p-1 block mx-auto text-center"
+                          className="w-12 input-table-center"
                         />
                       </td>
-                      <td className="border border-gray-300 p-2">
+                      <td className="text-edit-table">
                         <input
                           type="number"
                           value={property.baths ?? ""}
                           placeholder={"0"}
                           onChange={(event) => updatePropertyField(property.p_id, "baths", event.target.value)}
-                          className="w-12 rounded p-1 block mx-auto text-center"
+                          className="w-12 input-table-center"
                         />
                       </td>
-                      <td className="border border-gray-300 p-2">
+                      <td className="text-edit-table">
                         <input
                           type="number"
                           value={property.full_baths ?? ""}
                           placeholder={"0"}
                           onChange={(event) => updatePropertyField(property.p_id, "full_baths", event.target.value)}
-                          className="w-12 rounded p-1 block mx-auto text-center"
+                          className="w-12 input-table-center"
                         />
                       </td>
-                      <td className="border border-gray-300 p-2">
+                      <td className="text-edit-table">
                         <input
                           type="number"
                           value={property.sqft ?? ""}
                           placeholder={"0"}
                           onChange={(event) => updatePropertyField(property.p_id, "sqft", event.target.value)}
-                          className="w-16 rounded p-1 block mx-auto text-center"
+                          className="w-16 input-table-center"
                         />
                       </td>
-                      <td className="border border-gray-300 p-2">
+                      <td className="text-edit-table">
                         <input
                           type="number"
                           value={property.monthly_rent ?? ""}
                           placeholder={"0"}
                           onChange={(event) => updatePropertyField(property.p_id, "monthly_rent", event.target.value)}
-                          className="w-16 rounded p-1 block mx-auto text-center"
+                          className="w-16 input-table-center"
                         />
                       </td>
-                      <td className="border border-gray-300 p-2">
+                      <td className="text-edit-table">
                         <select
                           value={property.home_type || ""}
                           onChange={(event) => updatePropertyField(property.p_id, "home_type", event.target.value)}
-                          className="w-40 rounded  p-1"
+                          className="w-40 input-table"
                         >
                           <option value="Single-Family Home">Single-Family Home</option>
                           <option value="Condominium">Condominium</option>
                           <option value="Duplex">Duplex</option>
                         </select>
                       </td>
-                      <td className="border border-gray-300 p-2">
-                        <div className="flex flex-col gap-2">
+                      <td className="relative text-edit-table align-top">
+                        <div className="flex w-full flex-col gap-2 pb-10">
                           <textarea
                             value={property.home_desc || ""}
                             placeholder={"A description of the property and its features goes here."}
@@ -796,72 +1030,74 @@ export default function EditPropertiesClient() {
                                 el.style.height = `${Math.min(el.scrollHeight, 500)}px`;
                               }
                             }}
-                            className="w-84 rounded p-1 resize-none overflow-y-auto"
+                            className="w-84 input-table resize-none overflow-y-auto"
                             style={{ maxHeight: "200px" }}
-                          // className='w-84 rounded p-1 ${property.home_desc ? "h-100" : ""}'
                           />
-                          <button
-                            type="button"
-                            onClick={() => openDetailsEditor(property)}
-                            className="rounded border border-blue-950 px-3 py-1 text-blue-950 hover:bg-blue-950 hover:text-white flex justify-center"
-                          >
-                            Features and Policies
-                          </button>
                         </div>
+                        <button
+                          type="button"
+                          onClick={() => openDetailsEditor(property)}
+                          className="btn-edit absolute bottom-2 left-2 right-2"
+                        >
+                          Features and Policies
+                        </button>
                       </td>
-                      <td className="border border-gray-300 p-2">
-                        <input
-                          type="url"
-                          value={property.ext_link || ""}
-                          placeholder={"Zillow or Redfin Link"}
-                          onChange={(event) => updatePropertyField(property.p_id, "ext_link", event.target.value)}
-                          className="w-44 rounded  p-1"
-                        />
-                      </td>
-                      <td className="border border-gray-300 p-2 text-center">
+                      <td className="text-edit-table text-center">
                         <input
                           type="checkbox"
                           checked={Boolean(property.open_rental)}
                           onChange={(event) => updatePropertyField(property.p_id, "open_rental", event.target.checked)}
                         />
                       </td>
-                      <td className="border border-gray-300 p-2">
+                      <td className="text-edit-table">
                         <div className="flex flex-col gap-2">
-                          <button
-                            type="button"
-                            onClick={() => openGalleryEditor(property)}
-                            className="rounded border border-blue-950 px-1 py-1 text-blue-950 hover:bg-blue-50 flex justify-center"
-                          >
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
-                              <path strokeLinecap="round" strokeLinejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
-                            </svg>
+                          <div className="flex gap-2">
+                            <button
+                              type="button"
+                              onClick={() => openExtLinkEditor(property)}
+                              className="btn-edit"
+                            >
+                              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244" />
+                              </svg>
 
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => saveProperty(property)}
-                            disabled={savingId === property.p_id || !rowDirty}
-                            aria-label={savingId === property.p_id ? "Saving..." : "Save"}
-                            className={`rounded px-1 py-1 text-white disabled:opacity-60 flex justify-center ${rowDirty
-                              ? "bg-blue-950 hover:bg-blue-800"
-                              : "bg-gray-400 cursor-not-allowed"
-                              }`}
-                          >
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0 1 10.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0 .229 2.523a1.125 1.125 0 0 1-1.12 1.227H7.231c-.662 0-1.18-.568-1.12-1.227L6.34 18m11.318 0h1.091A2.25 2.25 0 0 0 21 15.75V9.456c0-1.081-.768-2.015-1.837-2.175a48.055 48.055 0 0 0-1.913-.247M6.34 18H5.25A2.25 2.25 0 0 1 3 15.75V9.456c0-1.081.768-2.015 1.837-2.175a48.041 48.041 0 0 1 1.913-.247m10.5 0a48.536 48.536 0 0 0-10.5 0m10.5 0V3.375c0-.621-.504-1.125-1.125-1.125h-8.25c-.621 0-1.125.504-1.125 1.125v3.659M18 10.5h.008v.008H18V10.5Zm-3 0h.008v.008H15V10.5Z" />
-                            </svg>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => openGalleryEditor(property)}
+                              className="btn-edit"
+                            >
+                              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
+                              </svg>
 
-                          </button>
+                            </button>
+                          </div>
+                          <div className="flex gap-2">
+                            <button
+                              type="button"
+                              onClick={() => saveProperty(property)}
+                              disabled={savingId === property.p_id || !rowDirty}
+                              aria-label={savingId === property.p_id ? "Saving..." : "Save"}
+                              className="btn-save"
+                            >
+                              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0 1 10.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0 .229 2.523a1.125 1.125 0 0 1-1.12 1.227H7.231c-.662 0-1.18-.568-1.12-1.227L6.34 18m11.318 0h1.091A2.25 2.25 0 0 0 21 15.75V9.456c0-1.081-.768-2.015-1.837-2.175a48.055 48.055 0 0 0-1.913-.247M6.34 18H5.25A2.25 2.25 0 0 1 3 15.75V9.456c0-1.081.768-2.015 1.837-2.175a48.041 48.041 0 0 1 1.913-.247m10.5 0a48.536 48.536 0 0 0-10.5 0m10.5 0V3.375c0-.621-.504-1.125-1.125-1.125h-8.25c-.621 0-1.125.504-1.125 1.125v3.659M18 10.5h.008v.008H18V10.5Zm-3 0h.008v.008H15V10.5Z" />
+                              </svg>
 
-                          <button
-                            type="button"
-                            onClick={() => deleteProperty(property)}
-                            className="rounded border border-blue-950 px-1 py-1 text-blue-950 hover:bg-red-800 hover:text-white hover:border-red-800 flex justify-center"
-                          >
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
-                              <path strokeLinecap="round" strokeLinejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
-                            </svg>
-                          </button>
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => deleteProperty(property)}
+                              disabled={deletingId === property.p_id || savingId === property.p_id}
+                              className="btn-delete"
+                            >
+                              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                              </svg>
+                            </button>
+                          </div>
                         </div>
                       </td>
                     </>
@@ -884,13 +1120,13 @@ export default function EditPropertiesClient() {
           >
             <div className="flex items-center justify-between border-b border-gray-200 px-5 py-4">
               <div>
-                <h2 className="text-xl font-semibold text-gray-900">Features and Policies</h2>
+                <h2 className="heading-modal">Features and Policies</h2>
                 <p className="text-sm text-gray-600">{detailsProperty.address}</p>
               </div>
               <button
                 type="button"
                 onClick={closeDetailsEditor}
-                className="px-3 py-1 text-sm text-gray-700 cursor-pointer"
+                className="btn-close"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
@@ -900,53 +1136,46 @@ export default function EditPropertiesClient() {
 
             <div className="max-h-[68vh] overflow-y-auto px-5 py-4 space-y-6">
               {detailsError ? (
-                <p className="rounded border border-red-200 bg-red-50 p-3 text-sm text-red-700">{detailsError}</p>
-              ) : null}
+                <p className="banner-error mb-4">{detailsError}</p>
+              ) : null }
 
-              <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+              <div className="card-modal-section">
                 <h3 className="text-base font-semibold text-slate-900">Features</h3>
-                <p className="mt-1 text-sm text-slate-600">Add each bullet as its own line item. No formatting needed.</p>
+                <p className="my-1 text-sm text-slate-600">Add each bullet as its own line item. No formatting needed.</p>
                 <div className="grid gap-4 md:grid-cols-3">
                   <label className="block">
-                    <span className="mb-1 block text-sm font-medium text-slate-700">Beds</span>
+                    <span className="label-form">Beds</span>
                     <input
                       type="number"
                       value={detailsProperty.beds ?? ""}
                       onChange={(event) => updateDetailsField("beds", event.target.value)}
-                      className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900 shadow-sm outline-none transition focus:border-blue-900 focus:ring-2 focus:ring-blue-100"
+                      className="input-form"
                     />
                   </label>
                   <label className="block">
-                    <span className="mb-1 block text-sm font-medium text-slate-700">Total Baths</span>
+                    <span className="label-form">Total Baths</span>
                     <input
                       type="number"
                       value={detailsProperty.baths ?? ""}
                       onChange={(event) => updateDetailsField("baths", event.target.value)}
-                      className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900 shadow-sm outline-none transition focus:border-blue-900 focus:ring-2 focus:ring-blue-100"
+                      className="input-form"
                     />
                   </label>
                   <label className="block">
-                    <span className="mb-1 block text-sm font-medium text-slate-700">Full Baths</span>
+                    <span className="label-form">Full Baths</span>
                     <input
                       type="number"
                       value={detailsProperty.full_baths ?? ""}
                       onChange={(event) => updateDetailsField("full_baths", event.target.value)}
-                      className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900 shadow-sm outline-none transition focus:border-blue-900 focus:ring-2 focus:ring-blue-100"
+                      className="input-form"
                     />
                   </label>
                 </div>
                 <div className="mt-4 space-y-4">
                   {FEATURE_POLICY_GROUPS.features.map((group) => (
-                    <div key={group.key} className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+                    <div key={group.key} className="card-modal-subsection">
                       <div className="mb-3 flex items-center justify-between gap-3">
                         <h4 className="font-medium text-slate-900">{group.label}</h4>
-                        <button
-                          type="button"
-                          onClick={() => addDetailsFeaturePolicy(group.key)}
-                          className="rounded-md border border-blue-200 px-3 py-1 text-sm text-blue-800 hover:bg-blue-50"
-                        >
-                          + Add bullet
-                        </button>
                       </div>
                       <div className="space-y-2">
                         {/* {getFeaturePolicyItems(detailsProperty, group.key).length === 0 ? (
@@ -958,38 +1187,40 @@ export default function EditPropertiesClient() {
                               type="text"
                               value={item}
                               onChange={(event) => updateDetailsFeaturePolicy(group.key, index, event.target.value)}
-                              className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900 shadow-sm outline-none transition focus:border-blue-900 focus:ring-2 focus:ring-blue-100"
+                              className="input-form"
                             />
                             <button
                               type="button"
                               onClick={() => removeDetailsFeaturePolicy(group.key, index)}
-                              className="rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-700 hover:bg-slate-100"
+                              className="btn-secondary-delete"
                             >
-                              Remove
+                              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                              </svg>
                             </button>
                           </div>
                         ))}
+                        <button
+                          type="button"
+                          onClick={() => addDetailsFeaturePolicy(group.key)}
+                          className="input-add"
+                        >
+                          + Add bullet
+                        </button>
                       </div>
                     </div>
                   ))}
                 </div>
               </div>
 
-              <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+              <div className="card-modal-section">
                 <h3 className="text-base font-semibold text-slate-900">Policies</h3>
                 <p className="mt-1 text-sm text-slate-600">Use short bullets so the listing reads cleanly.</p>
                 <div className="mt-4 space-y-4">
                   {FEATURE_POLICY_GROUPS.policies.map((group) => (
-                    <div key={group.key} className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+                    <div key={group.key} className="card-modal-subsection">
                       <div className="mb-3 flex items-center justify-between gap-3">
                         <h4 className="font-medium text-slate-900">{group.label}</h4>
-                        <button
-                          type="button"
-                          onClick={() => addDetailsFeaturePolicy(group.key)}
-                          className="rounded-md border border-blue-200 px-3 py-1 text-sm text-blue-800 hover:bg-blue-50"
-                        >
-                          + Add bullet
-                        </button>
                       </div>
                       <div className="space-y-2">
                         {/* {getFeaturePolicyItems(detailsProperty, group.key).length === 0 ? (
@@ -1001,17 +1232,26 @@ export default function EditPropertiesClient() {
                               type="text"
                               value={item}
                               onChange={(event) => updateDetailsFeaturePolicy(group.key, index, event.target.value)}
-                              className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900 shadow-sm outline-none transition focus:border-blue-900 focus:ring-2 focus:ring-blue-100"
+                              className="input-form"
                             />
                             <button
                               type="button"
                               onClick={() => removeDetailsFeaturePolicy(group.key, index)}
-                              className="rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-700 hover:bg-slate-100"
+                              className="btn-secondary-delete"
                             >
-                              Remove
+                              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                              </svg>
                             </button>
                           </div>
                         ))}
+                        <button
+                          type="button"
+                          onClick={() => addDetailsFeaturePolicy(group.key)}
+                          className="input-add"
+                        >
+                          + Add bullet
+                        </button>
                       </div>
                     </div>
                   ))}
@@ -1023,7 +1263,7 @@ export default function EditPropertiesClient() {
               <button
                 type="button"
                 onClick={closeDetailsEditor}
-                className="rounded border border-gray-300 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                className="btn-secondary-blue py-1 px-2"
               >
                 Cancel
               </button>
@@ -1031,9 +1271,74 @@ export default function EditPropertiesClient() {
                 type="button"
                 onClick={saveDetailsEditor}
                 disabled={detailsSaving}
-                className="rounded bg-blue-950 px-4 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50 hover:bg-blue-800"
+                className="btn-primary py-1 px-2"
               >
                 {detailsSaving ? "Saving..." : "Save Features & Policies"}
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {linkProperty ? (
+        <div
+          className="fixed inset-0 z-60 flex items-center justify-center bg-black/55 p-4"
+          onClick={closeExtLinkEditor}
+        >
+          <div
+            className="max-h-[92vh] w-full max-w-3xl overflow-hidden rounded-lg bg-white shadow-2xl"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="flex items-center justify-between border-b border-gray-200 px-5 py-4">
+              <div>
+                <h2 className="heading-modal">External Link</h2>
+                <p className="text-sm text-gray-600">{linkProperty.address}</p>
+              </div>
+              <button
+                type="button"
+                onClick={closeExtLinkEditor}
+                className="btn-close"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <div className="max-h-[68vh] overflow-y-auto px-5 py-4 space-y-6">
+              {linkError ? (
+                <p className="banner-error mb-4">{linkError}</p>
+              ) : null }
+
+              <div className="card-modal-section">
+                <label className="block">
+                  <span className="label-form">Zillow or Redfin Link</span>
+                  <input
+                    type="url"
+                    value={linkProperty.ext_link || ""}
+                    onChange={(event) => updateLinkField("ext_link", event.target.value)}
+                    placeholder="https://..."
+                    className="input-form"
+                  />
+                </label>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-3 border-t border-gray-200 px-5 py-4">
+              <button
+                type="button"
+                onClick={closeExtLinkEditor}
+                className="btn-secondary-blue py-1 px-2"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={saveExtLinkEditor}
+                disabled={linkSaving}
+                className="btn-primary py-1 px-2"
+              >
+                {linkSaving ? "Saving..." : "Save External Link"}
               </button>
             </div>
           </div>
@@ -1051,13 +1356,13 @@ export default function EditPropertiesClient() {
           >
             <div className="flex items-center justify-between border-b border-gray-200 px-5 py-4">
               <div>
-                <h2 className="text-xl font-semibold text-gray-900">Edit Photo Gallery</h2>
+                <h2 className="heading-modal">Edit Photo Gallery</h2>
                 <p className="text-sm text-gray-600">{galleryProperty.address}</p>
               </div>
               <button
                 type="button"
                 onClick={closeGalleryEditor}
-                className="px-3 py-1 text-sm text-gray-700 cursor-pointer"
+                className="btn-close"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
@@ -1066,17 +1371,26 @@ export default function EditPropertiesClient() {
             </div>
 
             <div className="max-h-[68vh] overflow-y-auto px-5 py-4">
-              <div className="mb-4 rounded border border-blue-100 bg-blue-50 p-3 text-xs text-blue-900">
+              <div className="banner-info mb-2">
                 Upload/delete actions save immediately. Reordering is a draft until you click Save Order.
               </div>
+
+              {galleryError ? (
+                <p className="banner-error mb-4">{galleryError}</p>
+                ) : null }
 
               <div className="mb-4 flex flex-wrap items-center gap-3">
                 <label
                   htmlFor="gallery-upload-input"
-                  className={`rounded border border-gray-300 px-3 py-2 text-sm text-gray-700 ${galleryUploading ? "cursor-not-allowed opacity-60" : "cursor-pointer hover:bg-gray-100"
+                  className={`btn-secondary-blue shrink-0 rounded-full text-sm ${galleryUploading ? "cursor-not-allowed opacity-50" : "null"
                     }`}
                 >
-                  {galleryUploading ? "Uploading..." : "Upload Photo"}
+                  <div className="flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-4">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
+                    </svg>
+                    <span>Upload</span>
+                  </div>
                 </label>
                 <input
                   id="gallery-upload-input"
@@ -1089,10 +1403,6 @@ export default function EditPropertiesClient() {
                   className="hidden"
                 />
               </div>
-
-              {galleryError ? (
-                <p className="mb-4 rounded border border-red-200 bg-red-50 p-3 text-sm text-red-700">{galleryError}</p>
-              ) : null}
 
               {galleryLoading ? (
                 <p className="text-sm text-gray-600">Loading gallery photos...</p>
@@ -1107,7 +1417,7 @@ export default function EditPropertiesClient() {
                   {galleryPhotos.map((photo, index) => (
                     <div
                       key={photo.id}
-                      className="rounded-lg border border-gray-200 bg-gray-50 p-3"
+                      className="card-photo"
                     >
                       <div className="mb-2 flex items-center justify-between">
                         <span className="text-xs font-semibold tracking-wide text-blue-900">Photo {index + 1}</span>
@@ -1134,7 +1444,7 @@ export default function EditPropertiesClient() {
                             type="button"
                             onClick={() => moveGalleryPhotoByOffset(photo.id, -1)}
                             disabled={index === 0}
-                            className="rounded border border-gray-300 px-2 py-1 text-xs text-gray-700 disabled:opacity-40"
+                            className="btn-edit"
                           >
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
                               <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 15.75 7.5-7.5 7.5 7.5" />
@@ -1145,7 +1455,7 @@ export default function EditPropertiesClient() {
                             type="button"
                             onClick={() => moveGalleryPhotoByOffset(photo.id, 1)}
                             disabled={index === galleryPhotos.length - 1}
-                            className="rounded border border-gray-300 px-2 py-1 text-xs text-gray-700 disabled:opacity-40"
+                            className="btn-edit"
                           >
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
                               <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
@@ -1157,7 +1467,7 @@ export default function EditPropertiesClient() {
                           type="button"
                           onClick={() => deleteGalleryPhoto(photo)}
                           disabled={galleryDeletingId === photo.id || gallerySaving}
-                          className="rounded border border-red-200 px-2 py-1 text-xs text-red-700 disabled:opacity-40 hover:bg-red-50"
+                          className="btn-photo-delete"
                         >
                           {galleryDeletingId === photo.id ? "Deleting..." :
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-4">
@@ -1176,7 +1486,7 @@ export default function EditPropertiesClient() {
               <button
                 type="button"
                 onClick={closeGalleryEditor}
-                className="rounded border border-gray-300 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                className="btn-secondary-blue py-1 px-2"
               >
                 Cancel
               </button>
@@ -1184,7 +1494,7 @@ export default function EditPropertiesClient() {
                 type="button"
                 onClick={saveGalleryOrder}
                 disabled={!hasUnsavedGalleryChanges || gallerySaving || galleryLoading}
-                className="rounded bg-blue-950 px-4 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50 hover:bg-blue-800"
+                className="btn-primary py-1 px-2"
               >
                 {gallerySaving ? "Saving Order..." : "Save Order"}
               </button>

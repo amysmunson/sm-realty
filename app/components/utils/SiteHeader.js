@@ -51,24 +51,30 @@ export default function SiteHeader() {
 
   return (
     <header className={headerClassName} style={headerStyle}>
-      <div className="flex items-center justify-between p-4 transition-colors duration-200 py-2">
+      <div className="header-row">
         {/* Logo/Site Name */}
-        <Link className="text-white text-xl font-medium drop-shadow-sm" href="/">
+        <Link 
+          className="header-logo" 
+          href="/"
+        >
           Shen Munson Realty
         </Link>
         {/* Navigation and Menu */}
         {/* Only show the text links on med+ screens */}
         <div className="hidden md:flex items-center space-x-4 gap-8">
-          <Link href="/properties" className="text-white text-lg font-medium mr-4">
+          <Link href="/properties" className="header-nav-link">
             Properties
           </Link>
-          <Link href="/about" className="text-white text-lg font-medium mr-4">
+          <Link href="/about" className="header-nav-link">
             About
+          </Link>
+          <Link href="/contact" className="header-nav-link">
+            Contact
           </Link>
           <Menu />
         </div>
         {/* Always show the menu icon on smaller screens */}
-        <div className="md:hidden">
+        <div className="md:hidden flex items-center gap-4">
           <Menu />
         </div>
       </div>

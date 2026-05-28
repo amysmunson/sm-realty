@@ -15,6 +15,7 @@ export default async function Home() {
   const { data: property_data, error: property_error } = await supabase
     .from('properties')
     .select('*')
+    .filter("open_rental", "eq", true);
 
   if (property_error) {
     console.error(property_error)
@@ -109,77 +110,100 @@ export default async function Home() {
             </h1>
           </div>
         </div>
-        <div className="container mx-auto px-4 justify-center text-center">
-          <div className="pt-4">
-            <h1 className="text-2xl font-bold m-4">About</h1>
-            <p className="pb-10">
-              We help clients rent and sell properties.
-            </p>
-          </div>
-          <div className="py-4">
-            <h1 className="text-2xl font-bold m-4">
-              <Link href="/properties" className="text-black">
-                Properties
-              </Link>
-            </h1>
-            {/* grid of properties, card style */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-              {property_data?.map(property => {
-                // Grab the photo for this property, otherwise null
-                // const photoSrc = getPropertyPhoto(property, photoData);
+        <div className="container mx-auto px-4 pb-12 justify-center text-center">
+          <section className="relative mx-4 mb-12 overflow-hidden rounded-3xl px-6 py-16">
+            <div className="pointer-events-none absolute inset-0">
+              <div className="absolute -right-20 top-10 h-56 w-56 rounded-full bg-blue-200/30 blur-3xl" />
+              <div className="absolute -left-24 bottom-0 h-64 w-64 rounded-full bg-slate-200/50 blur-3xl" />
+            </div>
 
-                return (
-                  // Card for property
-                  <Link
-                    href={`/properties/${property.p_id}`}
-                    key={property.p_id}
-                    className="flex flex-col items-center overflow-hidden gap-4 bg-white border-gray-200 border b rounded-lg shadow-md hover:bg-gray-100 transition cursor-pointer"
-                  >
-                    {/* Property Image or Icon depending on if the property has any photos */}
-                    <div className="flex items-center justify-center relative w-full aspect-4/3 bg-gray-300">
-                      {photoUrls[property.p_id] ? (
-                        <Image
-                          src={photoUrls[property.p_id]}
-                          alt={property.address}
-                          fill
-                          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 50vw, 25vw"
-                          className="object-cover"
-                          loading="lazy"
-                        />
-                      ) : (
-                        // Image icon from heroicons, only show if no photos for this property
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          strokeWidth={1.5}
-                          stroke="currentColor"
-                          className="w-1/2 h-1/2 text-zinc-500"
-                        >
-                          <path strokeLinecap="round" strokeLinejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
-                        </svg>
-                      )}
-                    </div>
+            <div className="relative mx-auto grid min-h-[70vh] max-w-6xl gap-10 lg:grid-cols-2 lg:items-center">
+              <div className="flex flex-col justify-center space-y-5 text-center lg:min-h-[40vh] lg:text-left">
+                <div className="mx-auto h-1 w-20 rounded-full bg-blue-950 lg:mx-0" />
+                <h2 className="subheading-page">About</h2>
+              </div>
 
-
-                    {/* Address */}
-                    <div className='text-center p-4 pb-8'>
-                      <div className="font-semibold">{property.address}</div>
-                      <div className="text-sm text-gray-600">{property.city}, CA</div>
-                    </div>
+              <div className="rounded-3xl p-6 sm:p-8 lg:p-10">
+                <p className="text-pretty text-base leading-8 text-gray-700 sm:text-lg sm:leading-9">
+                  Based in Sillicon Valley, Shen Munson Realty is a real estate brokerage serving buyers,
+                  sellers, landlords, tenants, and property owners throughout the South Bay. Led by a licensed
+                  broker with nearly 30 years of local experience and market expertise, Shen Munson Realty
+                  provides personalized service and practical guidance to help clients achieve their real estate
+                  goals. We specialize in residential rentals, sales, and are committed to helping clients
+                  navigate every step. Whether you are renting, selling, or looking for a property managemer,
+                  Shen Munson Realty is here to help.
+                </p>
+              </div>
+            </div>
+          </section>
+          {property_data.length > 0 && (
+            <div>
+              <div className="py-4">
+                <h2 className="text-2xl font-bold m-4 mb-8">
+                  <Link href="/properties" className="subheading-page">
+                    Properties
                   </Link>
-                );
-              })}
+                </h2>
+                {/* grid of properties, card style */}
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                  {property_data?.map(property => {
+                    // Grab the photo for this property, otherwise null
+                    // const photoSrc = getPropertyPhoto(property, photoData);
+
+                    return (
+                      // Card for property
+                      <Link
+                        href={`/properties/${property.p_id}`}
+                        key={property.p_id}
+                        className="flex flex-col items-center overflow-hidden gap-4 bg-white border-gray-200 border b rounded-lg shadow-md hover:bg-gray-100 transition cursor-pointer"
+                      >
+                        {/* Property Image or Icon depending on if the property has any photos */}
+                        <div className="flex items-center justify-center relative w-full aspect-4/3 bg-gray-300">
+                          {photoUrls[property.p_id] ? (
+                            <Image
+                              src={photoUrls[property.p_id]}
+                              alt={property.address}
+                              fill
+                              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 50vw, 25vw"
+                              className="object-cover"
+                              loading="lazy"
+                            />
+                          ) : (
+                            // Image icon from heroicons, only show if no photos for this property
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              strokeWidth={1.5}
+                              stroke="currentColor"
+                              className="w-1/2 h-1/2 text-zinc-500"
+                            >
+                              <path strokeLinecap="round" strokeLinejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
+                            </svg>
+                          )}
+                        </div>
+
+
+                        {/* Address */}
+                        <div className='text-center p-4 pb-8'>
+                          <div className="font-semibold">{property.address}</div>
+                          <div className="text-sm text-gray-600">{property.city}, CA</div>
+                        </div>
+                      </Link>
+                    );
+                  })}
+                </div>
+                <div className="my-8">
+                  <Link
+                    href="/properties"
+                    className="btn-secondary-blue mt-4 font-bold"
+                  >
+                    See All
+                  </Link>
+                </div>
+              </div>
             </div>
-            <div className="my-8">
-              <Link
-                href="/properties"
-                className="bg-white border-2 border-blue-950 hover:bg-blue-950 text-blue-950 hover:text-white font-bold py-2 px-4 rounded mt-4"
-              >
-                See All
-              </Link>
-            </div>
-          </div>
+          )}
         </div>
       </main>
     </div>

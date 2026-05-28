@@ -8,10 +8,6 @@ import { useActionState, useEffect, useMemo, useState } from "react";
 import { submitShowingRequest } from "./requestShowingAction";
 import TurnstileWidget from "./TurnstileWidget";
 
-// Styling for submit button to pass to TurnstileWidget
-const SUBMIT_BUTTON_CLASSNAME = `rounded-md bg-blue-950 px-4 py-2 font-bold text-white shadow-sm transition
-                                hover:bg-blue-800 disabled:opacity-60 disabled:cursor-default disabled:hover:bg-blue-950 cursor-pointer`;
-
 // Formats date and time to be readable 
 function formatLocalDateInputValue(date) {
     const year = date.getFullYear();
@@ -111,8 +107,8 @@ export default function RequestShowing({ propertyId, propertyAddress }) {
     // Successful submission 
     if (view === "success") {
         return (
-            <div className="rounded-xl border border-slate-200 bg-linear-to-br from-slate-50 to-white p-6 shadow-md">
-                <h2 className="text-lg font-bold mb-2">Success</h2>
+            <div className="card-form">
+                <h2 className="heading-form">Success</h2>
                 <p className="mb-4 text-sm text-gray-700">
                     Your showing request has been submitted. We will contact you soon.
                 </p>
@@ -122,7 +118,7 @@ export default function RequestShowing({ propertyId, propertyAddress }) {
                         setView("form");
                         setIsExpanded(true);
                     }}
-                    className="rounded-md bg-blue-950 px-4 py-2 font-bold text-white transition hover:bg-blue-800"
+                    className="btn-primary"
                 >
                     Request Another Showing
                 </button>
@@ -132,16 +128,16 @@ export default function RequestShowing({ propertyId, propertyAddress }) {
 
     // Default submission form
     return (
-        <div className="rounded-xl border border-slate-200 bg-linear-to-br from-slate-50 to-white p-6 shadow-md">
+        <div className="card-form">
             <button
                 type="button"
                 onClick={() => setIsExpanded((prev) => !prev)}
-                className="mb-4 flex w-full items-center justify-between text-left"
+                className="flex w-full items-center justify-between text-left"
                 aria-expanded={isExpanded}
                 aria-controls="request-showing-form"
             >
-                <h2 className="text-lg font-bold tracking-tight text-slate-900">Request a Showing</h2>
-                <span className="rounded-md border border-slate-300 bg-white p-1.5 text-sm font-medium text-slate-600 shadow-sm">
+                <h2 className="heading-form mb-0">Request a Showing</h2>
+                <span className="rounded-md p-1.5 text-sm font-medium text-slate-600">
                     {isExpanded ?
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14" />
@@ -153,27 +149,27 @@ export default function RequestShowing({ propertyId, propertyAddress }) {
                 </span>
             </button>
             {isExpanded ? (
-                <form id="request-showing-form" action={formAction} className="space-y-4">
+                <form id="request-showing-form" action={formAction} className="space-y-4 mt-4">
                     <input type="hidden" name="propertyId" value={propertyId} />
                     <input type="hidden" name="propertyAddress" value={propertyAddress ?? ""} />
                     <input type="hidden" name="slots" value={JSON.stringify(showingSlots)} />
                     {state?.error ? (
-                        <p className="rounded-sm bg-red-100 px-4 py-3 text-sm text-red-800">{state.error}</p>
-                    ) : null}
+                        <p className="banner-error">{state.error}</p>
+                    ) : null }
                     <div>
-                        <label className="block text-sm font-medium mb-1" htmlFor="name">Name</label>
-                        <input type="text" name="name" id="name" required className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900 shadow-sm outline-none transition focus:border-blue-900 focus:ring-2 focus:ring-blue-100" />
+                        <label className="label-form" htmlFor="name">Name</label>
+                        <input type="text" name="name" id="name" required className="input-form" />
                     </div>
                     <div>
-                        <label className="block text-sm font-medium mb-1" htmlFor="email">Email</label>
-                        <input type="email" name="email" id="email" required className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900 shadow-sm outline-none transition focus:border-blue-900 focus:ring-2 focus:ring-blue-100" />
+                        <label className="label-form" htmlFor="email">Email</label>
+                        <input type="email" name="email" id="email" required className="input-form" />
                     </div>
                     <div>
-                        <label className="block text-sm font-medium mb-1" htmlFor="phone">Phone</label>
-                        <input type="tel" name="phone" id="phone" required className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900 shadow-sm outline-none transition focus:border-blue-900 focus:ring-2 focus:ring-blue-100" />
+                        <label className="label-form" htmlFor="phone">Phone</label>
+                        <input type="tel" name="phone" id="phone" required className="input-form" />
                     </div>
                     <div className="space-y-3">
-                        <label className="block text-sm font-medium mb-1">Preferred Dates and Times</label>
+                        <label className="label-form">Preferred Dates and Times</label>
                         {showingSlots.map((slot, index) => (
                             <div key={`slot-${index}`} className="grid gap-2 sm:grid-cols-3">
                                 <input
@@ -183,13 +179,13 @@ export default function RequestShowing({ propertyId, propertyAddress }) {
                                     required
                                     value={slot.date}
                                     onChange={(event) => updateShowingSlot(index, "date", event.target.value)}
-                                    className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900 shadow-sm outline-none transition focus:border-blue-900 focus:ring-2 focus:ring-blue-100"
+                                    className="input-form"
                                 />
                                 <select
                                     required
                                     value={slot.startTime}
                                     onChange={(event) => updateShowingSlot(index, "startTime", event.target.value)}
-                                    className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900 shadow-sm outline-none transition focus:border-blue-900 focus:ring-2 focus:ring-blue-100"
+                                    className="input-form"
                                 >
                                     <option value=""></option>
                                     {timeOptions.map((option) => (
@@ -203,7 +199,7 @@ export default function RequestShowing({ propertyId, propertyAddress }) {
                                         required
                                         value={slot.endTime}
                                         onChange={(event) => updateShowingSlot(index, "endTime", event.target.value)}
-                                        className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900 shadow-sm outline-none transition focus:border-blue-900 focus:ring-2 focus:ring-blue-100"
+                                        className="input-form"
                                     >
                                         <option value=""></option>
                                         {timeOptions.map((option) => (
@@ -220,7 +216,7 @@ export default function RequestShowing({ propertyId, propertyAddress }) {
                                         type="button"
                                         onClick={() => removeShowingSlot(index)}
                                         disabled={showingSlots.length === 1}
-                                        className="rounded-md border border-slate-300 bg-white px-2 py-2 text-sm text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:opacity-50"
+                                        className="btn-secondary-delete"
                                     >
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
                                             <path strokeLinecap="round" strokeLinejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
@@ -232,19 +228,18 @@ export default function RequestShowing({ propertyId, propertyAddress }) {
                         <button
                             type="button"
                             onClick={addShowingSlot}
-                            className="text-sm font-medium text-blue-950 hover:text-blue-800"
+                            className="input-add"
                         >
                             + Add another time range
                         </button>
                     </div>
                     <div>
-                        <label className="block text-sm font-medium mb-1" htmlFor="notes">Notes</label>
-                        <textarea name="notes" id="notes" rows="4" className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900 shadow-sm outline-none transition focus:border-blue-900 focus:ring-2 focus:ring-blue-100"></textarea>
+                        <label className="label-form" htmlFor="notes">Notes</label>
+                        <textarea name="notes" id="notes" rows="4" className="input-form"></textarea>
                     </div>
                     <TurnstileWidget
                         siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY}
                         label="Submit Request"
-                        buttonClassName={SUBMIT_BUTTON_CLASSNAME}
                     />
                 </form>
             ) : null}

@@ -117,7 +117,7 @@ export default function EditNavigationBar() {
     <div data-edit-navigation-bar="true" className="flex flex-wrap items-center justify-start gap-4">
       <Link
         href={"/dashboard"}
-        className="rounded border border-blue-950 bg-white px-4 py-2 text-sm font-semibold text-blue-950"
+        className="btn-secondary-blue"
       >
         Back
       </Link>
@@ -125,7 +125,7 @@ export default function EditNavigationBar() {
         type="button"
         onClick={saveAll}
         disabled={savingAndLeaving || !hasPendingSaves}
-        className="rounded bg-blue-950 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-800 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60"
+        className="btn-primary"
       >
         Save All
       </button>

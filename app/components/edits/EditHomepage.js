@@ -218,40 +218,47 @@ export default function EditHomepage() {
 				<p className="mb-4 rounded border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</p>
 			) : null}
 
-			<div className="mb-4 rounded border border-blue-100 bg-blue-50 p-3 text-xs text-blue-900">
-				Multiple homepage entries may exist historically, but only the first is used. Uploading a new homepage photo
-				will keep only that new one as homepage: unlinked homepage rows are deleted, and property-linked rows are kept
-				with homepage turned off.
-			</div>
+			<div className="mb-4 flex items-stretch gap-4">
+				<div className="flex flex-none items-stretch self-stretch">
+					<label
+						htmlFor="homepage-upload-input"
+						className={`btn-secondary-blue inline-flex h-full shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 ${
+							working ? "cursor-not-allowed opacity-50" : ""
+						}`}
+						aria-label={working ? "Uploading..." : "Upload Homepage Photo"}
+					>
+						<div className="flex items-center gap-2">
+						<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+							<path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
+						</svg>
+						<span>Upload</span>
+						</div>
+					</label>
+					<input
+						id="homepage-upload-input"
+						ref={uploadInputRef}
+						type="file"
+						accept="image/*"
+						onChange={handleUploadFile}
+						disabled={working}
+						className="hidden"
+					/>
+				</div>
 
-			<div className="mb-4 flex flex-wrap items-center gap-3">
-				<label
-					htmlFor="homepage-upload-input"
-					className={`rounded border border-gray-300 px-3 py-2 text-sm text-gray-700 ${
-						working ? "cursor-not-allowed opacity-60" : "cursor-pointer hover:bg-gray-100"
-					}`}
-				>
-					{working ? "Uploading..." : "Upload Homepage Photo"}
-				</label>
-				<input
-					id="homepage-upload-input"
-					ref={uploadInputRef}
-					type="file"
-					accept="image/*"
-					onChange={handleUploadFile}
-					disabled={working}
-					className="hidden"
-				/>
+				<div className="banner-info">
+					Multiple homepage entries may exist historically, but only the first is used. Uploading a new homepage photo
+					will replace the existing. Unlinked homepage rows are deleted, and property-linked rows are kept
+					with homepage turned off.
+				</div>
 			</div>
 
 			<div className="overflow-x-auto">
-				<table className="min-w-full border-collapse border border-gray-300 text-sm">
+				<table className="table-edit">
 					<thead>
 						<tr className="bg-gray-100">
-							<th className="border border-gray-300 p-2">Preview</th>
-							<th className="border border-gray-300 p-2">Source</th>
-							<th className="border border-gray-300 p-2">File</th>
-							<th className="border border-gray-300 p-2">Used</th>
+							<th className="text-edit-table">Preview</th>
+							<th className="text-edit-table">Source</th>
+							<th className="text-edit-table">File</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -263,8 +270,8 @@ export default function EditHomepage() {
 							</tr>
 						) : (
 							homepagePhotos.map((photo, index) => (
-								<tr key={photo.id} className={index === 0 ? "" : "bg-gray-50"}>
-									<td className="border border-gray-300 p-2">
+								<tr key={photo.id} className={index === 0 ? "" : "bg-gray-100"}>
+									<td className="text-edit-table">
 										{photo.publicUrl ? (
 											<img
 												src={photo.publicUrl}
@@ -277,13 +284,10 @@ export default function EditHomepage() {
 											</div>
 										)}
 									</td>
-									<td className="border border-gray-300 p-2 text-center">
+									<td className="text-edit-table">
 										{photo.p_id ? `Property ${photo.p_id}` : "Homepage Upload"}
 									</td>
-									<td className="border border-gray-300 p-2 text-xs text-gray-600">{photo.file_name || "-"}</td>
-									<td className="border border-gray-300 p-2 text-center">
-										{index === 0 ? "Yes (first)" : "No"}
-									</td>
+									<td className="text-edit-table text-xs text-gray-600">{photo.file_name || "-"}</td>
 								</tr>
 							))
 						)}

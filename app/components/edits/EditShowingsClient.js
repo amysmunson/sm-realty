@@ -460,15 +460,15 @@ export default function EditShowingsClient() {
                 <table className="min-w-full border-collapse border border-gray-300 text-sm">
                     <thead>
                         <tr className="bg-gray-100">
-                            <th className="border border-gray-300 p-2">Submitted</th>
-                            <th className="border border-gray-300 p-2">Property</th>
-                            <th className="border border-gray-300 p-2">Name</th>
-                            <th className="border border-gray-300 p-2">Email</th>
-                            <th className="border border-gray-300 p-2">Phone</th>
-                            <th className="border border-gray-300 p-2">Notes</th>
-                            <th className="border border-gray-300 p-2">Availability</th>
-                            <th className="border border-gray-300 p-2">Open</th>
-                            <th className="border border-gray-300 p-2">Actions</th>
+                            <th className="text-edit-table w-28">Submitted</th>
+                            <th className="text-edit-table w-40">Property</th>
+                            <th className="text-edit-table min-w-40">Name</th>
+                            <th className="text-edit-table min-w-48">Email</th>
+                            <th className="text-edit-table w-32">Phone</th>
+                            <th className="text-edit-table min-w-60">Notes</th>
+                            <th className="text-edit-table w-48">Availability</th>
+                            <th className="text-edit-table w-10">Open</th>
+                            <th className="text-edit-table w-10">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -476,13 +476,13 @@ export default function EditShowingsClient() {
                             const rowDirty = isRowDirty(item);
 
                             return (
-                                <tr key={item.showing_id} className={item.open ? "" : "bg-gray-50"}>
-                                    <td className="border border-gray-300 p-2">{formatTimestamp(item.created_at)}</td>
-                                    <td className="border border-gray-300 p-2">
+                                <tr key={item.showing_id} className={item.open ? "" : "bg-gray-100"}>
+                                    <td className="text-edit-table">{formatTimestamp(item.created_at)}</td>
+                                    <td className="text-edit-table">
                                         <select
                                             value={item.p_id ?? ""}
                                             onChange={(event) => updateField(item.showing_id, "p_id", event.target.value)}
-                                            className="w-40 rounded p-1"
+                                            className="w-full input-table"
                                         >
                                             <option className="text-gray-500" value=""></option>
                                             {propertyOptions.map((option) => (
@@ -492,72 +492,76 @@ export default function EditShowingsClient() {
                                             ))}
                                         </select>
                                     </td>
-                                    <td className="border border-gray-300 p-2">
+                                    <td className="text-edit-table">
                                         <input
                                             type="text"
                                             value={item.name || ""}
                                             onChange={(event) => updateField(item.showing_id, "name", event.target.value)}
-                                            className="w-40 rounded p-1"
+                                            className="w-full input-table"
                                         />
                                     </td>
-                                    <td className="border border-gray-300 p-2">
+                                    <td className="text-edit-table">
                                         <input
                                             type="email"
                                             value={item.email || ""}
                                             onChange={(event) => updateField(item.showing_id, "email", event.target.value)}
-                                            className="w-52 rounded p-1"
+                                            className="w-full input-table"
                                         />
                                     </td>
-                                    <td className="border border-gray-300 p-2">
+                                    <td className="text-edit-table">
                                         <input
                                             type="text"
                                             value={item.phone || ""}
                                             onChange={(event) => updateField(item.showing_id, "phone", event.target.value)}
-                                            className="w-24 rounded p-1"
+                                            className="w-full input-table"
                                         />
                                     </td>
-                                    <td className="border border-gray-300 p-2">
+                                    <td className="text-edit-table">
                                         <textarea
                                             value={item.notes || ""}
                                             onChange={(event) => updateField(item.showing_id, "notes", event.target.value)}
                                             rows={3}
-                                            className="w-60 rounded p-1"
+                                            className="w-full input-table"
                                         />
                                     </td>
-                                    <td className="border border-gray-300 p-2">
+                                    <td className="text-edit-table">
                                         <textarea
                                             value={item.availabilityText || ""}
                                             onChange={(event) => updateField(item.showing_id, "availabilityText", event.target.value)}
                                             rows={3}
                                             placeholder="YYYY-MM-DD HH:MM-HH:MM"
-                                            className="w-40 rounded p-1"
+                                            className="w-full input-table"
                                         />
                                     </td>
-                                    <td className="border border-gray-300 p-2 text-center">
+                                    <td className="text-edit-table text-center">
                                         <input
                                             type="checkbox"
                                             checked={Boolean(item.open)}
                                             onChange={(event) => updateField(item.showing_id, "open", event.target.checked)}
                                         />
                                     </td>
-                                    <td className="border border-gray-300 p-2">
-                                        <div className="flex flex-col items-center gap-2">
+                                    <td className="text-edit-table">
+                                        <div className="flex flex-col gap-2">
                                             <button
                                                 type="button"
                                                 onClick={() => saveRequest(item)}
+                                                aria-label={savingId === item.showing_id ? "Saving..." : "Save"}
                                                 disabled={savingId === item.showing_id || !rowDirty || deletingId === item.showing_id}
-                                                className={`rounded px-3 py-1 text-white disabled:opacity-60 ${rowDirty ? "bg-blue-950 hover:bg-blue-800" : "bg-gray-400 cursor-not-allowed"
-                                                    }`}
+                                                className="btn-save"
                                             >
-                                                {savingId === item.showing_id ? "Saving..." : "Save"}
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0 1 10.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0 .229 2.523a1.125 1.125 0 0 1-1.12 1.227H7.231c-.662 0-1.18-.568-1.12-1.227L6.34 18m11.318 0h1.091A2.25 2.25 0 0 0 21 15.75V9.456c0-1.081-.768-2.015-1.837-2.175a48.055 48.055 0 0 0-1.913-.247M6.34 18H5.25A2.25 2.25 0 0 1 3 15.75V9.456c0-1.081.768-2.015 1.837-2.175a48.041 48.041 0 0 1 1.913-.247m10.5 0a48.536 48.536 0 0 0-10.5 0m10.5 0V3.375c0-.621-.504-1.125-1.125-1.125h-8.25c-.621 0-1.125.504-1.125 1.125v3.659M18 10.5h.008v.008H18V10.5Zm-3 0h.008v.008H15V10.5Z" />
+                                                </svg>
                                             </button>
                                             <button
                                                 type="button"
                                                 onClick={() => deleteRequest(item)}
                                                 disabled={deletingId === item.showing_id || savingId === item.showing_id}
-                                                className="rounded border border-red-200 px-3 py-1 text-red-700 hover:bg-red-50 disabled:opacity-50"
+                                                className="btn-delete"
                                             >
-                                                {deletingId === item.showing_id ? "Deleting..." : "Delete"}
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                                                </svg>
                                             </button>
                                         </div>
                                     </td>
