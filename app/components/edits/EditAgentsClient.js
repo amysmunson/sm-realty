@@ -28,6 +28,33 @@ function normalizeAgent(agent) {
     };
 }
 
+function createAgentId() {
+    return globalThis.crypto?.randomUUID?.() || String(Date.now());
+}
+
+function getAgentPhotoPublicUrl(fileName) {
+    if (!fileName) {
+        return null;
+    }
+
+    const { data } = supabase.storage.from("photo_bucket").getPublicUrl(fileName);
+    return data?.publicUrl || null;
+}
+
+function buildAgentStorageFileName(agentId, originalName) {
+    const extensionMatch = originalName.match(/\.[a-zA-Z0-9]+$/);
+    const extension = extensionMatch ? extensionMatch[0].toLowerCase() : "";
+    const baseName = originalName
+        .replace(/\.[^/.]+$/, "")
+        .toLowerCase()
+        .replace(/[^a-z0-9-_]+/g, "-")
+        .replace(/^-+|-+$/g, "")
+        .slice(0, 64);
+
+    const safeBaseName = baseName || "agent";
+    return `agents/${agentId}/${Date.now()}-${safeBaseName}${extension}`;
+}
+
 export default function EditAgentsClient() {
     const router = useRouter();
     const { userId, loading: userLoading } = useCurrentUserId();
@@ -40,6 +67,12 @@ export default function EditAgentsClient() {
     const [savingId, setSavingId] = useState(null);
     const [deletingId, setDeletingId] = useState(null);
     const [addingRow, setAddingRow] = useState(false);
+    const [photoAgent, setPhotoAgent] = useState(null);
+    const [photoWorking, setPhotoWorking] = useState(false);
+    const [photoError, setPhotoError] = useState("");
+    const [photoPreviewUrl, setPhotoPreviewUrl] = useState("");
+    const [photoFile, setPhotoFile] = useState(null);
+    const photoInputRef = useRef(null);
 
     // On mount, check if user is authorized to view this page and load agents if so. Redirect if not authorized.
     useEffect(() => {
@@ -81,7 +114,7 @@ export default function EditAgentsClient() {
 
             const { data, error: agentsError } = await supabase
                 .from("agents")
-                .select("id,name,email,phone,license,dre_num")
+                .select("id,name,email,phone,license,dre_num,photo_file_name")
                 .order("name", { ascending: true });
 
             if (!active) {
@@ -141,6 +174,104 @@ export default function EditAgentsClient() {
         return () => setComponentUnsaved(_unsavedId.current, false);
     }, [hasUnsavedChanges]);
 
+    useEffect(() => {
+        return () => {
+            if (photoPreviewUrl.startsWith("blob:")) {
+                URL.revokeObjectURL(photoPreviewUrl);
+            }
+        };
+    }, [photoPreviewUrl]);
+
+    function openPhotoModal(item) {
+        setPhotoAgent(item);
+        setPhotoError("");
+        setPhotoFile(null);
+        setPhotoPreviewUrl("");
+
+        if (photoInputRef.current) {
+            photoInputRef.current.value = "";
+        }
+    }
+
+    function closePhotoModal() {
+        if (photoPreviewUrl.startsWith("blob:")) {
+            URL.revokeObjectURL(photoPreviewUrl);
+        }
+
+        setPhotoAgent(null);
+        setPhotoWorking(false);
+        setPhotoError("");
+        setPhotoFile(null);
+        setPhotoPreviewUrl("");
+
+        if (photoInputRef.current) {
+            photoInputRef.current.value = "";
+        }
+    }
+
+    function handlePhotoFileChange(event) {
+        const file = event.target.files?.[0];
+
+        if (!file) {
+            return;
+        }
+
+        if (photoPreviewUrl.startsWith("blob:")) {
+            URL.revokeObjectURL(photoPreviewUrl);
+        }
+
+        setPhotoFile(file);
+        setPhotoPreviewUrl(URL.createObjectURL(file));
+        setPhotoError("");
+    }
+
+    async function saveAgentPhoto() {
+        if (!photoAgent || !photoFile || photoWorking) {
+            return;
+        }
+
+        setPhotoWorking(true);
+        setPhotoError("");
+
+        const storageFileName = buildAgentStorageFileName(photoAgent.id, photoFile.name);
+        const { error: uploadError } = await supabase.storage
+            .from("photo_bucket")
+            .upload(storageFileName, photoFile, { upsert: false });
+
+        if (uploadError) {
+            setPhotoError(uploadError.message || "Unable to upload agent photo.");
+            setPhotoWorking(false);
+            return;
+        }
+
+        const previousFileName = photoAgent.photo_file_name || null;
+        const { error: updateError } = await supabase
+            .from("agents")
+            .update({ photo_file_name: storageFileName })
+            .eq("id", photoAgent.id);
+
+        if (updateError) {
+            await supabase.storage.from("photo_bucket").remove([storageFileName]);
+            setPhotoError(updateError.message || "Unable to save agent photo.");
+            setPhotoWorking(false);
+            return;
+        }
+
+        if (previousFileName && previousFileName !== storageFileName) {
+            await supabase.storage.from("photo_bucket").remove([previousFileName]);
+        }
+
+        setAgents((prev) =>
+            prev.map((agent) =>
+                agent.id === photoAgent.id
+                    ? { ...agent, photo_file_name: storageFileName }
+                    : agent
+            )
+        );
+
+        closePhotoModal();
+    }
+
     // Helper functions for changes to an agent via DB request
     async function saveAgent(item) {
         setSavingId(item.id);
@@ -182,13 +313,15 @@ export default function EditAgentsClient() {
         const { data, error: insertError } = await supabase
             .from("agents")
             .insert({
+                id: createAgentId(),
                 name: null,
                 email: null,
                 phone: null,
                 license: null,
                 dre_num: null,
+                photo_file_name: null,
             })
-            .select("id,name,email,phone,license,dre_num")
+            .select("id,name,email,phone,license,dre_num,photo_file_name")
             .single();
 
         if (insertError || !data) {
@@ -219,12 +352,23 @@ export default function EditAgentsClient() {
         setDeletingId(item.id);
         setError("");
 
+        const previousFileName = item.photo_file_name || null;
+
         const { error: deleteError } = await supabase.from("agents").delete().eq("id", item.id);
 
         if (deleteError) {
             setError(deleteError.message || "Unable to delete agent.");
             setDeletingId(null);
             return;
+        }
+
+        // Remove photo from storage if present. If storage removal fails, report it but
+        // the agent row has already been removed from the DB.
+        if (previousFileName) {
+            const { error: storageError } = await supabase.storage.from("photo_bucket").remove([previousFileName]);
+            if (storageError) {
+                setError(storageError.message || "Agent deleted but failed to remove photo from storage.");
+            }
         }
 
         setAgents((prev) => prev.filter((agent) => agent.id !== item.id));
@@ -298,44 +442,59 @@ export default function EditAgentsClient() {
                                         <input
                                             type="text"
                                             value={item.name || ""}
+                                            placeholder="Name"
                                             onChange={(event) => updateField(item.id, "name", event.target.value)}
-                                            className="w-44 input-table"
+                                            className="w-full input-table"
                                         />
                                     </td>
                                     <td className="text-edit-table">
                                         <input
                                             type="email"
                                             value={item.email || ""}
+                                            placeholder="Email"
                                             onChange={(event) => updateField(item.id, "email", event.target.value)}
-                                            className="w-56 input-table"
+                                            className="w-full input-table"
                                         />
                                     </td>
                                     <td className="text-edit-table">
                                         <input
                                             type="text"
                                             value={item.phone || ""}
+                                            placeholder="Phone"
                                             onChange={(event) => updateField(item.id, "phone", event.target.value)}
-                                            className="w-40 input-table"
+                                            className="w-full input-table"
                                         />
                                     </td>
                                     <td className="text-edit-table">
                                         <input
                                             type="text"
                                             value={item.license || ""}
+                                            placeholder="License Type"
                                             onChange={(event) => updateField(item.id, "license", event.target.value)}
-                                            className="w-40 input-table"
+                                            className="w-full input-table"
                                         />
                                     </td>
                                     <td className="text-edit-table">
                                         <input
                                             type="text"
                                             value={item.dre_num || ""}
+                                            placeholder="DRE License Number"
                                             onChange={(event) => updateField(item.id, "dre_num", event.target.value)}
-                                            className="w-32 input-table"
+                                            className="w-full input-table"
                                         />
                                     </td>
                                     <td className="text-edit-table">
                                         <div className="flex flex-col gap-2">
+                                            <button
+                                                type="button"
+                                                onClick={() => openPhotoModal(item)}
+                                                disabled={deletingId === item.id || savingId === item.id}
+                                                className="btn-secondary-blue py-1 px-1 text-xs justify-center flex"
+                                            >
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
+                                                </svg>
+                                            </button>
                                             <button
                                                 type="button"
                                                 onClick={() => saveAgent(item)}
@@ -365,6 +524,93 @@ export default function EditAgentsClient() {
                     </tbody>
                 </table>
             </div>
+
+            {photoAgent ? (
+                <div
+                    className="fixed inset-0 z-60 flex items-center justify-center bg-black/55 p-4"
+                    onClick={closePhotoModal}
+                >
+                    <div
+                        className="max-h-[92vh] w-full max-w-3xl overflow-hidden rounded-lg bg-white shadow-2xl"
+                        onClick={(event) => event.stopPropagation()}
+                    >
+                        <div className="flex items-center justify-between border-b border-gray-200 px-5 py-4">
+                            <div>
+                                <h2 className="heading-modal">Agent Photo</h2>
+                                <p className="text-sm text-gray-600">{photoAgent.name || "Unnamed agent"}</p>
+                            </div>
+                            <button type="button" onClick={closePhotoModal} className="btn-close">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+
+                        <div className="max-h-[68vh] overflow-y-auto px-5 py-4 space-y-4">
+                            {photoError ? (
+                                <p className="banner-error mb-4">{photoError}</p>
+                            ) : null}
+
+                            <div className="card-modal-section space-y-4">
+                                <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
+                                    <div className="flex h-56 w-full items-center justify-center overflow-hidden rounded-lg border border-slate-200 bg-slate-50 sm:w-56">
+                                        {photoPreviewUrl || photoAgent.photo_file_name ? (
+                                            <img
+                                                src={photoPreviewUrl || getAgentPhotoPublicUrl(photoAgent.photo_file_name)}
+                                                alt={photoAgent.name || "Agent photo"}
+                                                className="h-full w-full object-cover"
+                                            />
+                                        ) : (
+                                            <div className="flex h-full w-full items-center justify-center text-sm text-slate-500">
+                                                No photo selected
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    <div className="flex-1 space-y-4">
+                                        <div>
+                                            <p className="text-sm font-medium text-slate-900">Upload Agent Photo</p>
+                                            <p className="mt-1 text-sm text-slate-600">
+                                                Uploading a new photo replaces the existing one.
+                                            </p>
+                                        </div>
+
+                                        <label className="btn-secondary-blue inline-flex items-center rounded-full">
+                                            <div className="flex items-center gap-2">
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                                                <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
+                                            </svg>
+                                            <span>Upload</span>
+                                            </div>
+                                            <input
+                                                ref={photoInputRef}
+                                                type="file"
+                                                accept="image/*"
+                                                onChange={handlePhotoFileChange}
+                                                className="hidden"
+                                            />
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="flex items-center justify-end gap-3 border-t border-gray-200 px-5 py-4">
+                            <button type="button" onClick={closePhotoModal} className="btn-secondary-blue py-1 px-2">
+                                Cancel
+                            </button>
+                            <button
+                                type="button"
+                                onClick={saveAgentPhoto}
+                                disabled={!photoFile || photoWorking}
+                                className="btn-primary py-1 px-2"
+                            >
+                                {photoWorking ? "Uploading..." : "Save Photo"}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            ) : null}
         </div>
     );
 }
